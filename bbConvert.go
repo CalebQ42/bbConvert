@@ -54,7 +54,7 @@ func toHTML(str string) string{
         return str
     }
     if len(str) - len(tmp) >1{
-        str = "[" + convert(str[1:len(str)-len(tmp)]) + tmp
+        str = "[" + Convert(str[1:len(str)-len(tmp)]) + tmp
     }
     str = bbToTag(str,beg)
     return str

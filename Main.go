@@ -123,6 +123,10 @@ func bbToTag(str,bb string) string{
         }
         if style["width"]!=""&&style["height"]!=""{
             str = "<img style='float:left;width:"+style["width"]+";height:"+style["height"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
+        }else if style["width"]!=""{
+            str = "<img style='float:left;width:"+style["width"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
+        }else if style["height"]!=""{
+            str = "<img style='float:left;width:"+style["height"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
         }
     }else if bb=="b" || bb=="i" || bb=="u" || bb=="s"{
         str = strings.Replace(str[:4],"[","<",1) + str[4:]

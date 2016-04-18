@@ -49,7 +49,7 @@ func toHTML(str string) string{
     if beg != end{
         return str
     }
-    if beg =="url"||beg=="quote"||beg=="color"||beg=="style"{
+    if beg =="url"||beg=="quote"||beg=="color"||beg=="style"||beg=="img"{
         for i,v := range str{
             if v ==']'{
                 beg = str[1:i]
@@ -75,7 +75,34 @@ func isBBTag(str string) bool{
 
 func bbToTag(str,bb string) string{
     if bb=="img"{
-        str = "<img style='float:left;width:20%;' src='" + str[5:len(str)-6] + "'/>"
+        str = "<img style='float:left;width:20%;' src='" + str[5:len(str)-len(bb)] + "'/>"
+    }else if strings.HasPrefix(bb,"img"){
+        style := make(map[string]string)
+        if strings.HasPrefix(bb,"img="){
+            var sz string
+            for i:=5;i<len(bb);i++{
+                if bb[i]==' '{
+                    sz= bb[4:i]
+                }else if i==len(bb)-1{
+                    sz=bb[4:i+1]
+                }
+            }
+            fmt.Println("Beginning Size: "+sz)
+            w,h := sz[:strings.Index(sz,"x")],sz[strings.Index(sz,"x")+1:]
+            style["height"] = h
+            style["width"] = w
+        }
+        if strings.Contains(bb,"width="){
+            var sz string
+            for i:=strings.Index(bb,"width=")+6;i<len(bb);i++{
+                if bb[i]==' '{
+                    sz= bb[strings.Index(bb,"width=")+6:i]
+                }else if i==len(bb)-1{
+                    sz=bb[strings.Index(bb,"width=")+6:i+1]
+                }
+            }
+            style["width"]=sz
+        }
     }else if bb=="b" || bb=="i" || bb=="u" || bb=="s"{
         str = strings.Replace(str[:4],"[","<",1) + str[4:]
         str = strings.Replace(str[:4],"]",">",1) + str[4:]

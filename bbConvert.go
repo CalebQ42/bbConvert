@@ -2,6 +2,7 @@ package bbConvert
 
 import(
     "strings"
+    "fmt"
 )
 
 //Takes in a string with BBCode and exports a string with HTML

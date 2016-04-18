@@ -10,26 +10,18 @@ func main(){
     flag.Parse()
     in := flag.Args()[0]
     out := convert(in)
-    fmt.Print(out)
+    fmt.Println(out)
 }
 
 func convert(str string) string{
-    nd := -1
     for i:=0;i<len(str);i++{
-        v := str[i]
-        if v == '['{
-            for j:= len(str)-1;j>-1;j--{
+        if str[i]=='['{
+            for j:=i;j<len(str);j++{
                 if str[j]==']'{
-                    nd = j
-                    break
-                }
-            }
-            if nd!=-1{
-                tmp := toHTML(str[i:nd+1])
-                if str[i:nd+1]!=tmp{
-                    str = str[:i] + tmp + str[nd+1:]
-                    i = 0
-                    nd = -1
+                    tmp := toHTML(str[i:j+1])
+                    if tmp != str[i:j+1]{
+                        str = str[:i] + tmp + str[j+1:]
+                    }
                 }
             }
         }
@@ -38,6 +30,7 @@ func convert(str string) string{
 }
 
 func toHTML(str string) string{
+    fmt.Println("In: "+str)
     var beg,end string
     for i,v := range str{
         if v ==']' || v==' ' || v=='='{

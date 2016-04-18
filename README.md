@@ -13,3 +13,7 @@ It works and currently has support for:
     [img]http://apage.com/image.png[/img]
     [url]http://apage.com[/url]
     [url=http://apage.com]link[/here]
+    [img=500x200]http://apage.com/image.png[/img]
+    [img height=200 width=500]http://apage.com/image.png[/img]
+
+If both img= and height=/width= are present, height=/width= takes precedence

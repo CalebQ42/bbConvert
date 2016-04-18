@@ -87,21 +87,42 @@ func bbToTag(str,bb string) string{
                     sz=bb[4:i+1]
                 }
             }
-            fmt.Println("Beginning Size: "+sz)
             w,h := sz[:strings.Index(sz,"x")],sz[strings.Index(sz,"x")+1:]
             style["height"] = h
             style["width"] = w
         }
         if strings.Contains(bb,"width="){
             var sz string
-            for i:=strings.Index(bb,"width=")+6;i<len(bb);i++{
-                if bb[i]==' '{
+            for i:=strings.Index(bb,"width=")+7;i<len(bb);i++{
+                if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
                     sz= bb[strings.Index(bb,"width=")+6:i]
+                    break;
                 }else if i==len(bb)-1{
                     sz=bb[strings.Index(bb,"width=")+6:i+1]
+                    break;
                 }
             }
+            sz = strings.Replace(sz,"\"","",-1)
+            sz = strings.Replace(sz,"'","",-1)
             style["width"]=sz
+        }
+        if strings.Contains(bb,"height="){
+            var sz string
+            for i:=strings.Index(bb,"height=")+7;i<len(bb);i++{
+                if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
+                    sz= bb[strings.Index(bb,"height=")+7:i]
+                    break;
+                }else if i==len(bb)-1{
+                    sz=bb[strings.Index(bb,"height=")+7:i+1]
+                    break;
+                }
+            }
+            sz = strings.Replace(sz,"\"","",-1)
+            sz = strings.Replace(sz,"'","",-1)
+            style["height"]=sz
+        }
+        if style["width"]!=""&&style["height"]!=""{
+            str = "<img style='float:left;width:"+style["width"]+";height:"+style["height"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
         }
     }else if bb=="b" || bb=="i" || bb=="u" || bb=="s"{
         str = strings.Replace(str[:4],"[","<",1) + str[4:]

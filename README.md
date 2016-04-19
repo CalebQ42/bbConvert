@@ -25,4 +25,4 @@ It currently has support for:
     [img title="This shows up when hovering over the picture"]image URL[/img]
 
 If both img= and height=/width= are present, height=/width= takes precedence
-More is to come
+More is to come (probably)

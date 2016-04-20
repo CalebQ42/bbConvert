@@ -1,8 +1,10 @@
+//An easy way to convert BBCode to HTML with Go.
 package bbConvert
 
 import(
     "strings"
     "fmt"
+    "strconv"
 )
 
 //Takes in a string with BBCode and exports a string with HTML
@@ -23,7 +25,6 @@ func Convert(str string) string{
 }
 
 func toHTML(str string) string{
-    fmt.Println("In: "+str)
     var beg,end string
     for i,v := range str{
         if v ==']' || v==' ' || v=='='{
@@ -42,12 +43,10 @@ func toHTML(str string) string{
     if beg != end{
         return str
     }
-    if beg =="url"||beg=="quote"||beg=="color"||beg=="style"||beg=="img"{
-        for i,v := range str{
-            if v ==']'{
-                beg = str[1:i]
-                break
-            }
+    for i,v := range str{
+        if v ==']'{
+            beg = str[1:i]
+            break
         }
     }
     if strings.HasPrefix(tmp,"[/") && strings.HasSuffix(tmp,"]") && !isBBTag(tmp[2:len(tmp)-1]){
@@ -70,7 +69,10 @@ func bbToTag(str,bb string) string{
     if bb=="img"{
         str = "<img style='float:left;width:20%;' src='" + str[5:len(str)-len(bb)] + "'/>"
     }else if strings.HasPrefix(bb,"img"){
+        tagness := ""
         style := make(map[string]string)
+        style["float"]="left"
+        other := make(map[string]string)
         if strings.HasPrefix(bb,"img="){
             var sz string
             for i:=5;i<len(bb);i++{
@@ -83,6 +85,28 @@ func bbToTag(str,bb string) string{
             w,h := sz[:strings.Index(sz,"x")],sz[strings.Index(sz,"x")+1:]
             style["height"] = h
             style["width"] = w
+        }
+        if strings.Contains(bb,"alt=\"")||strings.Contains(bb,"alt='"){
+            fmt.Println("Alt Found!")
+            other["altBegin"]=strconv.Itoa(strings.Index(bb,"alt="))
+            fmt.Println("beginning char = "+string(bb[strings.Index(bb,"alt=")+4]))
+            for i:=strings.Index(bb,"alt=")+5;i<len(bb);i++{
+                if (bb[i]==bb[strings.Index(bb,"alt=")+4]&&bb[i-1]!='\\')||bb[i]==']'{
+                    fmt.Println("Found End = "+string(bb[i])+ " At: "+strconv.Itoa(i))
+                    fmt.Println(bb[strings.Index(bb,"alt="):i])
+                    other["alt"]=bb[strings.Index(bb,"alt=")+5:i]
+                    break
+                }
+            }
+        }
+        if strings.Contains(bb,"title=\"")||strings.Contains(bb,"title='"){
+            other["titleBegin"]=strconv.Itoa(strings.Index(bb,"title="))
+            for i:=strings.Index(bb,"title=")+7;i<len(bb);i++{
+                if (bb[i]==bb[strings.Index(bb,"title=")+6]&&bb[i-1]!='\\')||bb[i]==']'{
+                    other["title"]=bb[strings.Index(bb,"title=")+7:i]
+                    break
+                }
+            }
         }
         if strings.Contains(bb,"width="){
             var sz string
@@ -114,21 +138,25 @@ func bbToTag(str,bb string) string{
             sz = strings.Replace(sz,"'","",-1)
             style["height"]=sz
         }
-        if strings.Contains(bb,"alt=\"")||strings.Contains(bb,"alt='"){
-            
+        if strings.Contains(bb,"left"){
+            style["float"]="left"
+        }else if strings.Contains(bb,"right"){
+            style["float"]="right"
         }
-        if style["width"]!=""&&style["height"]!=""{
-            str = "<img style='float:left;width:"+style["width"]+";height:"+style["height"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
-        }else if style["width"]!=""{
-            str = "<img style='float:left;width:"+style["width"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
-        }else if style["height"]!=""{
-            str = "<img style='float:left;width:"+style["height"]+";' src='" + str[len(bb)+2:len(str)-6] + "'/>"
+        tagness = " style='"
+        for i,v := range style{
+            tagness += i + ":" + v + ";"
         }
+        tagness += "'"
+        if other["alt"]!=""{
+            tagness += " alt='"+other["alt"]+"'"
+        }
+        if other["title"]!=""{
+            tagness += " title='"+other["title"]+"'"
+        }
+        str = "<img"+tagness+" src='"+str[len(bb)+2:len(str)-6]+"'/>"
     }else if bb=="b" || bb=="i" || bb=="u" || bb=="s"{
-        str = strings.Replace(str[:4],"[","<",1) + str[4:]
-        str = strings.Replace(str[:4],"]",">",1) + str[4:]
-        str = str[:len(str)-4] + strings.Replace(str[len(str)-4:],"[","<",1)
-        str = str[:len(str)-4] + strings.Replace(str[len(str)-4:],"]",">",1)
+        str = "<"+bb+">"+str[3:len(str)-4]+"</"+bb+">"
     }else if bb=="url"{
         str = "<a href='" + str[5:len(str)-6] + "'>" + str[5:len(str)-6] + "</a>"
     }else if strings.HasPrefix(bb,"url="){

@@ -3,8 +3,6 @@ package bbConvert
 
 import(
     "strings"
-    "fmt"
-    "strconv"
 )
 
 //Takes in a string with BBCode and exports a string with HTML
@@ -73,6 +71,7 @@ func bbToTag(str,bb string) string{
         style := make(map[string]string)
         style["float"]="left"
         other := make(map[string]string)
+        pos := make(map[string]int)
         if strings.HasPrefix(bb,"img="){
             var sz string
             for i:=5;i<len(bb);i++{
@@ -87,61 +86,95 @@ func bbToTag(str,bb string) string{
             style["width"] = w
         }
         if strings.Contains(bb,"alt=\"")||strings.Contains(bb,"alt='"){
-            fmt.Println("Alt Found!")
-            other["altBegin"]=strconv.Itoa(strings.Index(bb,"alt="))
-            fmt.Println("beginning char = "+string(bb[strings.Index(bb,"alt=")+4]))
+            pos["alt"]=strings.Index(bb,"alt=")
             for i:=strings.Index(bb,"alt=")+5;i<len(bb);i++{
                 if (bb[i]==bb[strings.Index(bb,"alt=")+4]&&bb[i-1]!='\\')||bb[i]==']'{
-                    fmt.Println("Found End = "+string(bb[i])+ " At: "+strconv.Itoa(i))
-                    fmt.Println(bb[strings.Index(bb,"alt="):i])
                     other["alt"]=bb[strings.Index(bb,"alt=")+5:i]
+                    pos["altEnd"]=i
                     break
                 }
             }
         }
         if strings.Contains(bb,"title=\"")||strings.Contains(bb,"title='"){
-            other["titleBegin"]=strconv.Itoa(strings.Index(bb,"title="))
+            pos["title"]=strings.Index(bb,"title=")
             for i:=strings.Index(bb,"title=")+7;i<len(bb);i++{
                 if (bb[i]==bb[strings.Index(bb,"title=")+6]&&bb[i-1]!='\\')||bb[i]==']'{
                     other["title"]=bb[strings.Index(bb,"title=")+7:i]
+                    pos["titleEnd"]=i
                     break
                 }
             }
         }
         if strings.Contains(bb,"width="){
-            var sz string
-            for i:=strings.Index(bb,"width=")+7;i<len(bb);i++{
-                if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
-                    sz= bb[strings.Index(bb,"width=")+6:i]
-                    break;
-                }else if i==len(bb)-1{
-                    sz=bb[strings.Index(bb,"width=")+6:i+1]
-                    break;
+            if (pos["alt"] == 0 || strings.Index(bb,"width=") < pos["alt"]) && (pos["title"] ==0 || strings.Index(bb,"width=") < pos["title"]){
+                var sz string
+                for i:=strings.Index(bb,"width=")+7;i<len(bb);i++{
+                    if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
+                        sz= bb[strings.Index(bb,"width=")+6:i]
+                        break;
+                    }else if i==len(bb)-1{
+                        sz=bb[strings.Index(bb,"width=")+6:i+1]
+                        break;
+                    }
                 }
+                sz = strings.Replace(sz,"\"","",-1)
+                sz = strings.Replace(sz,"'","",-1)
+                style["width"]=sz
+            }else if (pos["altEnd"] == 0 || strings.LastIndex(bb,"width=") > pos["altEnd"]) && (pos["titleEnd"] ==0 || strings.LastIndex(bb,"width=") > pos["titleEnd"]){
+                var sz string
+                for i:=strings.LastIndex(bb,"width=")+7;i<len(bb);i++{
+                    if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
+                        sz= bb[strings.LastIndex(bb,"width=")+6:i]
+                        break;
+                    }else if i==len(bb)-1{
+                        sz=bb[strings.LastIndex(bb,"width=")+6:i+1]
+                        break;
+                    }
+                }
+                sz = strings.Replace(sz,"\"","",-1)
+                sz = strings.Replace(sz,"'","",-1)
+                style["width"]=sz
             }
-            sz = strings.Replace(sz,"\"","",-1)
-            sz = strings.Replace(sz,"'","",-1)
-            style["width"]=sz
         }
         if strings.Contains(bb,"height="){
-            var sz string
-            for i:=strings.Index(bb,"height=")+7;i<len(bb);i++{
-                if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
-                    sz= bb[strings.Index(bb,"height=")+7:i]
-                    break;
-                }else if i==len(bb)-1{
-                    sz=bb[strings.Index(bb,"height=")+7:i+1]
-                    break;
+            if (pos["alt"]==0 || strings.Index(bb,"height=") < pos["alt"]) && (pos["title"]==0 || strings.Index(bb,"height=") < pos["title"]){
+                var sz string
+                for i:=strings.Index(bb,"height=")+7;i<len(bb);i++{
+                    if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
+                        sz= bb[strings.Index(bb,"height=")+7:i]
+                        break;
+                    }else if i==len(bb)-1{
+                        sz=bb[strings.Index(bb,"height=")+7:i+1]
+                        break;
+                    }
                 }
+                sz = strings.Replace(sz,"\"","",-1)
+                sz = strings.Replace(sz,"'","",-1)
+                style["height"]=sz
+            }else if (pos["altEnd"]==0 || strings.LastIndex(bb,"height=") > pos["altEnd"]) && (pos["titleEnd"]==0 || strings.LastIndex(bb,"height=") > pos["titleEnd"]){
+                var sz string
+                for i:=strings.LastIndex(bb,"height=")+7;i<len(bb);i++{
+                    if bb[i]==' '||bb[i]=='"'||bb[i]=='\''{
+                        sz= bb[strings.LastIndex(bb,"height=")+7:i]
+                        break;
+                    }else if i==len(bb)-1{
+                        sz=bb[strings.LastIndex(bb,"height=")+7:i+1]
+                        break;
+                    }
+                }
+                sz = strings.Replace(sz,"\"","",-1)
+                sz = strings.Replace(sz,"'","",-1)
+                style["height"]=sz
             }
-            sz = strings.Replace(sz,"\"","",-1)
-            sz = strings.Replace(sz,"'","",-1)
-            style["height"]=sz
         }
         if strings.Contains(bb,"left"){
-            style["float"]="left"
+            if ((pos["alt"]==0 || strings.Index(bb,"left") < pos["alt"]) && (pos["title"]==0 || strings.Index(bb,"left") < pos["title"])) || ((pos["altEnd"]==0 || strings.LastIndex(bb,"left") > pos["altEnd"]) && (pos["titleEnd"]==0 || strings.LastIndex(bb,"left") > pos["titleEnd"])){
+                style["float"]="left"
+            }
         }else if strings.Contains(bb,"right"){
-            style["float"]="right"
+            if ((pos["alt"]==0 || strings.Index(bb,"right") < pos["alt"]) && (pos["title"]==0 || strings.Index(bb,"right") < pos["title"])) || ((pos["altEnd"]==0 || strings.LastIndex(bb,"right") > pos["altEnd"]) && (pos["titleEnd"]==0 || strings.LastIndex(bb,"right") > pos["titleEnd"])){
+                style["float"]="right"
+            }
         }
         tagness = " style='"
         for i,v := range style{

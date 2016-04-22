@@ -20,12 +20,21 @@ It currently has support for:
     [img right]This image is floated right[/img]
     [img alt="Alternate for if picture doesn't show up"]image URL[/img]
     [img title="This shows up when hovering over the picture"]image URL[/img]
+    [youtube]https://www.youtube.com/watch?v=U-G4TZzVeZ0[/youtube]
+    [youtube]https://youtu.be/U-G4TZzVeZ0[/youtube]
+    [youtube]U-G4TZzVeZ0[/youtube]
     
 If both img= and height=/width= are present, height=/width= takes precedence. Support for more BB is coming (probably).
 
+If left unspecified then an img is set to width=20% and float=left
+
+If left unspecified then youtube sets height=315 height=560
+
 #Todo
 
-    [youtube]Youtube URL[/youtube]
+    [youtube height=200 width=500]Youtube URL[/youtube]
+    [youtube left]U-G4TZzVeZ0[/youtube]
+    [youtube right]U-G4TZzVeZ0[/youtube]
     [url=http://apage.com title="A Title"]link[/url]
 
 Get rid of debugging Println's

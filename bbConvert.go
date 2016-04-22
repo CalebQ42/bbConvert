@@ -3,6 +3,7 @@ package bbConvert
 
 import(
     "strings"
+    "fmt"
 )
 
 //Takes in a string with BBCode and exports a string with HTML
@@ -50,22 +51,22 @@ func toHTML(str string) string{
     if strings.HasPrefix(tmp,"[/") && strings.HasSuffix(tmp,"]") && !isBBTag(tmp[2:len(tmp)-1]){
         return str
     }
-    if len(str) - len(tmp) >1{
-        str = "[" + Convert(str[1:len(str)-len(tmp)]) + tmp
-    }
-    str = bbToTag(str,beg)
+    fmt.Println(str[len(beg)+2:len(str)-len(tmp)])
+    str = bbToTag(str[len(beg)+2:len(str)-len(tmp)],beg)
     return str
 }
 
 func isBBTag(str string) bool{
     str = strings.ToLower(str)
-    tf := str=="b"||str=="i"||str=="u"||str=="s"||str=="url"||str=="img"||str=="quote"||str=="style"||str=="color"
+    tf := str=="b"||str=="i"||str=="u"||str=="s"||str=="url"||str=="img"||str=="quote"||str=="style"||str=="color"||str=="youtube"
     return tf
 }
 
-func bbToTag(str,bb string) string{
+func bbToTag(in,bb string) string{
+    fmt.Println("In: "+in)
+    var str string
     if bb=="img"{
-        str = "<img style='float:left;width:20%;' src='" + str[5:len(str)-len(bb)] + "'/>"
+        str = "<img style='float:left;width:20%;' src='" + in + "'/>"
     }else if strings.HasPrefix(bb,"img"){
         tagness := ""
         style := make(map[string]string)
@@ -187,19 +188,40 @@ func bbToTag(str,bb string) string{
         if other["title"]!=""{
             tagness += " title='"+other["title"]+"'"
         }
-        str = "<img"+tagness+" src='"+str[len(bb)+2:len(str)-6]+"'/>"
+        str = "<img"+tagness+" src='"+in+"'/>"
     }else if bb=="b" || bb=="i" || bb=="u" || bb=="s"{
-        str = "<"+bb+">"+str[3:len(str)-4]+"</"+bb+">"
+        str = "<"+bb+">"+in+"</"+bb+">"
     }else if bb=="url"{
-        str = "<a href='" + str[5:len(str)-6] + "'>" + str[5:len(str)-6] + "</a>"
+        str = "<a href='" + str[5:len(str)-6] + "'>" + in + "</a>"
     }else if strings.HasPrefix(bb,"url="){
-        str = "<a href='" + bb[5:]+"'>" + str[len(bb)+2:len(str)-6] + "</a>"
+        str = "<a href='" + bb[5:]+"'>" + in + "</a>"
     }else if strings.HasPrefix(bb,"color="){
-        str = "<span style='color:" + bb[7:] + ";'>" + str[len(bb)+2:len(str)-8] + "</span>"
+        str = "<span style='color:" + bb[7:] + ";'>" + in + "</span>"
     }else if strings.HasPrefix(bb,"quote=\"")|| strings.HasPrefix(bb,"quote='"){
-        str = "<div class='quote'>"+bb[7:len(bb)-1]+"<blockquote>"+str[len(bb)+2:len(str)-8]+"</blockquote></div>"
+        str = "<div class='quote'>"+bb[7:len(bb)-1]+"<blockquote>"+in+"</blockquote></div>"
     }else if strings.HasPrefix(bb,"quote="){
-        str = "<div class='quote'>"+bb[6:]+"<blockquote>"+str[len(bb)+2:len(str)-8]+"</blockquote></div>"
+        str = "<div class='quote'>"+bb[6:]+"<blockquote>"+in+"</blockquote></div>"
+    }else if bb=="youtube"{
+        fmt.Println("Youtube")
+        parsed:=""
+        if strings.HasPrefix(in,"http://") || strings.HasPrefix(in,"https://") || strings.HasPrefix(in,"youtu"){
+            tmp := in[7:]
+            tmp = strings.Trim(tmp,"/")
+            fmt.Println("TMP: "+tmp)
+            ytb := strings.Split(tmp,"/")
+            fmt.Println(ytb)
+            fmt.Println(ytb[len(ytb)-1])
+            if strings.HasPrefix(ytb[len(ytb)-1],"watch?v="){
+                parsed = ytb[len(ytb)-1][8:]
+            }else{
+                parsed = ytb[len(ytb)-1]
+            }
+        }else{
+            parsed = in
+        }
+        str = "<iframe height='315' width='560' src='https://www.youtube.com/embed/"+parsed+"' frameborder='0' allowfullscreen></iframe>"
+    }else if strings.HasPrefix(bb,"youtube"){
+        
     }
     return str
 }

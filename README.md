@@ -36,6 +36,11 @@ If left unspecified then youtube sets height=315 height=560
     [youtube left]U-G4TZzVeZ0[/youtube]
     [youtube right]U-G4TZzVeZ0[/youtube]
     [url=http://apage.com title="A Title"]link[/url]
+    [title]This will be big[/title]
+    [t1]Same as title[/t1]
+    [t2]Smaller than t1[/t2]
+
+Might make it so that the t's will automatically figure out their size so you could theoretically do [t20] and it be rediculously small
 
 Get rid of debugging Println's
 Go fmt the code (I'm just being lazy right now)

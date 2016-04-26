@@ -21,7 +21,7 @@ func Convert(strs []string, pWrap bool) string{
             for j := i;j<len(strs);j++{
                 tm := strs[j]
                 var tmp string
-                if strings.HasPrefix(tm,"[/ul]") || strings.HasSuffix(tm,"[/ul]"{
+                if strings.HasPrefix(tm,"[/ul]") || strings.HasSuffix(tm,"[/ul]"){
                     for _,val := range strs[i:j+1]{
                         tmp += val
                     }

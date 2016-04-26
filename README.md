@@ -75,4 +75,15 @@ Make youtube video iframes and img's have a specific class so they can easily be
 Look at Test.go for the recommended way to implement this
 
 #Known Issues
+The bellow won't be properly registered as lists
+
+    Some Text[ul]*bullet 1
+    *bullet 2
+    [/ul]
+    
+    [ul]
+    *bullet1
+    *bullet2[/ul]Some Text
+    
+
 if width=, height=, right, or left are present in alt AND title AND are placed inbetween the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)

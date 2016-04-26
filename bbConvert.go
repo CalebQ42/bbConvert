@@ -6,8 +6,71 @@ import(
     "fmt"
 )
 
-//Takes in a string with BBCode and exports a string with HTML
-func Convert(str string) string{
+var(
+    classes string
+    styleness string
+)
+
+//Takes in a string slice (with bbcode) and converts it to proper HTML as a single string
+//If pWrap == true then each part of the slice is surrounded in paragraph tags
+//If pWrap == true and it finds a list, it will wrap the list in paragraph tags
+func Convert(strs []string, pWrap bool) string{
+    parsedStrs := make([]string,0)
+    for _,v := range strs{
+        if strings.HasPrefix(v,"[ul]") || strings.HasPrefix(v,"[ol]"){
+            
+        }else{
+            parsedStrs = append(parsedStrs,v)
+        }
+    }
+    convStrs := make([]string,0)
+    for _,v := range parsedStrs{
+        var tmp string
+        if pWrap{
+            if styleness != ""{
+                tmp += " style='"+styleness+"'"
+            }
+            if classes != ""{
+                tmp += " class='"+classes+"'"
+            }
+            tmp = "<p"+tmp+">"
+        }
+        tmp += bbConv(v) + "</p>"
+        convStrs = append(convStrs,tmp)
+    }
+}
+
+//If pWrap == true, then the paragraphs will have this class
+//Can be called multiple times to add multiple classes
+//Before it's added, all spaces are removed
+func AddParagraphClass(class string){
+    class = strings.Replace(class, " ","",-1)
+    classes += " " + class
+    classes = strings.TrimSpace(classes)
+}
+
+//Removes any classes set for pWrap
+func ClearParagraphClasses(){
+    classes = ""
+}
+
+//Removes any paragraph style set for pWrap
+func ClearParagraphStyle(){
+    styleness = ""
+}
+
+//If pWrap == true then the paragraph will have this in the style= parameter
+//Can be called multiple times to add multiple styles
+//Can be used with the style ending in a semicolon or not
+func AddStyle(style string){
+    if strings.HasSuffix(style,";"){
+        styleness += style
+    }else{
+        styleness += style + ";"
+    }
+}
+
+func bbConv(str string) string{
     for i:=0;i<len(str);i++{
         if str[i]=='['{
             for j:=i;j<len(str);j++{

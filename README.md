@@ -39,14 +39,31 @@ If left unspecified then youtube sets height=315 height=560
     [title]This will be big[/title]
     [t1]Same as title[/t1]
     [t2]Smaller than t1[/t2]
+    [ul]
+    * Item 1
+    * Item 2
+    [/ul]
+    [ol]
+    * Item 1
+    * Item 2
+    [/ol]
+
+Take in a string slice instead of just a single string (Needed for unordered and ordered lists to be implemented properly)
+
+Adding options to set paragraph style and class when wrapped in paragraph tags (should make formating a bit easier)
 
 Might make it so that the t's will automatically figure out their size so you could theoretically do [t20] and it be rediculously small
 
+Redo Test to work with the new code format (including class and style flags)
+
 Get rid of debugging Println's
+
 Go fmt the code (I'm just being lazy right now)
 
 #Example
 Look at Test.go for an easy way to implement this (it  even uses concurrency :) ) with support for multiple arguments and the option to wrap the arguments in paragraph tags.
 
 #Known Issues
+
+
 if width=, height=, right, or left are present in alt AND title AND are placed inbetween the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)

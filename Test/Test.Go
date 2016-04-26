@@ -6,29 +6,19 @@ import(
     "github.com/CalebQ42/bbConvert"
 )
 
-var wrap *bool
-
 func main(){
-    wrap = flag.Bool("p",false,"Wrap each argument in <p> tags, if not present then will combine the arguments to form one large string before processing")
+    wrap := flag.Bool("p",false,"Wrap each argument in <p> tags, if not present then will combine the arguments to form one large string before processing")
+    classes := flag.String("class","","A list of classes for the external paragraph tags of each argument")
+    style := flag.String("style","","The style for the external paragraph tags")
     flag.Parse()
     if len(flag.Args())>=1{
-        ch := make(chan string,len(flag.Args()))
-        out := make([]string,len(flag.Args()))
-        outFin := ""
-        for _,v := range flag.Args(){
-            go multiThreading(ch,v)
+        if *classes != ""{
+            bbConvert.AddParagraphClass(*classes)
         }
-        for range out{
-            outFin += <-ch
+        if *style != ""{
+            bbConvert.AddStyle(*style)
         }
+        outFin := bbConvert.Convert(flag.Args(),*wrap)
         fmt.Println(outFin)
     }
-}
-
-func multiThreading(ch chan string, in string){
-    out := bbConvert.Convert(in)
-    if *wrap{
-        out = "<p>" + out + "</p>"
-    }
-    ch <- out
 }

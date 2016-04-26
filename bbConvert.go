@@ -17,11 +17,11 @@ func Convert(strs []string, pWrap bool) string{
     parsedStrs := make([]string,0)
     for i:= 0;i<len(strs);i++{
         v := strs[i]
-        if strings.HasPrefix(v,"[ul]") ||strings.HasSuffix(v,"[ul]"){
+        if strings.Contains(v,"[ul]"){
             for j := i;j<len(strs);j++{
                 tm := strs[j]
                 var tmp string
-                if strings.HasPrefix(tm,"[/ul]") || strings.HasSuffix(tm,"[/ul]"){
+                if strings.Contains(tm,"[/ul]"){
                     for _,val := range strs[i:j+1]{
                         tmp += val
                     }
@@ -30,11 +30,11 @@ func Convert(strs []string, pWrap bool) string{
                     break
                 }
             }
-        }else if strings.HasPrefix(v,"[ol]") ||strings.HasSuffix(v,"[ol]"){
+        }else if strings.Contains(v,"[ol]"){
             for j := i;j<len(strs);j++{
                 tm := strs[j]
                 var tmp string
-                if strings.HasPrefix(tm,"[/ol]") || strings.HasSuffix(tm,"[/ol]"){
+                if strings.Contains(tm,"[/ol]"){
                     for _,val := range strs[i:j+1]{
                         tmp += val
                     }

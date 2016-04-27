@@ -23,7 +23,10 @@ It currently has support for:
     [youtube]https://www.youtube.com/watch?v=U-G4TZzVeZ0[/youtube]
     [youtube]https://youtu.be/U-G4TZzVeZ0[/youtube]
     [youtube]U-G4TZzVeZ0[/youtube]
-    [youtube height=200 width=500]Youtube URL or ID[/youtube]
+    [youtube height=200 width=500]Youtube URL or ID[/youtube] //Not tested
+    [youtube=500x200]Youtube URL[/youtube] //Not tested
+    [youtube left]U-G4TZzVeZ0[/youtube] //Not tested
+    [youtube right]U-G4TZzVeZ0[/youtube] //Not tested
     [ul]
     * Item 1
     * Item 2
@@ -35,7 +38,7 @@ It currently has support for:
     [ul]* Item 1 * Item 2[/ul]
     [ol]* Item 1 * Item 2[/ol]
 
-If both img= and height=/width= are present, img= takes precedence. Support for more BB is coming (See below).
+If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
 If left unspecified then an img is set to width=20% and float=left (size is overridden when either height or width is set)
 
@@ -50,9 +53,6 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
     [title]This will be big[/title]
     [t1]Same as title[/t1]
     [t2]Smaller than t1[/t2]
-    [youtube=500x200]Youtube URL[/youtube]
-    [youtube left]U-G4TZzVeZ0[/youtube]
-    [youtube right]U-G4TZzVeZ0[/youtube]
     [url=http://apage.com title="A Title"]link[/url]
     [font size=20px]text[/font]
     [font color=red]red text[/font]

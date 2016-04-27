@@ -358,6 +358,19 @@ func bbToTag(in, bb string) string {
 		if strings.Contains(lwrbb, "right") {
 			style["float"] = right
 		}
+		if strings.HasPrefix(lwrbb, "youtube=") {
+			var sz string
+			for i := 9; i < len(bb); i++ {
+				if bb[i] == ' ' {
+					sz = lwrbb[8:i]
+				} else if i == len(bb)-1 {
+					sz = lwrbb[8 : i+1]
+				}
+			}
+			w, h := sz[:strings.Index(sz, "x")], sz[strings.Index(sz, "x")+1:]
+			style["height"] = h
+			style["width"] = w
+		}
 		lwrin := strings.ToLower(in)
 		parsed := ""
 		if strings.HasPrefix(lwrin, "http://") || strings.HasPrefix(lwrin, "https://") || strings.HasPrefix(in, "youtu") || strings.HasPrefix(lwrin, "www.") {

@@ -63,8 +63,6 @@ Make the # in front of a hex color code optional
 
 Get rid of debugging Println's (These will come and go, but I'll probably forget to remove them often)
 
-Go fmt the code (I'm just being lazy right now)
-
 # Ideas
 
 Make it so that tags that are a t followed by a number automagically sets it's font size, allowing for rediculously small text (like [t500])

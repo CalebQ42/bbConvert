@@ -389,7 +389,7 @@ func bbToTag(in, bb string) string {
 		for i, v := range style {
 			str += i + ":" + v + ";"
 		}
-		str += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
+		str += "' src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	} else if lwrbb == "ul" {
 		split := strings.Split(in, "*")
 		for i := range split {

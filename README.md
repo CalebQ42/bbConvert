@@ -2,7 +2,7 @@
 Converter from BBCode to HTML
 # Usage
 A Simple function to convert BBCode to HTML
-    
+
 It currently has support for:
 
     [b]bold[/b]
@@ -23,6 +23,7 @@ It currently has support for:
     [youtube]https://www.youtube.com/watch?v=U-G4TZzVeZ0[/youtube]
     [youtube]https://youtu.be/U-G4TZzVeZ0[/youtube]
     [youtube]U-G4TZzVeZ0[/youtube]
+    [youtube height=200 width=500]Youtube URL or ID[/youtube]
     [ul]
     * Item 1
     * Item 2
@@ -33,7 +34,7 @@ It currently has support for:
     [/ol]
     [ul]* Item 1 * Item 2[/ul]
     [ol]* Item 1 * Item 2[/ol]
-    
+
 If both img= and height=/width= are present, img= takes precedence. Support for more BB is coming (See below).
 
 If left unspecified then an img is set to width=20% and float=left (size is overridden when either height or width is set)
@@ -44,12 +45,11 @@ Both lists (ul, ol) trims spaces from the beginning and end of their items so sp
 
 Tag and parameters aren't case sensitive (though parameter values are case senstive)
 
-#Todo (Probably in order)
+# Todo (Probably in order)
 
     [title]This will be big[/title]
     [t1]Same as title[/t1]
     [t2]Smaller than t1[/t2]
-    [youtube height=200 width=500]Youtube URL[/youtube]
     [youtube=500x200]Youtube URL[/youtube]
     [youtube left]U-G4TZzVeZ0[/youtube]
     [youtube right]U-G4TZzVeZ0[/youtube]
@@ -65,14 +65,14 @@ Get rid of debugging Println's (These will come and go, but I'll probably forget
 
 Go fmt the code (I'm just being lazy right now)
 
-#Ideas
+# Ideas
 
 Make it so that tags that are a t followed by a number automagically sets it's font size, allowing for rediculously small text (like [t500])
 
 Make youtube video iframes and img's have a specific class so they can easily be formatted from css
 
-#Example
+# Example
 Look at Test.go for the recommended way to implement this
 
-#Known Issues
+# Known Issues
 if width=, height=, right, or left are present in alt AND title AND are placed inbetween the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)

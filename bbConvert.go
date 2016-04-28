@@ -152,7 +152,7 @@ func toHTML(str string) string {
 
 func isBBTag(str string) bool {
 	str = strings.ToLower(str)
-	tf := str == "b" || str == "i" || str == "u" || str == "s" || str == "url" || str == "img" || str == "quote" || str == "style" || str == "color" || str == "youtube" || str == "ol" || str == "ul" || str == "title"
+	tf := str == "b" || str == "i" || str == "u" || str == "s" || str == "url" || str == "img" || str == "quote" || str == "style" || str == "color" || str == "youtube" || str == "ol" || str == "ul" || str == "title" || strings.HasPrefix(str, "t")
 	return tf
 }
 
@@ -421,7 +421,7 @@ func bbToTag(in, bb string) string {
 		if err == strconv.ErrSyntax {
 			str = in
 		} else {
-			if out >= 1 || out <= 6 {
+			if out >= 1 && out <= 6 {
 				str = "<h" + strconv.Itoa(out) + ">" + in + "</h" + strconv.Itoa(out) + ">"
 			} else {
 				if out < 1 {

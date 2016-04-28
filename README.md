@@ -23,10 +23,10 @@ It currently has support for:
     [youtube]https://www.youtube.com/watch?v=U-G4TZzVeZ0[/youtube]
     [youtube]https://youtu.be/U-G4TZzVeZ0[/youtube]
     [youtube]U-G4TZzVeZ0[/youtube]
-    [youtube height=200 width=500]Youtube URL or ID[/youtube] //Not tested
-    [youtube=500x200]Youtube URL[/youtube] //Not tested
-    [youtube left]U-G4TZzVeZ0[/youtube] //Not tested
-    [youtube right]U-G4TZzVeZ0[/youtube] //Not tested
+    [youtube height=200 width=500]Youtube URL or ID[/youtube]
+    [youtube=500x200]Youtube URL[/youtube]
+    [youtube left]U-G4TZzVeZ0[/youtube]
+    [youtube right]U-G4TZzVeZ0[/youtube]
     [ul]
     * Item 1
     * Item 2
@@ -37,6 +37,13 @@ It currently has support for:
     [/ol]
     [ul]* Item 1 * Item 2[/ul]
     [ol]* Item 1 * Item 2[/ol]
+    [title]This will be big[/title]
+    [t1]Same as title[/t1]
+    [t2]Smaller than t1[/t2]
+    [t3]Smaller than t2[/t3]
+    [t4]Smaller than t3[/t4]
+    [t5]Smaller than t4[/t5]
+    [t6]Smaller than t5[/t6]
 
 If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
@@ -46,13 +53,13 @@ If left unspecified then youtube sets height=315 height=560
 
 Both lists (ul, ol) trims spaces from the beginning and end of their items so spaces around * aren't necessary. If there is text before the first * it will be interpreted as it's own bullet/number
 
+For the titles ([t1] - [t6]) then if you have a number less than 1 (such as zero) after the t then it will be the same as [t1] and if the number is greater than 6 it will be treated as [t6]
+
 Tag and parameters aren't case sensitive (though parameter values are case senstive)
 
 # Todo (Probably in order)
 
-    [title]This will be big[/title]
-    [t1]Same as title[/t1]
-    [t2]Smaller than t1[/t2]
+
     [url=http://apage.com title="A Title"]link[/url]
     [font size=20px]text[/font]
     [font color=red]red text[/font]
@@ -64,9 +71,6 @@ Make the # in front of a hex color code optional
 Get rid of debugging Println's (These will come and go, but I'll probably forget to remove them often)
 
 # Ideas
-
-Make it so that tags that are a t followed by a number automagically sets it's font size, allowing for rediculously small text (like [t500])
-
 Make youtube video iframes and img's have a specific class so they can easily be formatted from css
 
 # Example

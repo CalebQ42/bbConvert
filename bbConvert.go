@@ -2,6 +2,7 @@
 package bbConvert
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -156,6 +157,7 @@ func isBBTag(str string) bool {
 }
 
 func bbToTag(in, bb string) string {
+	bb = strings.TrimSpace(bb)
 	lwrbb := strings.ToLower(bb)
 	var str string
 	if lwrbb == "img" {
@@ -413,6 +415,22 @@ func bbToTag(in, bb string) string {
 		}
 		str = "<ol>" + str + "</ol>"
 	} else if lwrbb == "title" {
+		str = "<h1>" + in + "</h1>"
+	} else if strings.HasPrefix(lwrbb, "t") {
+		out, err := strconv.Atoi(lwrbb[1:])
+		if err == strconv.ErrSyntax {
+			str = in
+		} else {
+			if out >= 1 || out <= 6 {
+				str = "<h" + strconv.Itoa(out) + ">" + in + "</h" + strconv.Itoa(out) + ">"
+			} else {
+				if out < 1 {
+					str = "<h1>" + in + "</h1>"
+				} else if out > 6 {
+					str = "<h6>" + in + "</h6>"
+				}
+			}
+		}
 	}
 	return str
 }

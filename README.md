@@ -45,6 +45,7 @@ It currently has support for:
     [t5]Smaller than t4[/t5]
     [t6]Smaller than t5[/t6]
     [url=http://apage.com title="A Title"]link[/url]
+    [url title="A Title"]http://apage.com[/url]
 
 If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
@@ -63,7 +64,8 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
     [font size=20px]text[/font]
     [font color=red]red text[/font]
     [font color=#000000]the '#' before is necessary[/font]
-    [font font-family=veranda]Veranda'd text[/font]
+    [font=verdana]Verdana'd text[/font]
+    [size=12]12pt size text[/size]
 
 Make the # in front of a hex color code optional
 

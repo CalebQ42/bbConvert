@@ -170,9 +170,9 @@ func bbToTag(in, bb string) string {
 		pos := make(map[string]int)
 		if strings.Contains(lwrbb, "alt=\"") || strings.Contains(lwrbb, "alt='") {
 			pos["alt"] = strings.Index(lwrbb, "alt=")
-			for i := strings.Index(bb, "alt=") + 5; i < len(bb); i++ {
-				if (bb[i] == bb[strings.Index(lwrbb, "alt=")+4] && bb[i-1] != '\\') || i == len(bb)-1 {
-					other["alt"] = bb[strings.Index(lwrbb, "alt=")+5 : i]
+			for i := pos["alt"] + 5; i < len(bb); i++ {
+				if (bb[i] == bb[pos["alt"]+4] && bb[i-1] != '\\') || i == len(bb)-1 {
+					other["alt"] = bb[pos["alt"]+5 : i]
 					pos["altEnd"] = i
 					break
 				}
@@ -180,37 +180,39 @@ func bbToTag(in, bb string) string {
 		}
 		if strings.Contains(lwrbb, "title=\"") || strings.Contains(lwrbb, "title='") {
 			pos["title"] = strings.Index(lwrbb, "title=")
-			for i := strings.Index(lwrbb, "title=") + 7; i < len(bb); i++ {
-				if (bb[i] == bb[strings.Index(lwrbb, "title=")+6] && bb[i-1] != '\\') || i == len(bb)-1 {
-					other["title"] = bb[strings.Index(lwrbb, "title=")+7 : i]
+			for i := pos["title"] + 7; i < len(bb); i++ {
+				if (bb[i] == bb[pos["title"]+6] && bb[i-1] != '\\') || i == len(bb)-1 {
+					other["title"] = bb[pos["title"]+7 : i]
 					pos["titleEnd"] = i
 					break
 				}
 			}
 		}
 		if strings.Contains(lwrbb, "height=") {
-			if (pos["alt"] == 0 || strings.Index(lwrbb, "height=") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "height=") < pos["title"]) {
+			pos["height"] = strings.Index(lwrbb, "height")
+			pos["lheight"] = strings.LastIndex(lwrbb, "height")
+			if (pos["alt"] == 0 || pos["height"] < pos["alt"]) && (pos["title"] == 0 || pos["height"] < pos["title"]) {
 				var sz string
-				for i := strings.Index(lwrbb, "height=") + 7; i < len(bb); i++ {
+				for i := pos["height"] + 7; i < len(bb); i++ {
 					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[strings.Index(lwrbb, "height=")+7 : i]
+						sz = bb[pos["height"]+7 : i]
 						break
 					} else if i == len(bb)-1 {
-						sz = bb[strings.Index(lwrbb, "height=")+7 : i+1]
+						sz = bb[pos["height"]+7 : i+1]
 						break
 					}
 				}
 				sz = strings.Replace(sz, "\"", "", -1)
 				sz = strings.Replace(sz, "'", "", -1)
 				style["height"] = sz
-			} else if (pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "height=") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "height=") > pos["titleEnd"]) {
+			} else if (pos["altEnd"] == 0 || pos["lheight"] > pos["altEnd"]) && (pos["titleEnd"] == 0 || pos["lheight"] > pos["titleEnd"]) {
 				var sz string
-				for i := strings.LastIndex(lwrbb, "height=") + 7; i < len(bb); i++ {
+				for i := pos["lheight"] + 7; i < len(bb); i++ {
 					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[strings.LastIndex(lwrbb, "height=")+7 : i]
+						sz = bb[pos["lheight"]+7 : i]
 						break
 					} else if i == len(bb)-1 {
-						sz = bb[strings.LastIndex(lwrbb, "height=")+7 : i+1]
+						sz = bb[pos["lheight"]+7 : i+1]
 						break
 					}
 				}
@@ -220,28 +222,30 @@ func bbToTag(in, bb string) string {
 			}
 		}
 		if strings.Contains(bb, "width=") {
-			if (pos["alt"] == 0 || strings.Index(lwrbb, "width=") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "width=") < pos["title"]) {
+			pos["width"] = strings.Index(lwrbb, "width=")
+			pos["lwidth"] = strings.LastIndex(lwrbb, "width=")
+			if (pos["alt"] == 0 || pos["width"] < pos["alt"]) && (pos["title"] == 0 || pos["width"] < pos["title"]) {
 				var sz string
-				for i := strings.Index(lwrbb, "width=") + 7; i < len(bb); i++ {
+				for i := pos["width"] + 7; i < len(bb); i++ {
 					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[strings.Index(lwrbb, "width=")+6 : i]
+						sz = bb[pos["width"]+6 : i]
 						break
 					} else if i == len(bb)-1 {
-						sz = bb[strings.Index(lwrbb, "width=")+6 : i+1]
+						sz = bb[pos["width"]+6 : i+1]
 						break
 					}
 				}
 				sz = strings.Replace(sz, "\"", "", -1)
 				sz = strings.Replace(sz, "'", "", -1)
 				style["width"] = sz
-			} else if (pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "width=") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "width=") > pos["titleEnd"]) {
+			} else if (pos["altEnd"] == 0 || pos["lwidth"] > pos["altEnd"]) && (pos["titleEnd"] == 0 || pos["lwidth"] > pos["titleEnd"]) {
 				var sz string
-				for i := strings.LastIndex(lwrbb, "width=") + 7; i < len(bb); i++ {
+				for i := pos["lwidth"] + 7; i < len(bb); i++ {
 					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[strings.LastIndex(lwrbb, "width=")+6 : i]
+						sz = bb[pos["lwidth"]+6 : i]
 						break
 					} else if i == len(bb)-1 {
-						sz = bb[strings.LastIndex(lwrbb, "width=")+6 : i+1]
+						sz = bb[pos["lwidth"]+6 : i+1]
 						break
 					}
 				}
@@ -259,7 +263,12 @@ func bbToTag(in, bb string) string {
 					sz = lwrbb[4 : i+1]
 				}
 			}
-			w, h := sz[:strings.Index(sz, "x")], sz[strings.Index(sz, "x")+1:]
+			xPos := strings.Index(sz, "x")
+			w, h := "", ""
+			if xPos != -1 {
+				w, h = sz[:xPos], sz[xPos+1:]
+			}
+
 			style["height"] = h
 			style["width"] = w
 		}
@@ -302,10 +311,11 @@ func bbToTag(in, bb string) string {
 			}
 		}
 		var title string
-		if strings.Contains(lwrbb, "title=") {
-			for i := strings.Index(lwrbb, "title=") + 7; i < len(bb); i++ {
-				if (bb[i] == bb[strings.Index(lwrbb, "title=")+6] && bb[i-1] != '\\') || i == len(bb)-1 {
-					title = bb[strings.Index(lwrbb, "title=")+7 : i]
+		titlePos := strings.Index(lwrbb, "title=")
+		if strings.Contains(lwrbb, "title='") || strings.Contains(lwrbb, "title=\"") {
+			for i := titlePos + 7; i < len(bb); i++ {
+				if (bb[i] == bb[titlePos+6] && bb[i-1] != '\\') || i == len(bb)-1 {
+					title = bb[titlePos+7 : i]
 					break
 				}
 			}
@@ -317,7 +327,7 @@ func bbToTag(in, bb string) string {
 		if url == "" {
 			url = in
 		}
-		str += " src='" + url + "'" + ">" + in + "</a>"
+		str += " href='" + url + "'" + ">" + in + "</a>"
 	} else if strings.HasPrefix(lwrbb, "color=") {
 		str = "<span style='color:" + bb[7:] + ";'>" + in + "</span>"
 	} else if strings.HasPrefix(lwrbb, "quote=\"") || strings.HasPrefix(lwrbb, "quote='") {

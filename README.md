@@ -44,6 +44,7 @@ It currently has support for:
     [t4]Smaller than t3[/t4]
     [t5]Smaller than t4[/t5]
     [t6]Smaller than t5[/t6]
+    [url=http://apage.com title="A Title"]link[/url]
 
 If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
@@ -59,8 +60,6 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
 
 # Todo (Probably in order)
 
-
-    [url=http://apage.com title="A Title"]link[/url]
     [font size=20px]text[/font]
     [font color=red]red text[/font]
     [font color=#000000]the '#' before is necessary[/font]
@@ -77,4 +76,6 @@ Make youtube video iframes and img's have a specific class so they can easily be
 Look at Test.go for the recommended way to implement this
 
 # Known Issues
-if width=, height=, right, or left are present in alt AND title AND are placed inbetween the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)
+If title= is in the alt= then it could mess it will try to parse the title from inside the alt
+
+if width=, height=, right, or left are present in alt AND title AND are placed in between the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)

@@ -171,7 +171,7 @@ func bbToTag(in, bb string) string {
 		if strings.Contains(lwrbb, "alt=\"") || strings.Contains(lwrbb, "alt='") {
 			pos["alt"] = strings.Index(lwrbb, "alt=")
 			for i := strings.Index(bb, "alt=") + 5; i < len(bb); i++ {
-				if (bb[i] == bb[strings.Index(lwrbb, "alt=")+4] && bb[i-1] != '\\') || bb[i] == ']' {
+				if (bb[i] == bb[strings.Index(lwrbb, "alt=")+4] && bb[i-1] != '\\') || i == len(bb)-1 {
 					other["alt"] = bb[strings.Index(lwrbb, "alt=")+5 : i]
 					pos["altEnd"] = i
 					break
@@ -181,7 +181,7 @@ func bbToTag(in, bb string) string {
 		if strings.Contains(lwrbb, "title=\"") || strings.Contains(lwrbb, "title='") {
 			pos["title"] = strings.Index(lwrbb, "title=")
 			for i := strings.Index(lwrbb, "title=") + 7; i < len(bb); i++ {
-				if (bb[i] == bb[strings.Index(lwrbb, "title=")+6] && bb[i-1] != '\\') || bb[i] == ']' {
+				if (bb[i] == bb[strings.Index(lwrbb, "title=")+6] && bb[i-1] != '\\') || i == len(bb)-1 {
 					other["title"] = bb[strings.Index(lwrbb, "title=")+7 : i]
 					pos["titleEnd"] = i
 					break
@@ -291,8 +291,33 @@ func bbToTag(in, bb string) string {
 		str = "<" + bb + ">" + in + "</" + bb + ">"
 	} else if lwrbb == "url" {
 		str = "<a href='" + str[5:len(str)-6] + "'>" + in + "</a>"
-	} else if strings.HasPrefix(lwrbb, "url=") {
-		str = "<a href='" + bb[5:] + "'>" + in + "</a>"
+	} else if strings.HasPrefix(lwrbb, "url") {
+		var url string
+		if strings.HasPrefix(lwrbb, "url=") {
+			for i := 4; i < len(lwrbb); i++ {
+				if lwrbb[i] == ' ' || i == len(lwrbb)-1 {
+					url = bb[4:i]
+					break
+				}
+			}
+		}
+		var title string
+		if strings.Contains(lwrbb, "title=") {
+			for i := strings.Index(lwrbb, "title=") + 7; i < len(bb); i++ {
+				if (bb[i] == bb[strings.Index(lwrbb, "title=")+6] && bb[i-1] != '\\') || i == len(bb)-1 {
+					title = bb[strings.Index(lwrbb, "title=")+7 : i]
+					break
+				}
+			}
+		}
+		str = "<a"
+		if title != "" {
+			str += " title='" + title + "'"
+		}
+		if url == "" {
+			url = in
+		}
+		str += " src='" + url + "'" + ">" + in + "</a>"
 	} else if strings.HasPrefix(lwrbb, "color=") {
 		str = "<span style='color:" + bb[7:] + ";'>" + in + "</span>"
 	} else if strings.HasPrefix(lwrbb, "quote=\"") || strings.HasPrefix(lwrbb, "quote='") {
@@ -317,8 +342,6 @@ func bbToTag(in, bb string) string {
 		str = "<iframe height='315' width='560' src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	} else if strings.HasPrefix(bb, "youtube") {
 		style := make(map[string]string)
-		style["height"] = "315"
-		style["width"] = "560"
 		if strings.Contains(lwrbb, "height=") {
 			var sz string
 			for i := strings.Index(lwrbb, "height=") + 7; i < len(bb); i++ {

@@ -630,7 +630,7 @@ func bbToTag(in, bb string) string {
 					} else if vari == "upper" {
 						in = strings.ToUpper(in)
 					} else if vari == smallcaps {
-						style["font-variant"] = smallcaps
+						style["font-variant"] = "small-caps"
 					}
 				}
 			}

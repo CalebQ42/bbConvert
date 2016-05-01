@@ -2,6 +2,7 @@
 package bbConvert
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -616,6 +617,7 @@ func bbToTag(in, bb string) string {
 					if err == strconv.ErrSyntax {
 						style["color"] = style["color"][1:]
 					}
+					break
 				}
 			}
 		}
@@ -641,6 +643,7 @@ func bbToTag(in, bb string) string {
 				v = "'" + v + "'"
 			}
 			str += i + ":" + v + ";"
+			fmt.Println(i + ":" + v + ";")
 		}
 		str += "\">" + in + "</span>"
 	} else if strings.HasPrefix(lwrbb, "size=") {

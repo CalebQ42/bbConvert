@@ -15,11 +15,16 @@ It currently has support for:
     [font size=20pt]text[/font]
     [font color=red]red text[/font]
     [font color=#000000]the '#' is optional[/font]
+    [font variant=smallcaps]font in small caps[/font]
+    [font variant=upper]FONT IN UPPER[/font]
+    [font variant=lower]font in lower[/font]
     [size=12]12pt size text[/size]
     [smallcaps]This is in small capps :)[/smallcaps]
     [img]image URL[/img]
     [url]http://apage.com[/url]
     [url=http://apage.com]link[/here]
+    [url=http://apage.com title="A Title"]link[/url]
+    [url title="A Title"]http://apage.com[/url]
     [img=500x200]http://apage.com/image.png[/img]
     [img height=200 width=500]http://apage.com/image.png[/img]
     [img left]This image is floated left[/img]
@@ -50,8 +55,6 @@ It currently has support for:
     [t4]Smaller than t3[/t4]
     [t5]Smaller than t4[/t5]
     [t6]Smaller than t5[/t6]
-    [url=http://apage.com title="A Title"]link[/url]
-    [url title="A Title"]http://apage.com[/url]
 
 If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
@@ -70,7 +73,6 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
     [ul]
     * bullet
         * Space four times for a sub bullet [/ul]
-    [center]Centered text[/center]
     [font align=center]Center, right, left, and justified support[/font]
     [align=center]Center, right, left, and justified support[/align]
 

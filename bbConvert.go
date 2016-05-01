@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	left  = "left"
-	right = "right"
+	left      = "left"
+	right     = "right"
+	smallcaps = "smallcaps"
 )
 
 var (
@@ -618,6 +619,22 @@ func bbToTag(in, bb string) string {
 				}
 			}
 		}
+		if strings.Contains(lwrbb, "variant=") {
+			vrPos := strings.Index(lwrbb, "variant=")
+			for i := vrPos + 8; i < len(bb); i++ {
+				if bb[i] == ' ' || i == len(bb)-1 {
+					vari := lwrbb[vrPos+8 : i+1]
+					vari = strings.TrimSpace(vari)
+					if vari == "lower" {
+						in = strings.ToLower(in)
+					} else if vari == "upper" {
+						in = strings.ToUpper(in)
+					} else if vari == smallcaps {
+						style["font-variant"] = smallcaps
+					}
+				}
+			}
+		}
 		str = "<span style=\""
 		for i, v := range style {
 			if strings.Contains(v, " ") {
@@ -629,7 +646,7 @@ func bbToTag(in, bb string) string {
 	} else if strings.HasPrefix(lwrbb, "size=") {
 		sz := lwrbb[5:]
 		str = "<span style='font-size:" + sz + ";'>" + in + "</span>"
-	} else if lwrbb == "smallcaps" {
+	} else if lwrbb == smallcaps {
 		str = "<span style='font-variant:small-caps;'>" + in + "</span>"
 	} else {
 		return in

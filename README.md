@@ -70,12 +70,11 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
 
 # Todo (Probably in order)
 
+    [font align=center]Center, right, left, and justified support[/font]
+    [align=center]Center, right, left, and justified support[/align]
     [ul]
     * bullet
         * Space four times for a sub bullet [/ul]
-    [font align=center]Center, right, left, and justified support[/font]
-    [align=center]Center, right, left, and justified support[/align]
-
 
 Organize supported bbcode list and create github wiki (maybe)
 
@@ -94,15 +93,15 @@ If you put in something like:
     [t4]Some features[/t4]
     [ul] *[i]Works quickly and with relatively few resources[/i]
     * [b]Writen in Go! so it is cross platform[/b]
-    * Has support for wrapping the output in paragraph tags
+    * [smallcaps]Has support for wrapping the output in paragraph tags[/smallcaps]
     * You can write HTML right into the <b>BB</b>
-    * [color=blue]Made to work with a multitude of BB tags[/color]
+    * [font color=blue variant=upper size=20pt]Made to work with a multitude[/font] of BB tags[/color]
     * [B][ColOR=009900]The bb tags aren't even case senstive[/color][/b][/ul]
     [u]In general, this is made to be extremely flexible and can be easily used on a server.[/u]
     Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.
 
 ### You get something like:
-<h1><span style='color:blue;'>This is an example</span></h1><h3>This was actually parsed by my test program</h3><h4>Some features</h4><p><ul><li><i>Works quickly and with relatively few resources</i></li><li><b>Writen in Go! so it is cross platform</b></li><li>Has support for wrapping the output in paragraph tags</li><li>You can write HTML right into the <b>BB</b></li><li><span style='color:blue;'>Made to work with a multitude of BB tags</span></li><li><B><span style='color:009900;'>The bb tags aren't even case senstive</span></B></li></ul></p><p><u>In general, this is made to be extremely flexible and can be easily used on a server.</u></p><p>Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.</p>
+<h1><span style='color:blue;'>This is an example</span></h1><h3>This was actually parsed by my test program</h3><h4>Some features</h4><p><ul><li><i>Works quickly and with relatively few resources</i></li><li><b>Writen in Go! so it is cross platform</b></li><li><span style='font-variant:small-caps;'>Has support for wrapping the output in paragraph tags</span></li><li>You can write HTML right into the <b>BB</b></li><li><span style="font-size:20pt;color:'blue variant=upper size=20pt';">MADE TO WORK WITH A MULTITUDE</span> of BB tags[/color]</li><li><B><span style='color:009900;'>The bb tags aren't even case senstive</span></B></li></ul></p><p><u>In general, this is made to be extremely flexible and can be easily used on a server.</u>Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.</p>
 
 # Known Issues
 If "title=" is in the alt= then it could cause problems since it will try to parse the title from inside the alt

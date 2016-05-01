@@ -14,12 +14,22 @@ const (
 var (
 	classes   string
 	styleness string
+	paraWrap  bool
 )
 
 //Convert takes in a string slice (with bbcode) and converts it to proper HTML as a single string
 //If pWrap == true then each part of the slice is surrounded in paragraph tags
 //If pWrap == true and it finds a list, it will wrap the list in paragraph tags
 func Convert(strs []string, pWrap bool) string {
+	paraWrap = pWrap
+	var tmp []string
+	for _, v := range strs {
+		split := strings.Split(v, "\n")
+		for _, v := range split {
+			tmp = append(tmp, v)
+		}
+	}
+	strs = tmp
 	var parsedStrs []string
 	for i := 0; i < len(strs); i++ {
 		v := strs[i]
@@ -57,14 +67,19 @@ func Convert(strs []string, pWrap bool) string {
 	for _, v := range parsedStrs {
 		var tmp string
 		if pWrap {
-			if styleness != "" {
-				tmp += " style='" + styleness + "'"
+			in := bbConv(v)
+			if strings.HasPrefix(in, "<h") {
+				tmp = in
+			} else if v != "" {
+				if styleness != "" {
+					tmp += " style='" + styleness + "'"
+				}
+				if classes != "" {
+					tmp += " class='" + classes + "'"
+				}
+				tmp = "<p" + tmp + ">"
+				tmp += in + "</p>"
 			}
-			if classes != "" {
-				tmp += " class='" + classes + "'"
-			}
-			tmp = "<p" + tmp + ">"
-			tmp += bbConv(v) + "</p>"
 		} else {
 			tmp = bbConv(v)
 		}
@@ -152,7 +167,7 @@ func toHTML(str string) string {
 
 func isBBTag(str string) bool {
 	str = strings.ToLower(str)
-	tf := str == "b" || str == "i" || str == "u" || str == "s" || str == "url" || str == "img" || str == "quote" || str == "style" || str == "color" || str == "youtube" || str == "ol" || str == "ul" || str == "title" || strings.HasPrefix(str, "t")
+	tf := str == "b" || str == "i" || str == "u" || str == "s" || str == "url" || str == "img" || str == "quote" || str == "style" || str == "color" || str == "youtube" || str == "ol" || str == "ul" || str == "title" || strings.HasPrefix(str, "t") || str == "font" || str == "size" || str == "smallcaps"
 	return tf
 }
 
@@ -219,6 +234,31 @@ func bbToTag(in, bb string) string {
 				sz = strings.Replace(sz, "\"", "", -1)
 				sz = strings.Replace(sz, "'", "", -1)
 				style["height"] = sz
+			} else {
+				he := 0
+				cnt := strings.Count(lwrbb, "height=")
+				tmp := lwrbb
+				for i := 0; i < cnt; i++ {
+					he = he + strings.Index(tmp, "height=")
+					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
+						var sz string
+						for i := he + 7; i < len(bb); i++ {
+							if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
+								sz = bb[he+7 : i]
+								break
+							} else if i == len(bb)-1 {
+								sz = bb[he+7 : i+1]
+								break
+							}
+						}
+						sz = strings.Replace(sz, "\"", "", -1)
+						sz = strings.Replace(sz, "'", "", -1)
+						style["height"] = sz
+						break
+					} else {
+						tmp = tmp[pos["height"]+1:]
+					}
+				}
 			}
 		}
 		if strings.Contains(bb, "width=") {
@@ -252,6 +292,31 @@ func bbToTag(in, bb string) string {
 				sz = strings.Replace(sz, "\"", "", -1)
 				sz = strings.Replace(sz, "'", "", -1)
 				style["width"] = sz
+			} else {
+				he := 0
+				cnt := strings.Count(lwrbb, "width=")
+				tmp := lwrbb
+				for i := 0; i < cnt; i++ {
+					he = he + strings.Index(tmp, "width=")
+					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
+						var sz string
+						for i := he + 6; i < len(bb); i++ {
+							if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
+								sz = bb[he+6 : i]
+								break
+							} else if i == len(bb)-1 {
+								sz = bb[he+6 : i+1]
+								break
+							}
+						}
+						sz = strings.Replace(sz, "\"", "", -1)
+						sz = strings.Replace(sz, "'", "", -1)
+						style["width"] = sz
+						break
+					} else {
+						tmp = tmp[pos["width"]+1:]
+					}
+				}
 			}
 		}
 		if strings.HasPrefix(lwrbb, "img=") {
@@ -275,10 +340,38 @@ func bbToTag(in, bb string) string {
 		if strings.Contains(lwrbb, "left") {
 			if ((pos["alt"] == 0 || strings.Index(lwrbb, "left") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "left") < pos["title"])) || ((pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "left") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "left") > pos["titleEnd"])) {
 				style["float"] = left
+			} else {
+				he := 0
+				pos["float"] = strings.Index(lwrbb, "left")
+				cnt := strings.Count(lwrbb, "left")
+				tmp := lwrbb
+				for i := 0; i < cnt; i++ {
+					he = he + strings.Index(tmp, "left")
+					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
+						style["float"] = left
+						break
+					} else {
+						tmp = tmp[he+1:]
+					}
+				}
 			}
 		} else if strings.Contains(lwrbb, "right") {
 			if ((pos["alt"] == 0 || strings.Index(lwrbb, "right") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "right") < pos["title"])) || ((pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "right") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "right") > pos["titleEnd"])) {
 				style["float"] = right
+			} else {
+				he := 0
+				pos["float"] = strings.Index(lwrbb, "right")
+				cnt := strings.Count(lwrbb, "right")
+				tmp := lwrbb
+				for i := 0; i < cnt; i++ {
+					he = he + strings.Index(tmp, "right")
+					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
+						style["float"] = "right"
+						break
+					} else {
+						tmp = tmp[pos["float"]+1:]
+					}
+				}
 			}
 		}
 		if style["height"] == "" && style["width"] == "" {
@@ -329,7 +422,15 @@ func bbToTag(in, bb string) string {
 		}
 		str += " href='" + url + "'" + ">" + in + "</a>"
 	} else if strings.HasPrefix(lwrbb, "color=") {
-		str = "<span style='color:" + bb[7:] + ";'>" + in + "</span>"
+		tmp := bb[6:]
+		if !strings.HasPrefix(tmp, "#") {
+			tmp = "#" + tmp
+		}
+		_, err := strconv.ParseInt(tmp, 16, 0)
+		if err != strconv.ErrSyntax {
+			tmp = tmp[1:]
+		}
+		str = "<span style='color:" + tmp + ";'>" + in + "</span>"
 	} else if strings.HasPrefix(lwrbb, "quote=\"") || strings.HasPrefix(lwrbb, "quote='") {
 		str = "<div class='quote'>" + bb[7:len(bb)-1] + "<blockquote>" + in + "</blockquote></div>"
 	} else if strings.HasPrefix(lwrbb, "quote=") {
@@ -447,6 +548,9 @@ func bbToTag(in, bb string) string {
 			}
 		}
 		str = "<ol>" + str + "</ol>"
+		if paraWrap {
+			str = "</p>" + str + "<p>"
+		}
 	} else if lwrbb == "title" {
 		str = "<h1>" + in + "</h1>"
 	} else if strings.HasPrefix(lwrbb, "t") {
@@ -464,6 +568,71 @@ func bbToTag(in, bb string) string {
 				}
 			}
 		}
+	} else if strings.HasPrefix(lwrbb, "font") {
+		style := make(map[string]string)
+		if strings.HasPrefix(lwrbb, "font=") {
+			if bb[5] == '"' || bb[5] == '\'' {
+				for i := 6; i < len(bb); i++ {
+					if bb[i] == bb[5] {
+						style["font-family"] = lwrbb[6:i]
+						style["font-family"] = strings.Replace(style["font-family"], "'", "", -1)
+						style["font-family"] = strings.Replace(style["font-family"], "\"", "", -1)
+						break
+					}
+				}
+			} else {
+				for i := 5; i < len(bb); i++ {
+					if bb[i] == ' ' || i == len(bb)-1 {
+						style["font-family"] = lwrbb[6:i]
+						style["font-family"] = strings.Replace(style["font-family"], "'", "", -1)
+						style["font-family"] = strings.Replace(style["font-family"], "\"", "", -1)
+						style["font-family"] = strings.TrimSpace(style["font-family"])
+						break
+					}
+				}
+			}
+		}
+		if strings.Contains(lwrbb, "size=") {
+			szPos := strings.Index(lwrbb, "size=")
+			for i := szPos + 5; i < len(bb); i++ {
+				if bb[i] == ' ' || i == len(bb)-1 {
+					style["font-size"] = lwrbb[szPos+5 : i+1]
+					style["font-size"] = strings.TrimSpace(style["font-size"])
+					break
+				}
+			}
+		}
+		if strings.Contains(lwrbb, "color=") {
+			clPos := strings.Index(lwrbb, "color=")
+			for i := clPos + 6; i < len(bb); i++ {
+				if bb[i] == ' ' || i == len(bb)-1 {
+					style["color"] = lwrbb[clPos+6 : i+1]
+					style["color"] = strings.TrimSpace(style["color"])
+					if strings.HasPrefix(style["color"], "#") {
+						style["color"] = "#" + style["color"]
+					}
+					_, err := strconv.ParseInt(style["color"], 16, 0)
+					if err == strconv.ErrSyntax {
+						style["color"] = style["color"][1:]
+					}
+				}
+			}
+		}
+		str = "<span style=\""
+		for i, v := range style {
+			if strings.Contains(v, " ") {
+				v = "'" + v + "'"
+			}
+			str += i + ":" + v + ";"
+		}
+		str += "\">" + in + "</span>"
+	} else if strings.HasPrefix(lwrbb, "size=") {
+		sz := lwrbb[5:]
+		str = "<span style='font-size:" + sz + ";'>" + in + "</span>"
+	} else if lwrbb == "smallcaps" {
+		str = "<span style='font-variant:small-caps;'>" + in + "</span>"
+	} else {
+		return in
 	}
 	return str
 }

@@ -10,7 +10,13 @@ It currently has support for:
     [u]underline[/u]
     [s]strikethrough[/s]
     [color=red]The color must be html compatable[/color]
-    [color=#000000]The '#' is necessary if doing it like this[/color]
+    [color=#000000]The '#' is optional[/color]
+    [font=verdana]Verdana'd text[/font]
+    [font size=20pt]text[/font]
+    [font color=red]red text[/font]
+    [font color=#000000]the '#' is optional[/font]
+    [size=12]12pt size text[/size]
+    [smallcaps]This is in small capps :)[/smallcaps]
     [img]image URL[/img]
     [url]http://apage.com[/url]
     [url=http://apage.com]link[/here]
@@ -61,23 +67,40 @@ Tag and parameters aren't case sensitive (though parameter values are case senst
 
 # Todo (Probably in order)
 
-    [font size=20px]text[/font]
-    [font color=red]red text[/font]
-    [font color=#000000]the '#' before is necessary[/font]
-    [font=verdana]Verdana'd text[/font]
-    [size=12]12pt size text[/size]
+    [ul]
+    * bullet
+        * Space four times for a sub bullet [/ul]
+    [center]Centered text[/center]
+    [font align=center]Center, right, left, and justified support[/font]
+    [align=center]Center, right, left, and justified support[/align]
 
-Make the # in front of a hex color code optional
 
-Get rid of debugging Println's (These will come and go, but I'll probably forget to remove them often)
+Organize supported bbcode list and create github wiki (maybe)
 
 # Ideas
 Make youtube video iframes and img's have a specific class so they can easily be formatted from css
 
+If there's any other bb code you think should be added, PLEASE TELL ME
+
 # Example
 Look at Test.go for the recommended way to implement this
 
-# Known Issues
-If title= is in the alt= then it could mess it will try to parse the title from inside the alt
+If you put in something like:
 
-if width=, height=, right, or left are present in alt AND title AND are placed in between the alt and title parameters then it will not be detected (I have an idea of how to fix it, but because it's so specific and unlikely it probably won't be fixed for a while)
+    [title][color=blue]This is an example[/color][/title]
+    [t3]This was actually parsed by my test program[/t3]
+    [t4]Some features[/t4]
+    [ul] *[i]Works quickly and with relatively few resources[/i]
+    * [b]Writen in Go! so it is cross platform[/b]
+    * Has support for wrapping the output in paragraph tags
+    * You can write HTML right into the <b>BB</b>
+    * [color=blue]Made to work with a multitude of BB tags[/color]
+    * [B][ColOR=009900]The bb tags aren't even case senstive[/color][/b][/ul]
+    [u]In general, this is made to be extremely flexible and can be easily used on a server.[/u]
+    Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.
+
+### You get something like:
+<h1><span style='color:blue;'>This is an example</span></h1><h3>This was actually parsed by my test program</h3><h4>Some features</h4><p><ul><li><i>Works quickly and with relatively few resources</i></li><li><b>Writen in Go! so it is cross platform</b></li><li>Has support for wrapping the output in paragraph tags</li><li>You can write HTML right into the <b>BB</b></li><li><span style='color:blue;'>Made to work with a multitude of BB tags</span></li><li><B><span style='color:009900;'>The bb tags aren't even case senstive</span></B></li></ul></p><p><u>In general, this is made to be extremely flexible and can be easily used on a server.</u></p><p>Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.</p>
+
+# Known Issues
+If "title=" is in the alt= then it could cause problems since it will try to parse the title from inside the alt

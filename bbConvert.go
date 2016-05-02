@@ -10,6 +10,7 @@ const (
 	left      = "left"
 	right     = "right"
 	smallcaps = "smallcaps"
+	nl        = "\n"
 )
 
 var (
@@ -22,71 +23,31 @@ var (
 //If pWrap == true then each part of the slice is surrounded in paragraph tags
 //If pWrap == true and it finds a list, it will wrap the list in paragraph tags
 func Convert(strs []string, pWrap bool) string {
-	paraWrap = pWrap
-	var tmp []string
+	var in string
 	for _, v := range strs {
-		split := strings.Split(v, "\n")
-		for _, v := range split {
-			tmp = append(tmp, v)
+		v = strings.TrimSpace(v)
+		if v != "" && v != nl {
+			in += v + "\n"
 		}
 	}
-	strs = tmp
-	var parsedStrs []string
-	for i := 0; i < len(strs); i++ {
-		v := strs[i]
-		if strings.Contains(v, "[ul]") {
-			for j := i; j < len(strs); j++ {
-				tm := strs[j]
-				var tmp string
-				if strings.Contains(tm, "[/ul]") {
-					for _, val := range strs[i : j+1] {
-						tmp += val
-					}
-					parsedStrs = append(parsedStrs, tmp)
-					i = j
-					break
-				}
-			}
-		} else if strings.Contains(v, "[ol]") {
-			for j := i; j < len(strs); j++ {
-				tm := strs[j]
-				var tmp string
-				if strings.Contains(tm, "[/ol]") {
-					for _, val := range strs[i : j+1] {
-						tmp += val
-					}
-					parsedStrs = append(parsedStrs, tmp)
-					i = j
-					break
-				}
-			}
-		} else {
-			parsedStrs = append(parsedStrs, v)
+	in = bbConv(in)
+	if pWrap {
+		ps := "<p"
+		if styleness != "" {
+			ps += " style=\"" + styleness
 		}
-	}
-	var out string
-	for _, v := range parsedStrs {
-		var tmp string
-		if pWrap {
-			in := bbConv(v)
-			if strings.HasPrefix(in, "<h") {
-				tmp = in
-			} else if v != "" {
-				if styleness != "" {
-					tmp += " style='" + styleness + "'"
-				}
-				if classes != "" {
-					tmp += " class='" + classes + "'"
-				}
-				tmp = "<p" + tmp + ">"
-				tmp += in + "</p>"
-			}
-		} else {
-			tmp = bbConv(v)
+		if classes != "" {
+			ps += " class='" + classes
 		}
-		out += tmp
+		ps += ">"
+		in = strings.Replace(in, "\n", "</p>"+ps, -1)
+		in = ps + in + "</p>"
+		in = strings.TrimSuffix(in, "<p>")
+		in = strings.Replace(in, "<p></p>", "", -1)
+	} else {
+		in = strings.Replace(in, "\n", " ", -1)
 	}
-	return out
+	return in
 }
 
 /*AddParagraphClass is used to add classes to the paragraph tags wraped around the output*/
@@ -111,6 +72,7 @@ func ClearParagraphStyle() {
 /*Can be called muliple times to add multiple styles*/
 func AddStyle(style string) {
 	style = strings.TrimSpace(style)
+	style = strings.Replace(style, "\"", "'", -1)
 	if strings.HasSuffix(style, ";") {
 		styleness += style
 	} else {
@@ -575,7 +537,7 @@ func bbToTag(in, bb string) string {
 			if bb[5] == '"' || bb[5] == '\'' {
 				for i := 6; i < len(bb); i++ {
 					if bb[i] == bb[5] {
-						style["font-family"] = lwrbb[6:i]
+						style["font-family"] = lwrbb[6 : i+1]
 						style["font-family"] = strings.Replace(style["font-family"], "'", "", -1)
 						style["font-family"] = strings.Replace(style["font-family"], "\"", "", -1)
 						break
@@ -584,7 +546,7 @@ func bbToTag(in, bb string) string {
 			} else {
 				for i := 5; i < len(bb); i++ {
 					if bb[i] == ' ' || i == len(bb)-1 {
-						style["font-family"] = lwrbb[6:i]
+						style["font-family"] = lwrbb[5 : i+1]
 						style["font-family"] = strings.Replace(style["font-family"], "'", "", -1)
 						style["font-family"] = strings.Replace(style["font-family"], "\"", "", -1)
 						style["font-family"] = strings.TrimSpace(style["font-family"])

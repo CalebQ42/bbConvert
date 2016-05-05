@@ -46,6 +46,7 @@ func Convert(strs []string, pWrap bool) string {
 		in = strings.Replace(in, "<p></p>", "", -1)
 	} else {
 		in = strings.Replace(in, "\n", " ", -1)
+		in = strings.Replace(in, "<p></p>", "", -1)
 	}
 	return in
 }
@@ -559,8 +560,8 @@ func bbToTag(in, bb string) string {
 			szPos := strings.Index(lwrbb, "size=")
 			for i := szPos + 5; i < len(bb); i++ {
 				if bb[i] == ' ' || i == len(bb)-1 {
-					style["font-size"] = lwrbb[szPos+5 : i+1]
-					style["font-size"] = strings.TrimSpace(style["font-size"])
+					style["align"] = lwrbb[szPos+5 : i+1]
+					style["align"] = strings.TrimSpace(style["font-size"])
 					break
 				}
 			}
@@ -595,6 +596,7 @@ func bbToTag(in, bb string) string {
 					} else if vari == smallcaps {
 						style["font-variant"] = "small-caps"
 					}
+					break
 				}
 			}
 		}

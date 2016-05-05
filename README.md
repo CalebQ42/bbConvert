@@ -1,53 +1,64 @@
-# BBConverter
-Converter from BBCode to HTML
-# Usage
-A Simple function to convert BBCode to HTML
+#bbConvert
+A package to convert bbcode to HTML.
 
-It currently has support for:
+#BBCode support
+bbConvert has support for the following bb tags:
 
-    [b]bold[/b]
-    [i]italic[/i]
-    [u]underline[/u]
-    [s]strikethrough[/s]
-    [color=red]The color must be html compatable[/color]
-    [color=#000000]The '#' is optional[/color]
-    [font=verdana]Verdana'd text[/font]
-    [font size=20pt]text[/font]
-    [font color=red]red text[/font]
-    [font color=#000000]the '#' is optional[/font]
-    [font variant=smallcaps]font in small caps[/font]
-    [font variant=upper]FONT IN UPPER[/font]
-    [font variant=lower]font in lower[/font]
-    [size=12]12pt size text[/size]
-    [smallcaps]This is in small capps :)[/smallcaps]
-    [img]image URL[/img]
-    [img=500x200]http://apage.com/image.png[/img]
-    [img height=200 width=500]http://apage.com/image.png[/img]
-    [img left]This image is floated left[/img]
-    [img right]This image is floated right[/img]
-    [img alt="Alternate text if picture doesn't show up"]image URL[/img]
-    [img title="This shows up when hovering over the picture"]image URL[/img]
-    [url]http://apage.com[/url]
-    [url=http://apage.com]link[/here]
-    [url=http://apage.com title="A Title"]link[/url]
-    [url title="A Title"]http://apage.com[/url]
+    [b]Some Text[/b] //bolded text
+    [bold]Some Text[/bold] //bolded text
+    [i]Some Text[/i] //italicized text
+    [italics]Some Text[/italics] //italicized text
+    [u]Some Text[/u] //underlined text
+    [underline]Some Text[/underline] //underlined text
+    [s]some Text[/s] //strikedthrough text
+    [strike]Some Text[/strike] //strikethrough text
+    [font=Verdana]Some Text[/font] //text in verdana font
+    [font size=20pt]Some Text[/font] //20pt size text
+    [font color=red]Some Text[/font] //red text
+    [font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessary
+    [font variant=upper]Some Text[/font] //uppercased text
+    [font variant=lower]Some Text[/font] //lowercase text
+    [font variant=smallcaps]Some Text[/font] //smallcaps text
+    [size=20pt]Some Text[/size] //20pt size text
+    [color=red]Some Text[/color] //red text
+    [color=#000000]Some Text[/color] //text with the color of #000000. The # is unnecessary
+    [smallcaps]Some Text[/smallcaps] //smallcaps text
+    [url]Link address[/url] //linked text
+    [url=address]Some Text[/url] //linked text
+    [url title="Title"]Link address[/url] //linked text with title
+    [link]Link address[/link] //linked text
+    [link=address]Some Text[/link] //linked text
+    [link title="Title"]Link address[/link] //linked text with title
+    [youtube]Youtube URL or video ID[/youtube] //youtube video
+    [youtube height=200 width=500]Youtube URL or video ID[/youtube] //youtube video with set size
+    [youtube=500x200]Youtube URL or video ID[/youtube] //youtube video with set size
+    [youtube left]Youtube URL or video ID[/youtube] //youtube video floated left
+    [youtube right]Youtube URL or video ID[/youtube] //youtube video floated right
+    [img]Image URL[/img] //an image
+    [img=500x200]Image URL[/img] //an image with set size
+    [img height=200 width=500]Image URL[/img] //an image with set size
+    [img left]Image URL[/img] //an image floated left
+    [img right]Image URL[/img] //an image floated right
+    [img alt="Alternate text"]Image URL[/img] //an image with alternate text
+    [img title="Title"]Image URL[/img] //an image with title
+    [title]Some Text[/title] //Large text made for use as a title
+    [t1]Some Text[/t1] //Large text made for use as a title. Same as [title]
+    [t2]Some Text[/t2] //Slightly smaller text than [t1]. Meant for use as a title of some sort
+    [t3]Some Text[/t3] //Slightly smaller text than [t2]. Meant for use as a title of some sort
+    [t4]Some Text[/t4] //Slightly smaller text than [t3]. Meant for use as a title of some sort
+    [t5]Some Text[/t5] //Slightly smaller text than [t4]. Meant for use as a title of some sort
+    [t6]Some Text[/t6] //Slightly smaller text than [t5]. Meant for use as a title of some sort
+    [align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
     [ul]
     * Item 1
     * Item 2
-    [/ul]
+    [/ul] //an unordered (bulleted) list
     [ol]
     * Item 1
     * Item 2
-    [/ol]
-    [ul]* Item 1 * Item 2[/ul]
-    [ol]* Item 1 * Item 2[/ol]
-    [title]This will be big[/title]
-    [t1]Same as title[/t1]
-    [t2]Smaller than t1[/t2]
-    [t3]Smaller than t2[/t3]
-    [t4]Smaller than t3[/t4]
-    [t5]Smaller than t4[/t5]
-    [t6]Smaller than t5[/t6]
+    [/ol] //an ordered (numbered) list
+    [ul]* Item 1 * Item 2[/ul] //an unordered (bulleted) list
+    [ol]* Item 1 * Item 2[/ol] //an ordered (numbered) list
 
 If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
 
@@ -59,47 +70,11 @@ Both lists (ul, ol) trims spaces from the beginning and end of their items so sp
 
 For the titles ([t1] - [t6]) then if you have a number less than 1 (such as zero) after the t then it will be the same as [t1] and if the number is greater than 6 it will be treated as [t6]
 
-Tag and parameters aren't case sensitive (though parameter values are case senstive)
+Tag and parameters aren't case sensitive unless they need to be (such as title and alt)
 
 # Todo (Probably in order)
 
     [font align=center]Center, right, left, and justified support[/font]
-    [align=center]Center, right, left, and justified support[/align]
-    [ul]
-    * bullet
-        * Space four times for a sub bullet [/ul]
-
-Organize supported bbcode list and create github wiki (maybe)
-
-# Ideas
-Make youtube video iframes and img's have a specific class so they can easily be formatted from css
-
-If there's any other bb code you think should be added, PLEASE TELL ME
-
-# Example
-Look at Test.go for the recommended way to implement this
-
-If you put in something like:
-
-    [title][color=blue]This is an example[/color][/title]
-    [t3]This was actually parsed by my test program[/t3]
-    [t4]Some features[/t4]
-    [ul] *[i]Works quickly and with relatively few resources[/i]
-    * [b]Writen in Go! so it is cross platform[/b]
-    * [smallcaps]Has support for wrapping the output in paragraph tags[/smallcaps]
-    * You can write HTML right into the <b>BB</b>
-    * [font color=red variant=upper size=20pt]Made to work with a multitude[/font] of BB tags
-    * [B][ColOR=009900]The bb tags aren't even case senstive[/color][/b][/ul]
-    [u]In general, this is made to be extremely flexible and can be easily used on a server.[/u]
-    Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.
-
-### You get something like:
-
-    <h1><span style='color:blue;'>This is an example</span></h1><h3>This was actually parsed by my test program</h3><h4>Some features</h4><p><ul><li><i>Works quickly and with relatively few resources</i></li><li><b>Writen in Go! so it is cross platform</b></li><li><span style='font-variant:small-caps;'>Has support for wrapping the output in paragraph tags</span></li><li>You can write HTML right into the <b>BB</b></li><li><span style="font-size:20pt;color:red;">MADE TO WORK WITH A MULTITUDE</span> of BB tags</li><li><B><span style='color:009900;'>The bb tags aren't even case senstive</span></B></li></ul></p><p><u>In general, this is made to be extremely flexible and can be easily used on a server.</u></p><p>Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.</p>
-
-Colors and sizes don't seem to work with HTML in github markdown
-
-<h1><span style='color:blue;'>This is an example</span></h1><h3>This was actually parsed by my test program</h3><h4>Some features</h4><p><ul><li><i>Works quickly and with relatively few resources</i></li><li><b>Writen in Go! so it is cross platform</b></li><li><span style='font-variant:small-caps;'>Has support for wrapping the output in paragraph tags</span></li><li>You can write HTML right into the <b>BB</b></li><li><span style="font-size:20pt;color:red;">MADE TO WORK WITH A MULTITUDE</span> of BB tags</li><li><B><span style='color:009900;'>The bb tags aren't even case senstive</span></B></li></ul></p><p><u>In general, this is made to be extremely flexible and can be easily used on a server.</u></p><p>Unfortunately making newlines a different paragraph isn't supported in the program, but a simple php script that explodes and implodes does the trick.</p>
 
 # Known Issues
 If "title=" is in the alt= then it could cause problems since it will try to parse the title from inside the alt

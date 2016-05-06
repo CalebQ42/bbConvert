@@ -70,3 +70,17 @@ func checkback(input string, channel chan string) {
 	}
 	channel <- "Nope"
 }
+
+func indexAll(s, set string) []int {
+	indexi := make([]int, strings.Count(s, set))
+	orig := s
+	for i := range indexi {
+		if i > 0 {
+			indexi[i] = strings.Index(s, set) + indexi[i-1] + 1
+		} else {
+			indexi[i] = strings.Index(s, set)
+		}
+		s = orig[indexi[i]+1:]
+	}
+	return indexi
+}

@@ -77,4 +77,4 @@ Tag and parameters aren't case sensitive unless they need to be (such as title a
     [font align=center]Center, right, left, and justified support[/font]
 
 # Known Issues
-If "title=" is in the alt= then it could cause problems since it will try to parse the title from inside the alt
+I can't find any!!! :)

@@ -186,139 +186,130 @@ func toHTML(bb, meat string) string {
 		tagness := ""
 		style := make(map[string]string)
 		other := make(map[string]string)
-		pos := make(map[string]int)
-		if strings.Contains(lwrbb, "alt=\"") || strings.Contains(lwrbb, "alt='") {
-			pos["alt"] = strings.Index(lwrbb, "alt=")
-			for i := pos["alt"] + 5; i < len(bb); i++ {
-				if (bb[i] == bb[pos["alt"]+4] && bb[i-1] != '\\') || i == len(bb)-1 {
-					other["alt"] = bb[pos["alt"]+5 : i]
-					pos["altEnd"] = i
-					break
-				}
-			}
-		}
-		if strings.Contains(lwrbb, "title=\"") || strings.Contains(lwrbb, "title='") {
-			pos["title"] = strings.Index(lwrbb, "title=")
-			for i := pos["title"] + 7; i < len(bb); i++ {
-				if (bb[i] == bb[pos["title"]+6] && bb[i-1] != '\\') || i == len(bb)-1 {
-					other["title"] = bb[pos["title"]+7 : i]
-					pos["titleEnd"] = i
-					break
-				}
-			}
-		}
-		if strings.Contains(lwrbb, "height=") {
-			pos["height"] = strings.Index(lwrbb, "height")
-			pos["lheight"] = strings.LastIndex(lwrbb, "height")
-			if (pos["alt"] == 0 || pos["height"] < pos["alt"]) && (pos["title"] == 0 || pos["height"] < pos["title"]) {
-				var sz string
-				for i := pos["height"] + 7; i < len(bb); i++ {
-					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[pos["height"]+7 : i]
-						break
-					} else if i == len(bb)-1 {
-						sz = bb[pos["height"]+7 : i+1]
+		pos := make(map[string][]int)
+		stuff := make(map[string]int)
+		pos["alt"] = indexAll(lwrbb, "alt=")
+		pos["title"] = indexAll(lwrbb, "title=")
+		pos["width"] = indexAll(lwrbb, "width=")
+		pos["height"] = indexAll(lwrbb, "height=")
+		pos["left"] = indexAll(lwrbb, "left")
+		pos["right"] = indexAll(lwrbb, "right")
+		if len(pos["alt"]) != 0 || len(pos["title"]) != 0 {
+			if len(pos["title"]) != 0 && (len(pos["alt"]) == 0 || pos["alt"][0] > pos["title"][0]) {
+				stuff["title"] = 0
+				posi := pos["title"][0] + 7
+				qt := lwrbb[posi-1]
+				for i := posi; i < len(bb); i++ {
+					if lwrbb[i] == qt {
+						other["title"] = bb[posi:i]
 						break
 					}
 				}
-				sz = strings.Replace(sz, "\"", "", -1)
-				sz = strings.Replace(sz, "'", "", -1)
-				style["height"] = sz
-			} else if (pos["altEnd"] == 0 || pos["lheight"] > pos["altEnd"]) && (pos["titleEnd"] == 0 || pos["lheight"] > pos["titleEnd"]) {
-				var sz string
-				for i := pos["lheight"] + 7; i < len(bb); i++ {
-					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[pos["lheight"]+7 : i]
-						break
-					} else if i == len(bb)-1 {
-						sz = bb[pos["lheight"]+7 : i+1]
-						break
-					}
+				if other["title"] == "" {
+					other["title"] = bb[posi:]
 				}
-				sz = strings.Replace(sz, "\"", "", -1)
-				sz = strings.Replace(sz, "'", "", -1)
-				style["height"] = sz
-			} else {
-				he := 0
-				cnt := strings.Count(lwrbb, "height=")
-				tmp := lwrbb
-				for i := 0; i < cnt; i++ {
-					he = he + strings.Index(tmp, "height=")
-					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
-						var sz string
-						for i := he + 7; i < len(bb); i++ {
-							if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-								sz = bb[he+7 : i]
-								break
-							} else if i == len(bb)-1 {
-								sz = bb[he+7 : i+1]
+				leng := len(other["title"])
+				for i, v := range pos["alt"] {
+					if v > pos["title"][0]+leng+7 {
+						stuff["title"] = i
+						posi = v + 5
+						qt = lwrbb[posi-1]
+						for j := posi; j < len(bb); j++ {
+							if lwrbb[j] == qt {
+								other["alt"] = bb[posi:j]
 								break
 							}
 						}
-						sz = strings.Replace(sz, "\"", "", -1)
-						sz = strings.Replace(sz, "'", "", -1)
-						style["height"] = sz
+						if other["alt"] == "" {
+							other["alt"] = bb[posi:]
+						}
 						break
-					} else {
-						tmp = tmp[pos["height"]+1:]
+					}
+				}
+			} else if len(pos["alt"]) != 0 && (len(pos["title"]) == 0 || pos["alt"][0] < pos["title"][0]) {
+				stuff["alt"] = 0
+				posi := pos["alt"][0] + 5
+				qt := lwrbb[posi-1]
+				for i := posi; i < len(bb); i++ {
+					if lwrbb[i] == qt {
+						other["alt"] = bb[posi:i]
+						break
+					}
+				}
+				if other["alt"] == "" {
+					other["alt"] = bb[posi:]
+				}
+				leng := len(other["alt"])
+				for i, v := range pos["title"] {
+					if v > pos["alt"][0]+leng+5 {
+						stuff["title"] = i
+						posi = v + 7
+						qt = lwrbb[posi-1]
+						for j := posi; j < len(bb); j++ {
+							if lwrbb[j] == qt {
+								other["title"] = bb[posi:j]
+								break
+							}
+						}
+						if other["title"] == "" {
+							other["title"] = bb[posi:]
+						}
+						break
 					}
 				}
 			}
 		}
-		if strings.Contains(bb, "width=") {
-			pos["width"] = strings.Index(lwrbb, "width=")
-			pos["lwidth"] = strings.LastIndex(lwrbb, "width=")
-			if (pos["alt"] == 0 || pos["width"] < pos["alt"]) && (pos["title"] == 0 || pos["width"] < pos["title"]) {
-				var sz string
-				for i := pos["width"] + 7; i < len(bb); i++ {
-					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[pos["width"]+6 : i]
-						break
-					} else if i == len(bb)-1 {
-						sz = bb[pos["width"]+6 : i+1]
-						break
-					}
-				}
-				sz = strings.Replace(sz, "\"", "", -1)
-				sz = strings.Replace(sz, "'", "", -1)
-				style["width"] = sz
-			} else if (pos["altEnd"] == 0 || pos["lwidth"] > pos["altEnd"]) && (pos["titleEnd"] == 0 || pos["lwidth"] > pos["titleEnd"]) {
-				var sz string
-				for i := pos["lwidth"] + 7; i < len(bb); i++ {
-					if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-						sz = bb[pos["lwidth"]+6 : i]
-						break
-					} else if i == len(bb)-1 {
-						sz = bb[pos["lwidth"]+6 : i+1]
-						break
-					}
-				}
-				sz = strings.Replace(sz, "\"", "", -1)
-				sz = strings.Replace(sz, "'", "", -1)
-				style["width"] = sz
-			} else {
-				he := 0
-				cnt := strings.Count(lwrbb, "width=")
-				tmp := lwrbb
-				for i := 0; i < cnt; i++ {
-					he = he + strings.Index(tmp, "width=")
-					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
-						var sz string
-						for i := he + 6; i < len(bb); i++ {
-							if bb[i] == ' ' || bb[i] == '"' || bb[i] == '\'' {
-								sz = bb[he+6 : i]
+		if len(pos["width"]) != 0 {
+			for _, v := range pos["width"] {
+				if other["title"] == "" || (v < pos["title"][stuff["title"]] || v > pos["title"][stuff["title"]]+len(other["title"])+7) {
+					if other["alt"] == "" || (v < pos["alt"][stuff["alt"]] || v > pos["alt"][stuff["alt"]]+len(other["title"])+5) {
+						posi := v + 6
+						for j := posi; j < len(bb); j++ {
+							if bb[j] == ' ' {
+								style["width"] = bb[posi:j]
 								break
-							} else if i == len(bb)-1 {
-								sz = bb[he+6 : i+1]
-								break
+							} else if j == len(bb)-1 {
+								style["width"] = bb[posi:]
 							}
 						}
-						sz = strings.Replace(sz, "\"", "", -1)
-						sz = strings.Replace(sz, "'", "", -1)
-						style["width"] = sz
 						break
-					} else {
-						tmp = tmp[pos["width"]+1:]
+					}
+				}
+			}
+		}
+		if len(pos["height"]) != 0 {
+			for _, v := range pos["height"] {
+				if other["title"] == "" || (v < pos["title"][stuff["title"]] || v > pos["title"][stuff["title"]]+len(other["title"])+7) {
+					if other["alt"] == "" || (v < pos["alt"][stuff["alt"]] || v > pos["alt"][stuff["alt"]]+len(other["title"])+5) {
+						posi := v + 7
+						for j := posi; j < len(bb); j++ {
+							if bb[j] == ' ' {
+								style["height"] = bb[posi:j]
+								break
+							} else if j == len(bb)-1 {
+								style["height"] = bb[posi:]
+							}
+						}
+						break
+					}
+				}
+			}
+		}
+		if len(pos["left"]) != 0 {
+			for _, v := range pos["left"] {
+				if other["title"] == "" || (v < pos["title"][stuff["title"]] || v > pos["title"][stuff["title"]]+len(other["title"])+7) {
+					if other["alt"] == "" || (v < pos["alt"][stuff["alt"]] || v > pos["alt"][stuff["alt"]]+len(other["title"])+5) {
+						style["float"] = "left"
+						break
+					}
+				}
+			}
+		}
+		if len(pos["right"]) != 0 {
+			for _, v := range pos["right"] {
+				if other["title"] == "" || (v < pos["title"][stuff["title"]] || v > pos["title"][stuff["title"]]+len(other["title"])+7) {
+					if other["alt"] == "" || (v < pos["alt"][stuff["alt"]] || v > pos["alt"][stuff["alt"]]+len(other["title"])+5) {
+						style["float"] = "right"
 					}
 				}
 			}
@@ -337,46 +328,8 @@ func toHTML(bb, meat string) string {
 			if xPos != -1 {
 				w, h = sz[:xPos], sz[xPos+1:]
 			}
-
 			style["height"] = h
 			style["width"] = w
-		}
-		if strings.Contains(lwrbb, "left") {
-			if ((pos["alt"] == 0 || strings.Index(lwrbb, "left") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "left") < pos["title"])) || ((pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "left") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "left") > pos["titleEnd"])) {
-				style["float"] = lf
-			} else {
-				he := 0
-				pos["float"] = strings.Index(lwrbb, "left")
-				cnt := strings.Count(lwrbb, "left")
-				tmp := lwrbb
-				for i := 0; i < cnt; i++ {
-					he = he + strings.Index(tmp, "left")
-					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
-						style["float"] = lf
-						break
-					} else {
-						tmp = tmp[he+1:]
-					}
-				}
-			}
-		} else if strings.Contains(lwrbb, "right") {
-			if ((pos["alt"] == 0 || strings.Index(lwrbb, "right") < pos["alt"]) && (pos["title"] == 0 || strings.Index(lwrbb, "right") < pos["title"])) || ((pos["altEnd"] == 0 || strings.LastIndex(lwrbb, "right") > pos["altEnd"]) && (pos["titleEnd"] == 0 || strings.LastIndex(lwrbb, "right") > pos["titleEnd"])) {
-				style["float"] = rt
-			} else {
-				he := 0
-				pos["float"] = strings.Index(lwrbb, "right")
-				cnt := strings.Count(lwrbb, "right")
-				tmp := lwrbb
-				for i := 0; i < cnt; i++ {
-					he = he + strings.Index(tmp, "right")
-					if (pos["alt"] == 0 || (he < pos["alt"] || he > pos["altEnd"])) && (he == 0 || (he < pos["title"] || he > pos["titleEnd"])) {
-						style["float"] = rt
-						break
-					} else {
-						tmp = tmp[pos["float"]+1:]
-					}
-				}
-			}
 		}
 		if style["height"] == "" && style["width"] == "" {
 			style["width"] = "20%"
@@ -392,7 +345,7 @@ func toHTML(bb, meat string) string {
 		if other["title"] != "" {
 			tagness += " title='" + other["title"] + "'"
 		}
-		str = "<img" + tagness + " src='" + meat + "'/>"
+		str = "<img" + tagness + " src='" + strings.TrimSpace(meat) + "'/>"
 	} else if lwrbb == "youtube" {
 		lwrin := strings.ToLower(meat)
 		parsed := ""

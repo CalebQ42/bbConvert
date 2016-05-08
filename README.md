@@ -79,5 +79,7 @@ Tag and parameters aren't case sensitive unless they need to be (such as title a
     [number] * Item 1 * Item 2[/number] //same as [ol]
     [font align=center]Center, right, left, and justified support[/font]
 
+I want to continue to add "simple" tags that should make it easier for people to remember.
+
 # Known Issues
 I can't find any!!! :)

@@ -74,6 +74,9 @@ Tag and parameters aren't case sensitive unless they need to be (such as title a
 
 # Todo (Probably in order)
 
+    [image]Image URL[/image] //same as [img] tag
+    [bullet] * Item 1 * Item 2[/bullet] //same as [ul]
+    [number] * Item 1 * Item 2[/number] //same as [ol]
     [font align=center]Center, right, left, and justified support[/font]
 
 # Known Issues

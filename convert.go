@@ -31,7 +31,7 @@ func convert(input string) string {
 			break
 		}
 	}
-	out := toHTML(front, meat)
+	out := toHTML(front, bbconv(meat))
 	return out
 }
 

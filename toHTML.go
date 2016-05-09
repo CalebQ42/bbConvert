@@ -441,57 +441,121 @@ func toHTML(bb, meat string) string {
 			str += "\""
 		}
 		str += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
-	} else if lwrbb == "ul" {
-		meat = strings.Replace(meat, "\n", "", -1)
+	} else if lwrbb == "ul" || lwrbb == "bullet" {
+		meat = strings.TrimSpace(meat)
 		spl := strings.Split(meat, "*")
-		str = "<ul>"
-		for i := 0; i < len(spl); i++ {
-			spl[i] = strings.TrimSpace(spl[i])
-			if strings.Contains(spl[i], "<ul>") {
-				for j := i; j < len(spl); j++ {
-					if strings.Contains(spl[j], "</ul>") {
-						i = j
-					}
+		var new []string
+		for _, v := range spl {
+			if strings.Contains(v, "\n") {
+				tmp := strings.Split(v, "\n")
+				for _, val := range tmp {
+					new = append(new, val)
 				}
-			} else if strings.Contains(spl[i], "<ol>") {
-				for j := i; j < len(spl); j++ {
-					if strings.Contains(spl[j], "</ol>") {
-						i = j
-					}
-				}
-			} else if spl[i] != "" {
-				str += "<li>" + spl[i] + "</li>"
+			} else {
+				new = append(new, v)
 			}
 		}
-		str += "</ul>"
-		if pWrap {
-			str = "</p>" + str + p
-		}
-	} else if lwrbb == "ol" {
-		meat = strings.Replace(meat, "\n", "", -1)
-		spl := strings.Split(meat, "*")
-		str = "<ol>"
-		for i := 0; i < len(spl); i++ {
-			spl[i] = strings.TrimSpace(spl[i])
-			if strings.Contains(spl[i], "<ul>") {
-				for j := i; j < len(spl); j++ {
-					if strings.Contains(spl[j], "</ul>") {
+		for i, v := range new {
+			v = strings.TrimSpace(v)
+			if strings.Contains(v, "<ul>") {
+				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "</ul>") {
+						tmp := ""
+						for _, val := range new[i : j+1] {
+							tmp += val
+						}
+						if !strings.HasPrefix(v, "<ul>") {
+							tmp = "<li>" + tmp + "</li>"
+						} else if !strings.HasSuffix(new[j], "</ul>") {
+							tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
+						}
+						str += tmp
 						i = j
+						break
 					}
 				}
-			} else if strings.Contains(spl[i], "<ol>") {
-				for j := i; j < len(spl); j++ {
-					if strings.Contains(spl[j], "</ol>") {
+			} else if strings.Contains(v, "<ol>") {
+				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "</ol>") {
+						tmp := ""
+						for _, val := range new[i : j+1] {
+							tmp += val
+						}
+						if !strings.HasPrefix(v, "<ol>") {
+							tmp = "<li>" + tmp + "</li>"
+						} else if !strings.HasSuffix(new[j], "</ol>") {
+							tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
+						}
+						str += tmp
 						i = j
+						break
 					}
 				}
-			} else if spl[i] != "" {
-				str += "<li>" + spl[i] + "</li>"
+			} else if v != "" {
+				str += "<li>" + v + "</li>"
 			}
 		}
-		str += "</ol>"
+		str = "<ul>" + str + "</ul>"
 		if pWrap {
-			str = "</p>" + str + p
+			strings.Replace(str, "\n", "", -1)
+		}
+	} else if lwrbb == "ol" || lwrbb == "number" {
+		meat = strings.TrimSpace(meat)
+		spl := strings.Split(meat, "*")
+		var new []string
+		for _, v := range spl {
+			if strings.Contains(v, "\n") {
+				tmp := strings.Split(v, "\n")
+				for _, val := range tmp {
+					new = append(new, val)
+				}
+			} else {
+				new = append(new, v)
+			}
+		}
+		for i, v := range new {
+			v = strings.TrimSpace(v)
+			if strings.Contains(v, "<ul>") {
+				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "</ul>") {
+						tmp := ""
+						for _, val := range new[i : j+1] {
+							tmp += val
+						}
+						if !strings.HasPrefix(v, "<ul>") {
+							tmp = "<li>" + tmp + "</li>"
+						} else if !strings.HasSuffix(new[j], "</ul>") {
+							tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
+						}
+						str += tmp
+						i = j
+						break
+					}
+				}
+			} else if strings.Contains(v, "<ol>") {
+				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "</ol>") {
+						tmp := ""
+						for _, val := range new[i : j+1] {
+							tmp += val
+						}
+						if !strings.HasPrefix(v, "<ol>") {
+							tmp = "<li>" + tmp + "</li>"
+						} else if !strings.HasSuffix(new[j], "</ol>") {
+							tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
+						}
+						str += tmp
+						i = j
+						break
+					}
+				}
+			} else if v != "" {
+				str += "<li>" + v + "</li>"
+			}
+		}
+		str = "<ol>" + str + "</ol>"
+		if pWrap {
+			strings.Replace(str, "\n", "", -1)
 		}
 	} else if lwrbb == "title" {
 		meat = strings.Replace(meat, "\n", "", -1)

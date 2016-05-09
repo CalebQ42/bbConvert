@@ -51,12 +51,14 @@ bbConvert has support for the following bb tags:
     [align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
     [ul]
     * Item 1
-    * Item 2
+    Item 2
     [/ul] //an unordered (bulleted) list
     [ol]
     * Item 1
-    * Item 2
+    Item 2
     [/ol] //an ordered (numbered) list
+    [bullet] * Item 1 * Item 2[/bullet] //same as [ul]
+    [number] * Item 1 * Item 2[/number] //same as [ol]
     [ul]* Item 1 * Item 2[/ul] //an unordered (bulleted) list
     [ol]* Item 1 * Item 2[/ol] //an ordered (numbered) list
 
@@ -68,6 +70,8 @@ If left unspecified then youtube sets height=315 height=560
 
 Both lists (ul, ol) trims spaces from the beginning and end of their items so spaces around * aren't necessary. If there is text before the first * it will be interpreted as it's own bullet/number
 
+Bullets/numbers for lists are determined by asterisks or newlines
+
 For the titles ([t1] - [t6]) then if you have a number less than 1 (such as zero) after the t then it will be the same as [t1] and if the number is greater than 6 it will be treated as [t6]
 
 Tag and parameters aren't case sensitive unless they need to be (such as title and alt)
@@ -75,8 +79,6 @@ Tag and parameters aren't case sensitive unless they need to be (such as title a
 # Todo (Probably in order)
 
     [image]Image URL[/image] //same as [img] tag
-    [bullet] * Item 1 * Item 2[/bullet] //same as [ul]
-    [number] * Item 1 * Item 2[/number] //same as [ol]
     [font align=center]Center, right, left, and justified support[/font]
 
 I want to continue to add "simple" tags that should make it easier for people to remember.

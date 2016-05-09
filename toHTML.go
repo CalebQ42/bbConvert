@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -180,9 +181,9 @@ func toHTML(bb, meat string) string {
 			str += "title=\"" + title + "\" "
 		}
 		str += "href=\"" + addr + "\">" + meat + "</a>"
-	} else if lwrbb == "img" {
+	} else if lwrbb == "img" || lwrbb == "image" {
 		str = "<img style='width:20%;' src='" + meat + "'/>"
-	} else if strings.HasPrefix(lwrbb, "img") {
+	} else if strings.HasPrefix(lwrbb, "img") || strings.HasPrefix(lwrbb, "image") {
 		tagness := ""
 		style := make(map[string]string)
 		other := make(map[string]string)
@@ -331,6 +332,25 @@ func toHTML(bb, meat string) string {
 			style["height"] = h
 			style["width"] = w
 		}
+		if strings.HasPrefix(lwrbb, "image=") {
+			var sz string
+			for i := 7; i < len(bb); i++ {
+				if bb[i] == ' ' {
+					sz = lwrbb[6:i]
+				} else if i == len(bb)-1 {
+					sz = lwrbb[6 : i+1]
+				}
+			}
+			xPos := strings.Index(sz, "x")
+			w, h := "", ""
+			if xPos != -1 {
+				w, h = sz[:xPos], sz[xPos+1:]
+			} else {
+				w = sz
+			}
+			style["height"] = h
+			style["width"] = w
+		}
 		if style["height"] == "" && style["width"] == "" {
 			style["width"] = "20%"
 		}
@@ -458,37 +478,51 @@ func toHTML(bb, meat string) string {
 		for i, v := range new {
 			v = strings.TrimSpace(v)
 			if strings.Contains(v, "<ul>") {
+				var count int
 				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "<ul>") {
+						count++
+					}
 					if strings.Contains(new[j], "</ul>") {
-						tmp := ""
-						for _, val := range new[i : j+1] {
-							tmp += val
+						count--
+						if count == 0 {
+							tmp := ""
+							for _, val := range new[i : j+1] {
+								tmp += val
+							}
+							if !strings.HasPrefix(v, "<ul>") {
+								tmp = "<li>" + tmp + "</li>"
+							} else if !strings.HasSuffix(new[j], "</ul>") {
+								tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
+							}
+							str += tmp
+							i = j
+							break
 						}
-						if !strings.HasPrefix(v, "<ul>") {
-							tmp = "<li>" + tmp + "</li>"
-						} else if !strings.HasSuffix(new[j], "</ul>") {
-							tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
-						}
-						str += tmp
-						i = j
-						break
 					}
 				}
 			} else if strings.Contains(v, "<ol>") {
+				var count int
 				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "<ul>") {
+						count++
+					}
 					if strings.Contains(new[j], "</ol>") {
-						tmp := ""
-						for _, val := range new[i : j+1] {
-							tmp += val
+						count--
+						if count == 0 {
+							tmp := ""
+							for _, val := range new[i : j+1] {
+								tmp += val
+							}
+							if !strings.HasPrefix(v, "<ol>") {
+								tmp = "<li>" + tmp + "</li>"
+							} else if !strings.HasSuffix(new[j], "</ol>") {
+								tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
+							}
+							str += tmp
+							i = j
+							break
 						}
-						if !strings.HasPrefix(v, "<ol>") {
-							tmp = "<li>" + tmp + "</li>"
-						} else if !strings.HasSuffix(new[j], "</ol>") {
-							tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
-						}
-						str += tmp
-						i = j
-						break
 					}
 				}
 			} else if v != "" {
@@ -516,37 +550,53 @@ func toHTML(bb, meat string) string {
 		for i, v := range new {
 			v = strings.TrimSpace(v)
 			if strings.Contains(v, "<ul>") {
+				var count int
 				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "<ul>") {
+						count++
+					}
 					if strings.Contains(new[j], "</ul>") {
-						tmp := ""
-						for _, val := range new[i : j+1] {
-							tmp += val
+						count--
+						if count == 0 {
+							tmp := ""
+							for _, val := range new[i : j+1] {
+								tmp += val
+							}
+							if !strings.HasPrefix(v, "<ul>") {
+								tmp = "<li>" + tmp + "</li>"
+							} else if !strings.HasSuffix(new[j], "</ul>") {
+								tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
+							}
+							str += tmp
+							i = j
+							break
 						}
-						if !strings.HasPrefix(v, "<ul>") {
-							tmp = "<li>" + tmp + "</li>"
-						} else if !strings.HasSuffix(new[j], "</ul>") {
-							tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
-						}
-						str += tmp
-						i = j
-						break
 					}
 				}
 			} else if strings.Contains(v, "<ol>") {
+				var count int
 				for j := i; j < len(new); j++ {
+					if strings.Contains(new[j], "<ul>") {
+						count++
+						fmt.Println(count)
+					}
 					if strings.Contains(new[j], "</ol>") {
-						tmp := ""
-						for _, val := range new[i : j+1] {
-							tmp += val
+						count--
+						fmt.Println(count)
+						if count == 0 {
+							tmp := ""
+							for _, val := range new[i : j+1] {
+								tmp += val
+							}
+							if !strings.HasPrefix(v, "<ol>") {
+								tmp = "<li>" + tmp + "</li>"
+							} else if !strings.HasSuffix(new[j], "</ol>") {
+								tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
+							}
+							str += tmp
+							i = j
+							break
 						}
-						if !strings.HasPrefix(v, "<ol>") {
-							tmp = "<li>" + tmp + "</li>"
-						} else if !strings.HasSuffix(new[j], "</ol>") {
-							tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
-						}
-						str += tmp
-						i = j
-						break
 					}
 				}
 			} else if v != "" {

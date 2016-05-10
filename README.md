@@ -41,6 +41,7 @@ bbConvert has support for the following bb tags:
     [img right]Image URL[/img] //an image floated right
     [img alt="Alternate text"]Image URL[/img] //an image with alternate text
     [img title="Title"]Image URL[/img] //an image with title
+    [image]Image URL[/image] //same as [img] tag
     [title]Some Text[/title] //Large text made for use as a title
     [t1]Some Text[/t1] //Large text made for use as a title. Same as [title]
     [t2]Some Text[/t2] //Slightly smaller text than [t1]. Meant for use as a title of some sort
@@ -76,12 +77,13 @@ For the titles ([t1] - [t6]) then if you have a number less than 1 (such as zero
 
 Tag and parameters aren't case sensitive unless they need to be (such as title and alt)
 
+Multilevel lists are supported (just put a list inside a list)
+
 # Todo (Probably in order)
 
-    [image]Image URL[/image] //same as [img] tag
     [font align=center]Center, right, left, and justified support[/font]
 
 I want to continue to add "simple" tags that should make it easier for people to remember.
 
 # Known Issues
-3+ level bullets is having some major issues
+an empty tag ("[]") inside of a list causes nothing to output.

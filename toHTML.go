@@ -1,7 +1,6 @@
 package bbConvert
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -29,8 +28,9 @@ func toHTML(bb, meat string) string {
 		style := make(map[string]string)
 		if strings.HasPrefix(lwrbb, "font=") {
 			if lwrbb[5] == '\'' || lwrbb[5] == '"' {
+				qt := lwrbb[5]
 				for i := 6; i < len(lwrbb); i++ {
-					if lwrbb[i] == lwrbb[5] {
+					if lwrbb[i] == qt {
 						style["font-family"] = lwrbb[6:i]
 						break
 					}
@@ -39,6 +39,7 @@ func toHTML(bb, meat string) string {
 				for i := 5; i < len(lwrbb); i++ {
 					if lwrbb[i] == ' ' {
 						style["font-family"] = lwrbb[5:i]
+						break
 					}
 				}
 				if style["font-family"] == "" {
@@ -96,6 +97,9 @@ func toHTML(bb, meat string) string {
 		if len(style) != 0 {
 			str = "<span style=\""
 			for i, v := range style {
+				if strings.Contains(v, " ") {
+					v = "'" + v + "'"
+				}
 				str += i + ":" + v + ";"
 			}
 			str += "\">" + meat + "</span>"
@@ -462,150 +466,20 @@ func toHTML(bb, meat string) string {
 		}
 		str += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	} else if lwrbb == "ul" || lwrbb == "bullet" {
-		meat = strings.TrimSpace(meat)
-		spl := strings.Split(meat, "*")
-		var new []string
-		for _, v := range spl {
-			if strings.Contains(v, "\n") {
-				tmp := strings.Split(v, "\n")
-				for _, val := range tmp {
-					new = append(new, val)
-				}
-			} else {
-				new = append(new, v)
-			}
-		}
-		for i, v := range new {
-			v = strings.TrimSpace(v)
-			if strings.Contains(v, "<ul>") {
-				var count int
-				for j := i; j < len(new); j++ {
-					if strings.Contains(new[j], "<ul>") {
-						count++
-					}
-					if strings.Contains(new[j], "</ul>") {
-						count--
-						if count == 0 {
-							tmp := ""
-							for _, val := range new[i : j+1] {
-								tmp += val
-							}
-							if !strings.HasPrefix(v, "<ul>") {
-								tmp = "<li>" + tmp + "</li>"
-							} else if !strings.HasSuffix(new[j], "</ul>") {
-								tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
-							}
-							str += tmp
-							i = j
-							break
-						}
-					}
-				}
-			} else if strings.Contains(v, "<ol>") {
-				var count int
-				for j := i; j < len(new); j++ {
-					if strings.Contains(new[j], "<ul>") {
-						count++
-					}
-					if strings.Contains(new[j], "</ol>") {
-						count--
-						if count == 0 {
-							tmp := ""
-							for _, val := range new[i : j+1] {
-								tmp += val
-							}
-							if !strings.HasPrefix(v, "<ol>") {
-								tmp = "<li>" + tmp + "</li>"
-							} else if !strings.HasSuffix(new[j], "</ol>") {
-								tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
-							}
-							str += tmp
-							i = j
-							break
-						}
-					}
-				}
-			} else if v != "" {
-				str += "<li>" + v + "</li>"
-			}
-		}
+		str = bulletprocessing(meat)
 		str = "<ul>" + str + "</ul>"
 		if pWrap {
-			strings.Replace(str, "\n", "", -1)
+			str = strings.Replace(str, "\n", "", -1)
+			str = strings.Replace(str, "<li></li>", "", -1)
+			str = "</p>" + str + p
 		}
 	} else if lwrbb == "ol" || lwrbb == "number" {
-		meat = strings.TrimSpace(meat)
-		spl := strings.Split(meat, "*")
-		var new []string
-		for _, v := range spl {
-			if strings.Contains(v, "\n") {
-				tmp := strings.Split(v, "\n")
-				for _, val := range tmp {
-					new = append(new, val)
-				}
-			} else {
-				new = append(new, v)
-			}
-		}
-		for i, v := range new {
-			v = strings.TrimSpace(v)
-			if strings.Contains(v, "<ul>") {
-				var count int
-				for j := i; j < len(new); j++ {
-					if strings.Contains(new[j], "<ul>") {
-						count++
-					}
-					if strings.Contains(new[j], "</ul>") {
-						count--
-						if count == 0 {
-							tmp := ""
-							for _, val := range new[i : j+1] {
-								tmp += val
-							}
-							if !strings.HasPrefix(v, "<ul>") {
-								tmp = "<li>" + tmp + "</li>"
-							} else if !strings.HasSuffix(new[j], "</ul>") {
-								tmp = tmp[:strings.Index(tmp, "</ul>")+5] + "<li>" + tmp[strings.Index(tmp, "</ul>")+5:] + "</li>"
-							}
-							str += tmp
-							i = j
-							break
-						}
-					}
-				}
-			} else if strings.Contains(v, "<ol>") {
-				var count int
-				for j := i; j < len(new); j++ {
-					if strings.Contains(new[j], "<ul>") {
-						count++
-						fmt.Println(count)
-					}
-					if strings.Contains(new[j], "</ol>") {
-						count--
-						fmt.Println(count)
-						if count == 0 {
-							tmp := ""
-							for _, val := range new[i : j+1] {
-								tmp += val
-							}
-							if !strings.HasPrefix(v, "<ol>") {
-								tmp = "<li>" + tmp + "</li>"
-							} else if !strings.HasSuffix(new[j], "</ol>") {
-								tmp = tmp[:strings.Index(tmp, "</ol>")+5] + "<li>" + tmp[strings.Index(tmp, "</ol>")+5:] + "</li>"
-							}
-							str += tmp
-							i = j
-							break
-						}
-					}
-				}
-			} else if v != "" {
-				str += "<li>" + v + "</li>"
-			}
-		}
+		str = bulletprocessing(meat)
 		str = "<ol>" + str + "</ol>"
 		if pWrap {
-			strings.Replace(str, "\n", "", -1)
+			str = strings.Replace(str, "\n", "", -1)
+			str = strings.Replace(str, "<li></li>", "", -1)
+			str = "</p>" + str + p
 		}
 	} else if lwrbb == "title" {
 		meat = strings.Replace(meat, "\n", "", -1)
@@ -641,4 +515,47 @@ func toHTML(bb, meat string) string {
 		return meat
 	}
 	return str
+}
+
+func bulletprocessing(meat string) string {
+	out, prev, count := "", 0, 0
+	for i, v := range meat {
+		if i < len(meat)-4 {
+			if meat[i:i+4] == "<ul>" || meat[i:i+4] == "<ol>" {
+				if prev != i {
+					out += "<li>" + strings.TrimSpace(meat[prev:i]) + "</li>"
+					prev = i
+				}
+				count++
+			}
+		}
+		if i < len(meat)-5 {
+			if meat[i:i+5] == "</ul>" || meat[i:i+5] == "</ol>" {
+				count--
+				if count == 0 {
+					out += meat[prev : i+5]
+					prev = i + 5
+				}
+			}
+		}
+		if (v == '*' || v == '\n') && count == 0 {
+			out += "<li>" + strings.TrimSpace(meat[prev:i]) + "</li>"
+			prev = i + 1
+		}
+	}
+	if count == 0 {
+		out += "<li>" + strings.TrimSpace(meat[prev:]) + "</li>"
+	}
+	out = strings.Replace(out, "<li></li>", "", -1)
+	out = strings.Replace(out, "\n", "", -1)
+	out = strings.Replace(out, "</p>", "", -1)
+	out = strings.Replace(out, "<li><ul>", "<ul>", -1)
+	out = strings.Replace(out, "<li><ol>", "<ol>", -1)
+	out = strings.Replace(out, "</ul></li>", "</ul>", -1)
+	out = strings.Replace(out, "</ol></li>", "</ol>", -1)
+	out = strings.Replace(out, p, "", -1)
+	if out != "" {
+		return out
+	}
+	return meat
 }

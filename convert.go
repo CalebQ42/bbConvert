@@ -2,13 +2,20 @@ package bbConvert
 
 import "strings"
 
+const (
+	u    = "ul"
+	o    = "ol"
+	bul  = "bullet"
+	numb = "number"
+)
+
 func bbconv(input string) string {
 	for i := 0; i < len(input); i++ {
 		if input[i] == '[' {
 			for j := i; j < len(input); j++ {
 				if input[j] == ']' && checktags(input[i:j+1]) {
 					input = input[:i] + convert(input[i:j+1]) + input[j+1:]
-					i = 0
+					i = j
 					break
 				}
 			}
@@ -45,6 +52,9 @@ func checktags(input string) bool {
 		return false
 	}
 	if fr == bk {
+		if fr == u || fr == o || fr == bul || fr == numb {
+			return checkbullets(input, fr)
+		}
 		return true
 	}
 	return false
@@ -69,6 +79,29 @@ func checkback(input string, channel chan string) {
 		}
 	}
 	channel <- "Nope"
+}
+
+func checkbullets(input, bb string) bool {
+	input = input[len(bb)+2 : len(input)-len(bb)-3]
+	back, front := 0, 0
+	for i, v := range input {
+		if v == '[' {
+			for j := i; j < len(input); j++ {
+				if input[j] == ']' {
+					val := input[i+1 : j]
+					if val == u || val == o || val == numb || val == bul {
+						front++
+					} else if val == "/ul" || val == "/ol" || val == "/number" || val == "/bullet" {
+						back++
+					}
+				}
+			}
+		}
+	}
+	if front == back {
+		return true
+	}
+	return false
 }
 
 func indexAll(s, set string) []int {

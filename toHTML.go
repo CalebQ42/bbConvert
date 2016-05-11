@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -235,6 +236,7 @@ func toHTML(bb, meat string) string {
 				stuff["alt"] = 0
 				posi := pos["alt"][0] + 5
 				qt := lwrbb[posi-1]
+				fmt.Println(string(qt))
 				for i := posi; i < len(bb); i++ {
 					if lwrbb[i] == qt {
 						other["alt"] = bb[posi:i]
@@ -324,8 +326,10 @@ func toHTML(bb, meat string) string {
 			for i := 5; i < len(bb); i++ {
 				if bb[i] == ' ' {
 					sz = lwrbb[4:i]
+					break
 				} else if i == len(bb)-1 {
 					sz = lwrbb[4 : i+1]
+					break
 				}
 			}
 			xPos := strings.Index(sz, "x")

@@ -378,7 +378,7 @@ func toHTML(bb, meat string) string {
 		lwrin := strings.ToLower(meat)
 		parsed := ""
 		if strings.HasPrefix(lwrin, "http://") || strings.HasPrefix(lwrin, "https://") || strings.HasPrefix(lwrin, "youtu") || strings.HasPrefix(lwrin, "www.") {
-			tmp := lwrin[7:]
+			tmp := meat[7:]
 			tmp = strings.Trim(tmp, "/")
 			ytb := strings.Split(tmp, "/")
 			if strings.HasPrefix(ytb[len(ytb)-1], "watch?v=") {
@@ -449,7 +449,7 @@ func toHTML(bb, meat string) string {
 		lwrin := strings.ToLower(meat)
 		parsed := ""
 		if strings.HasPrefix(lwrin, "http://") || strings.HasPrefix(lwrin, "https://") || strings.HasPrefix(lwrin, "youtu") || strings.HasPrefix(lwrin, "www.") {
-			tmp := lwrin[7:]
+			tmp := meat[7:]
 			tmp = strings.Trim(tmp, "/")
 			ytb := strings.Split(tmp, "/")
 			if strings.HasPrefix(ytb[len(ytb)-1], "watch?v=") {

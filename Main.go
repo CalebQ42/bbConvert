@@ -1,3 +1,7 @@
+/*Package bbConvert converts BBCode to HTML. I built this for a school project
+and have successfully implemented it on a website.
+It has support for many BBCode tags and properly handles newlines (\n) and new
+paragraphs*/
 package bbConvert
 
 import "strings"

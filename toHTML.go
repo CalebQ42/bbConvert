@@ -14,17 +14,17 @@ const (
 func toHTML(bb, meat string) string {
 	bb = strings.TrimSpace(bb)
 	lwrbb := strings.ToLower(bb)
-	var str string
+	var out string
 	if lwrbb == "b" || lwrbb == "s" || lwrbb == "i" || lwrbb == "u" {
-		str = "<" + lwrbb + ">" + meat + "</" + lwrbb + ">"
+		out = "<" + lwrbb + ">" + meat + "</" + lwrbb + ">"
 	} else if lwrbb == "bold" {
-		str = "<b>" + meat + "</b>"
+		out = "<b>" + meat + "</b>"
 	} else if lwrbb == "italics" {
-		str = "<i>" + meat + "</i>"
+		out = "<i>" + meat + "</i>"
 	} else if lwrbb == "underline" {
-		str = "<u>" + meat + "</u>"
+		out = "<u>" + meat + "</u>"
 	} else if lwrbb == "strike" {
-		str = "<s>" + meat + "</s>"
+		out = "<s>" + meat + "</s>"
 	} else if strings.HasPrefix(lwrbb, "font") {
 		style := make(map[string]string)
 		if strings.HasPrefix(lwrbb, "font=") {
@@ -96,14 +96,14 @@ func toHTML(bb, meat string) string {
 			}
 		}
 		if len(style) != 0 {
-			str = "<span style=\""
+			out = "<span style=\""
 			for i, v := range style {
 				if strings.Contains(v, " ") {
 					v = "'" + v + "'"
 				}
-				str += i + ":" + v + ";"
+				out += i + ":" + v + ";"
 			}
-			str += "\">" + meat + "</span>"
+			out += "\">" + meat + "</span>"
 		}
 	} else if strings.HasPrefix(lwrbb, "color=") {
 		col := lwrbb[6:]
@@ -113,13 +113,13 @@ func toHTML(bb, meat string) string {
 				col = "#" + col
 			}
 		}
-		str = "<span style=\"color:" + col + ";\">" + meat + "</span>"
+		out = "<span style=\"color:" + col + ";\">" + meat + "</span>"
 	} else if strings.HasPrefix(lwrbb, "size=") {
-		str = "<span style=\"size:" + lwrbb[5:] + ";\">" + meat + "</span>"
+		out = "<span style=\"size:" + lwrbb[5:] + ";\">" + meat + "</span>"
 	} else if lwrbb == "smallcaps" {
-		str = "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
+		out = "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
 	} else if lwrbb == "url" || lwrbb == "link" {
-		str = "<a href=\"" + meat + "\">" + meat + "</a>"
+		out = "<a href=\"" + meat + "\">" + meat + "</a>"
 	} else if strings.HasPrefix(lwrbb, "url") {
 		var addr string
 		if strings.HasPrefix(lwrbb, "url=") {
@@ -145,14 +145,14 @@ func toHTML(bb, meat string) string {
 				}
 			}
 		}
-		str = "<a "
+		out = "<a "
 		if title != "" {
 			if strings.Contains(title, "\"") {
 				strings.Replace(title, "\"", "\\\"", -1)
 			}
-			str += "title=\"" + title + "\" "
+			out += "title=\"" + title + "\" "
 		}
-		str += "href=\"" + addr + "\">" + meat + "</a>"
+		out += "href=\"" + addr + "\">" + meat + "</a>"
 	} else if strings.HasPrefix(lwrbb, "link") {
 		var addr string
 		if strings.HasPrefix(lwrbb, "link=") {
@@ -178,16 +178,16 @@ func toHTML(bb, meat string) string {
 				}
 			}
 		}
-		str = "<a "
+		out = "<a "
 		if title != "" {
 			if strings.Contains(title, "\"") {
 				strings.Replace(title, "\"", "\\\"", -1)
 			}
-			str += "title=\"" + title + "\" "
+			out += "title=\"" + title + "\" "
 		}
-		str += "href=\"" + addr + "\">" + meat + "</a>"
+		out += "href=\"" + addr + "\">" + meat + "</a>"
 	} else if lwrbb == "img" || lwrbb == "image" {
-		str = "<img style='width:20%;' src='" + meat + "'/>"
+		out = "<img style='width:20%;' src='" + meat + "'/>"
 	} else if strings.HasPrefix(lwrbb, "img") || strings.HasPrefix(lwrbb, "image") {
 		tagness := ""
 		style := make(map[string]string)
@@ -373,7 +373,7 @@ func toHTML(bb, meat string) string {
 		if other["title"] != "" {
 			tagness += " title='" + other["title"] + "'"
 		}
-		str = "<img" + tagness + " src='" + strings.TrimSpace(meat) + "'/>"
+		out = "<img" + tagness + " src='" + strings.TrimSpace(meat) + "'/>"
 	} else if lwrbb == "youtube" {
 		lwrin := strings.ToLower(meat)
 		parsed := ""
@@ -389,7 +389,7 @@ func toHTML(bb, meat string) string {
 		} else {
 			parsed = meat
 		}
-		str = "<iframe height='315' width='560' src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
+		out = "<iframe height='315' width='560' src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	} else if strings.HasPrefix(bb, "youtube") {
 		style := make(map[string]string)
 		if strings.Contains(lwrbb, "height=") {
@@ -460,65 +460,65 @@ func toHTML(bb, meat string) string {
 		} else {
 			parsed = meat
 		}
-		str = "<iframe"
+		out = "<iframe"
 		if len(style) > 0 {
-			str += " style=\""
+			out += " style=\""
 			for i, v := range style {
-				str += i + ":" + v + ";"
+				out += i + ":" + v + ";"
 			}
-			str += "\""
+			out += "\""
 		}
-		str += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
+		out += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	} else if lwrbb == "ul" || lwrbb == "bullet" {
-		str = bulletprocessing(meat)
-		str = "<ul>" + str + "</ul>"
+		out = bulletprocessing(meat)
+		out = "<ul>" + out + "</ul>"
 		if pWrap {
-			str = strings.Replace(str, "\n", "", -1)
-			str = strings.Replace(str, "<li></li>", "", -1)
-			str = "</p>" + str + p
+			out = strings.Replace(out, "\n", "", -1)
+			out = strings.Replace(out, "<li></li>", "", -1)
+			out = "</p>" + out + p
 		}
 	} else if lwrbb == "ol" || lwrbb == "number" {
-		str = bulletprocessing(meat)
-		str = "<ol>" + str + "</ol>"
+		out = bulletprocessing(meat)
+		out = "<ol>" + out + "</ol>"
 		if pWrap {
-			str = strings.Replace(str, "\n", "", -1)
-			str = strings.Replace(str, "<li></li>", "", -1)
-			str = "</p>" + str + p
+			out = strings.Replace(out, "\n", "", -1)
+			out = strings.Replace(out, "<li></li>", "", -1)
+			out = "</p>" + out + p
 		}
 	} else if lwrbb == "title" {
 		meat = strings.Replace(meat, "\n", "", -1)
-		str = "<h1>" + meat + "</h1>"
+		out = "<h1>" + meat + "</h1>"
 		if pWrap {
-			str = "</p>" + str + p
+			out = "</p>" + out + p
 		}
 	} else if strings.HasPrefix(lwrbb, "t") {
 		meat = strings.Replace(meat, "\n", "", -1)
 		par, err := strconv.Atoi(lwrbb[1:])
 		if err == strconv.ErrSyntax {
-			str = "<h4>" + meat + "</h4>"
+			out = "<h4>" + meat + "</h4>"
 		} else {
 			if par >= 1 && par <= 6 {
-				str = "<h" + strconv.Itoa(par) + ">" + meat + "</h" + strconv.Itoa(par) + ">"
+				out = "<h" + strconv.Itoa(par) + ">" + meat + "</h" + strconv.Itoa(par) + ">"
 			} else if par < 1 {
-				str = "<h1>" + meat + "</h1>"
+				out = "<h1>" + meat + "</h1>"
 			} else if par > 6 {
-				str = "<h6>" + meat + "</h6>"
+				out = "<h6>" + meat + "</h6>"
 			}
 		}
 		if pWrap {
-			str = "</p>" + str + p
+			out = "</p>" + out + p
 		}
 	} else if strings.HasPrefix(lwrbb, "align=") {
-		str = "<div style=\"text-align:" + lwrbb[6:] + ";\">"
+		out = "<div style=\"text-align:" + lwrbb[6:] + ";\">"
 		if pWrap {
-			str = "</p>" + str + p + meat + "</p></div>" + p
+			out = "</p>" + out + p + meat + "</p></div>" + p
 		} else {
-			str = str + meat + "</div>"
+			out = out + meat + "</div>"
 		}
 	} else {
 		return meat
 	}
-	return str
+	return out
 }
 
 func bulletprocessing(meat string) string {

@@ -121,7 +121,7 @@ func toHTML(bb, meat string) string {
 	} else if lwrbb == "url" || lwrbb == "link" {
 		out = "<a href=\"" + meat + "\">" + meat + "</a>"
 	} else if strings.HasPrefix(lwrbb, "url") {
-		var addr string
+		addr := meat
 		if strings.HasPrefix(lwrbb, "url=") {
 			for i := 4; i < len(lwrbb); i++ {
 				if lwrbb[i] == ' ' {
@@ -132,8 +132,6 @@ func toHTML(bb, meat string) string {
 			if addr == meat {
 				addr = lwrbb[4:]
 			}
-		} else {
-			addr = meat
 		}
 		var title string
 		if strings.Contains(lwrbb, "title=") {
@@ -154,7 +152,7 @@ func toHTML(bb, meat string) string {
 		}
 		out += "href=\"" + addr + "\">" + meat + "</a>"
 	} else if strings.HasPrefix(lwrbb, "link") {
-		var addr string
+		addr := meat
 		if strings.HasPrefix(lwrbb, "link=") {
 			for i := 5; i < len(lwrbb); i++ {
 				if lwrbb[i] == ' ' {
@@ -165,8 +163,6 @@ func toHTML(bb, meat string) string {
 			if addr == meat {
 				addr = lwrbb[5:]
 			}
-		} else {
-			addr = meat
 		}
 		var title string
 		if strings.Contains(lwrbb, "title=") {
@@ -187,7 +183,7 @@ func toHTML(bb, meat string) string {
 		}
 		out += "href=\"" + addr + "\">" + meat + "</a>"
 	} else if lwrbb == "img" || lwrbb == "image" {
-		out = "<img style='width:20%;' src='" + meat + "'/>"
+		out = "<img style='width:20%;float:none;' src='" + meat + "'/>"
 	} else if strings.HasPrefix(lwrbb, "img") || strings.HasPrefix(lwrbb, "image") {
 		tagness := ""
 		style := make(map[string]string)
@@ -200,6 +196,8 @@ func toHTML(bb, meat string) string {
 		pos["height"] = indexAll(lwrbb, "height=")
 		pos["left"] = indexAll(lwrbb, "left")
 		pos["right"] = indexAll(lwrbb, "right")
+		style["float"] = "none"
+		fmt.Println("here")
 		if len(pos["alt"]) != 0 || len(pos["title"]) != 0 {
 			if len(pos["title"]) != 0 && (len(pos["alt"]) == 0 || pos["alt"][0] > pos["title"][0]) {
 				stuff["title"] = 0

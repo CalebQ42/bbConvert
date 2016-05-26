@@ -15,7 +15,6 @@ func bbconv(input string) string {
 			for j := i; j < len(input); j++ {
 				if input[j] == ']' && checktags(input[i:j+1]) {
 					input = input[:i] + convert(input[i:j+1]) + input[j+1:]
-					i = j
 					break
 				}
 			}

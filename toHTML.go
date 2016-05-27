@@ -239,11 +239,15 @@ func bulletprocessing(meat string) (out string) {
 		bullets = append(bullets, meat[prev:])
 	}
 	for _, v := range bullets {
+		v = strings.TrimSpace(v)
 		if (strings.HasPrefix(v, "<ul>") && strings.HasSuffix(v, "</ul>")) || (strings.HasPrefix(v, "<ol>") && strings.HasSuffix(v, "</ol>")) {
 			out += v
 		} else {
-			out += "<li>" + v + "</li>"
+			if v != "" && v != "\n" {
+				out += "<li>" + v + "</li>"
+			}
 		}
 	}
+	out = strings.Replace(out, "<li></li>", "", -1)
 	return
 }

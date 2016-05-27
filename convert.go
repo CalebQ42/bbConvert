@@ -31,8 +31,8 @@ func bbconv(input string) string {
 						tmpTag.begIndex = i
 						tmpTag.endIndex = j
 						ndTag := findEndTag(tmpTag, input)
-						out := toHTML(tmpTag, ndTag, bbconv(input[tmpTag.endIndex+1:ndTag.begIndex]))
 						if ndTag.bbType != "" {
+							out := toHTML(tmpTag, ndTag, bbconv(input[tmpTag.endIndex+1:ndTag.begIndex]))
 							input = input[:i] + out + input[ndTag.endIndex+1:]
 						}
 					}
@@ -61,6 +61,7 @@ func findEndTag(fnt tag, str string) tag {
 							}
 						} else {
 							count++
+							break
 						}
 					}
 				}

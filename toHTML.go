@@ -129,19 +129,19 @@ func toHTML(fnt, end tag, meat string) (out string) {
 		}
 		out += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 	case "ul", "bullet":
+		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ul>" + out + "</ul>"
 		if pWrap {
 			out = strings.Replace(out, "\n", "", -1)
-			out = strings.Replace(out, "<li></li>", "", -1)
 			out = "</p>" + out + p
 		}
 	case "ol", "number":
+		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ol>" + out + "</ol>"
 		if pWrap {
 			out = strings.Replace(out, "\n", "", -1)
-			out = strings.Replace(out, "<li></li>", "", -1)
 			out = "</p>" + out + p
 		}
 	case "title":
@@ -192,45 +192,58 @@ func trimAccess(style map[string]string) (out map[string]string) {
 	return
 }
 
-func bulletprocessing(meat string) string {
-	out, prev, count := "", 0, 0
-	for i, v := range meat {
-		if i < len(meat)-4 {
-			if meat[i:i+4] == "<ul>" || meat[i:i+4] == "<ol>" {
-				if prev != i {
-					out += "<li>" + strings.TrimSpace(meat[prev:i]) + "</li>"
-					prev = i
+func bulletprocessing(meat string) (out string) {
+	var prev int
+	var bullets []string
+	for i := 0; i < len(meat); i++ {
+		v := meat[i]
+		if i+4 < len(meat) && (meat[i:i+4] == "<ul>" || meat[i:i+4] == "<ol>") {
+			var count int
+			if meat[i:i+4] == "<ul>" {
+				for j := i + 4; j < len(meat)-5; j++ {
+					if meat[j:j+4] == "<ul>" {
+						count++
+					} else if meat[j:j+5] == "</ul>" {
+						count--
+						if count == -1 {
+							bullets = append(bullets, meat[prev:j+5])
+							i = j + 5
+							prev = j + 6
+							break
+						}
+					}
 				}
-				count++
-			}
-		}
-		if i < len(meat)-5 {
-			if meat[i:i+5] == "</ul>" || meat[i:i+5] == "</ol>" {
-				count--
-				if count == 0 {
-					out += meat[prev : i+5]
-					prev = i + 5
+			} else if meat[i:i+4] == "<ol>" {
+				for j := i + 4; j < len(meat)-5; j++ {
+					if meat[j:j+4] == "<ol>" {
+						count++
+					} else if meat[j:j+5] == "</ol>" {
+						count--
+						if count == -1 {
+							bullets = append(bullets, meat[prev:j+5])
+							i = j + 5
+							prev = j + 6
+							break
+						}
+					}
 				}
 			}
-		}
-		if (v == '*' || v == '\n') && count == 0 {
-			out += "<li>" + strings.TrimSpace(meat[prev:i]) + "</li>"
+		} else if v == '*' || v == '\n' {
+			if prev != i {
+				bullets = append(bullets, meat[prev:i])
+			}
 			prev = i + 1
 		}
 	}
-	if count == 0 {
-		out += "<li>" + strings.TrimSpace(meat[prev:]) + "</li>"
+	if meat[prev:] != "" {
+		bullets = append(bullets, meat[prev:])
 	}
-	out = strings.Replace(out, "<li></li>", "", -1)
-	out = strings.Replace(out, "\n", "", -1)
-	out = strings.Replace(out, "</p>", "", -1)
-	out = strings.Replace(out, "<li><ul>", "<ul>", -1)
-	out = strings.Replace(out, "<li><ol>", "<ol>", -1)
-	out = strings.Replace(out, "</ul></li>", "</ul>", -1)
-	out = strings.Replace(out, "</ol></li>", "</ol>", -1)
-	out = strings.Replace(out, p, "", -1)
-	if out != "" {
-		return out
+	for _, v := range bullets {
+		if (strings.HasPrefix(v, "<ul>") && strings.HasSuffix(v, "</ul>")) || (strings.HasPrefix(v, "<ol>") && strings.HasSuffix(v, "</ol>")) {
+			out += v
+		} else {
+			out += "<li>" + v + "</li>"
+		}
 	}
-	return meat
+	return
 }

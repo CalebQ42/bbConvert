@@ -2,19 +2,40 @@ package bbConvert
 
 import "strings"
 
-const (
-	u    = "ul"
-	o    = "ol"
-	bul  = "bullet"
-	numb = "number"
-)
+type tag struct {
+	bbType   string
+	isEnd    bool
+	params   []string
+	values   []string
+	fullBB   string
+	begIndex int
+	endIndex int
+}
+
+func (t *tag) findValue(param string) string {
+	for i, v := range t.params {
+		if v == param {
+			return t.values[i]
+		}
+	}
+	return ""
+}
 
 func bbconv(input string) string {
 	for i := 0; i < len(input); i++ {
 		if input[i] == '[' {
 			for j := i; j < len(input); j++ {
-				if input[j] == ']' && checktags(input[i:j+1]) {
-					input = input[:i] + convert(input[i:j+1]) + input[j+1:]
+				if input[j] == ']' {
+					tmpTag := processTag(input[i : j+1])
+					if !tmpTag.isEnd {
+						tmpTag.begIndex = i
+						tmpTag.endIndex = j
+						ndTag := findEndTag(tmpTag, input)
+						out := toHTML(tmpTag, ndTag, bbconv(input[tmpTag.endIndex+1:ndTag.begIndex]))
+						if ndTag.bbType != "" {
+							input = input[:i] + out + input[ndTag.endIndex+1:]
+						}
+					}
 					break
 				}
 			}
@@ -23,96 +44,117 @@ func bbconv(input string) string {
 	return input
 }
 
-func convert(input string) string {
-	var front, meat string
-	for i, v := range input {
-		if v == ']' {
-			front = input[1:i]
-			for j := len(input) - 1; j > i; j-- {
-				if input[j] == '[' {
-					meat = input[i+1 : j]
-					break
-				}
-			}
-			break
-		}
-	}
-	out := toHTML(front, bbconv(meat))
-	return out
-}
-
-func checktags(input string) bool {
-	input = strings.ToLower(input)
-	c := make(chan string, 2)
-	go checkfront(input, c)
-	go checkback(input, c)
-	fr, bk := <-c, <-c
-	if fr == "Nope" || bk == "Nope" {
-		return false
-	}
-	if fr == bk {
-		if fr == u || fr == o || fr == bul || fr == numb {
-			return checkbullets(input, fr)
-		}
-		return true
-	}
-	return false
-}
-
-func checkfront(input string, channel chan string) {
-	for i, v := range input {
-		if v == ' ' || v == '=' || v == ']' {
-			channel <- input[1:i]
-			return
-		}
-	}
-	channel <- "Nope"
-}
-
-func checkback(input string, channel chan string) {
-	for i := len(input) - 1; i > -1; i-- {
-		v := input[i]
-		if v == '[' {
-			channel <- input[i+2 : len(input)-1]
-			return
-		}
-	}
-	channel <- "Nope"
-}
-
-func checkbullets(input, bb string) bool {
-	input = input[len(bb)+2 : len(input)-len(bb)-3]
-	back, front := 0, 0
-	for i, v := range input {
-		if v == '[' {
-			for j := i; j < len(input); j++ {
-				if input[j] == ']' {
-					val := input[i+1 : j]
-					if val == u || val == o || val == numb || val == bul {
-						front++
-					} else if val == "/ul" || val == "/ol" || val == "/number" || val == "/bullet" {
-						back++
+func findEndTag(fnt tag, str string) tag {
+	var count int
+	for i := fnt.endIndex + 1; i < len(str); i++ {
+		if str[i] == '[' {
+			for j := i; j < len(str); j++ {
+				if str[j] == ']' {
+					tmpTag := processTag(str[i : j+1])
+					if tmpTag.bbType == fnt.bbType {
+						if tmpTag.isEnd {
+							count--
+							if count == -1 {
+								tmpTag.begIndex = i
+								tmpTag.endIndex = j
+								return tmpTag
+							}
+						} else {
+							count++
+						}
 					}
 				}
 			}
 		}
 	}
-	if front == back {
-		return true
-	}
-	return false
+	return tag{}
 }
 
-func indexAll(s, set string) []int {
-	indexi := make([]int, strings.Count(s, set))
-	orig := s
-	for i := range indexi {
-		if i > 0 {
-			indexi[i] = strings.Index(s, set) + indexi[i-1] + 1
-		} else {
-			indexi[i] = strings.Index(s, set)
-		}
-		s = orig[indexi[i]+1:]
+func processTag(str string) (out tag) {
+	out.fullBB = str
+	str = str[1:]
+	if strings.HasPrefix(str, "/") {
+		out.isEnd = true
+		out.bbType = strings.ToLower(str[1 : len(str)-1])
+		return
 	}
-	return indexi
+	for i, v := range str {
+		if v == ']' || v == ' ' || v == '=' {
+			out.bbType = strings.ToLower(str[:i])
+			if v == ']' {
+				return
+			} else if v == '=' {
+				if str[i+1] == '\'' || str[i+1] == '"' {
+					qt := str[i+1]
+					for j := i + 2; j < len(str); j++ {
+						if str[j] == ']' || str[j] == qt {
+							out.params = append(out.params, "starting")
+							out.values = append(out.values, str[i+2:j])
+							if str[j] == ']' {
+								return
+							}
+							str = str[j+1:]
+							break
+						}
+					}
+					break
+				} else {
+					for j := i + 1; j < len(str); j++ {
+						if str[j] == ']' || str[j] == ' ' {
+							out.params = append(out.params, "starting")
+							out.values = append(out.values, str[i+1:j])
+							if str[j] == ']' {
+								return
+							}
+							str = str[j+1:]
+							break
+						}
+					}
+					break
+				}
+			}
+		}
+	}
+	str = strings.TrimSpace(str)
+	var prev int
+	for i := 0; i < len(str); i++ {
+		v := str[i]
+		if v == '=' {
+			out.params = append(out.params, strings.ToLower(str[prev:i]))
+			if str[i+1] == '\'' || str[i+1] == '"' {
+				qt := str[i+1]
+				for j := i + 2; j < len(str); j++ {
+					if str[j] == ']' || str[j] == qt {
+						out.values = append(out.values, str[i+2:j])
+						if str[j] == ']' || str[j+1] == ']' {
+							return
+						}
+						i = j + 2
+						prev = j + 2
+						break
+					}
+				}
+			} else {
+				for j := i + 1; j < len(str); j++ {
+					if str[j] == ']' || str[j] == ' ' {
+						out.values = append(out.values, str[i+1:j])
+						if str[j] == ']' {
+							return
+						}
+						i = j + 1
+						prev = j + 1
+						break
+					}
+				}
+			}
+		} else if v == ' ' || v == ']' {
+			out.params = append(out.params, strings.ToLower(str[prev:i]))
+			out.values = append(out.values, str[prev:i])
+			if v == ']' {
+				return
+			}
+			prev = i + 1
+		}
+	}
+	return
 }

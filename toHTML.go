@@ -96,7 +96,7 @@ func toHTML(fnt, end tag, meat string) (out string) {
 		if title != "" {
 			out += "title='" + strings.Replace(title, "'", "\\'", -1) + "' "
 		}
-		out += "src=" + meat + "/>"
+		out += "src='" + meat + "'/>"
 	case "youtube":
 		style := make(map[string]string)
 		style["float"] = "none"

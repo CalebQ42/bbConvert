@@ -15,7 +15,7 @@ bbConvert has support for the following bb tags:
     [font=Verdana]Some Text[/font] //text in verdana font
     [font size=20pt]Some Text[/font] //20pt size text
     [font color=red]Some Text[/font] //red text
-    [font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessary
+    [font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessarysdfsadfd
     [font variant=upper]Some Text[/font] //uppercased text
     [font variant=lower]Some Text[/font] //lowercase text
     [font variant=smallcaps]Some Text[/font] //smallcaps text

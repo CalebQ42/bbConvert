@@ -15,7 +15,7 @@ bbConvert has support for the following bb tags:
     [font=Verdana]Some Text[/font] //text in verdana font
     [font size=20pt]Some Text[/font] //20pt size text
     [font color=red]Some Text[/font] //red text
-    [font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessarysdfsadfd
+    [font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessary
     [font variant=upper]Some Text[/font] //uppercased text
     [font variant=lower]Some Text[/font] //lowercase text
     [font variant=smallcaps]Some Text[/font] //smallcaps text
@@ -86,4 +86,4 @@ Multilevel lists are supported (just put a list inside a list)
 I want to continue to add "simple" tags that should make it easier for people to remember.
 
 # Known Issues
-an empty tag ("[]") inside of a list causes nothing to output.
+Can't currently find any

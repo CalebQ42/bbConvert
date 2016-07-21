@@ -2,25 +2,6 @@ package bbConvert
 
 import "strings"
 
-type tag struct {
-	bbType   string
-	isEnd    bool
-	params   []string
-	values   []string
-	fullBB   string
-	begIndex int
-	endIndex int
-}
-
-func (t *tag) findValue(param string) string {
-	for i, v := range t.params {
-		if v == param {
-			return t.values[i]
-		}
-	}
-	return ""
-}
-
 func bbconv(input string) string {
 	for i := 0; i < len(input); i++ {
 		if input[i] == '[' {
@@ -44,7 +25,7 @@ func bbconv(input string) string {
 	return input
 }
 
-func findEndTag(fnt tag, str string) tag {
+func findEndTag(fnt Tag, str string) Tag {
 	var count int
 	for i := fnt.endIndex + 1; i < len(str); i++ {
 		if str[i] == '[' {
@@ -68,10 +49,10 @@ func findEndTag(fnt tag, str string) tag {
 			}
 		}
 	}
-	return tag{}
+	return Tag{}
 }
 
-func processTag(str string) (out tag) {
+func processTag(str string) (out Tag) {
 	out.fullBB = str
 	str = str[1:]
 	if strings.HasPrefix(str, "/") {
@@ -158,4 +139,11 @@ func processTag(str string) (out tag) {
 		}
 	}
 	return
+}
+
+func toHTML(beg, end Tag, meat string) string {
+	if _, ok := tagFuncs[beg.bbType]; ok {
+		return tagFuncs[beg.bbType](beg, meat)
+	}
+	return beg.fullBB + meat + end.fullBB
 }

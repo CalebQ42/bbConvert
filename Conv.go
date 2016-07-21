@@ -5,22 +5,52 @@ import (
 	"strings"
 )
 
-func toHTML(fnt, end tag, meat string) (out string) {
-	switch fnt.bbType {
-	case "b", "bold":
-		out = "<b>" + meat + "</b>"
-	case "i", "italics":
-		out = "<i>" + meat + "</i>"
-	case "s", "strike":
-		out = "<s>" + meat + "</s>"
-	case "u", "underline":
-		out = "<u>" + meat + "</u>"
-	case "font":
+var (
+	tagFuncs map[string]func(Tag, string) string
+)
+
+func init() {
+	tagFuncs = make(map[string]func(Tag, string) string)
+}
+
+//AddCustomTag allows you to add support for a custom bbCode tag. If ImplementDefaults and SetWrap(true) isn't used
+//you could theoretically use this to convert to a different language besides HTML.
+//If you ImplementDefaults, do it before SetConvert because it'll overwrite any conflicting custom tags.
+//If you ImplementDefaults then AddCustomTag for a type already supported by the defaults, the AddCustomTag will overwrite
+//the default.
+func AddCustomTag(tag string, f func(Tag, string) string) {
+	tagFuncs[tag] = f
+}
+
+//ImplementDefaults adds support to convert the default bbCode tags. List can be found in the README.md
+func ImplementDefaults() {
+	tmp := func(_ Tag, meat string) string {
+		return "<b>" + meat + "</b>"
+	}
+	tagFuncs["b"] = tmp
+	tagFuncs["bold"] = tmp
+	tmp = func(_ Tag, meat string) string {
+		return "<i>" + meat + "<i>"
+	}
+	tagFuncs["i"] = tmp
+	tagFuncs["italics"] = tmp
+	tmp = func(_ Tag, meat string) string {
+		return "<s>" + meat + "</s>"
+	}
+	tagFuncs["s"] = tmp
+	tagFuncs["strike"] = tmp
+	tmp = func(_ Tag, meat string) string {
+		return "<u>" + meat + "</u>"
+	}
+	tagFuncs["u"] = tmp
+	tagFuncs["underline"] = tmp
+	tagFuncs["font"] = func(fnt Tag, meat string) string {
+		var out string
 		style := make(map[string]string)
-		style["color"] = fnt.findValue("color")
-		style["font-family"] = fnt.findValue("starting")
-		style["font-size"] = fnt.findValue("size")
-		tmp := fnt.findValue("variant")
+		style["color"] = fnt.FindValue("color")
+		style["font-family"] = fnt.FindValue("starting")
+		style["font-size"] = fnt.FindValue("size")
+		tmp := fnt.FindValue("variant")
 		if tmp == "smallcaps" {
 			style["font-variant"] = "small-caps"
 		} else if tmp == "upper" {
@@ -47,31 +77,39 @@ func toHTML(fnt, end tag, meat string) (out string) {
 		} else {
 			return meat
 		}
-	case "color":
-		out = "<span style='color:" + fnt.findValue("starting") + ";'>" + meat + "</span>"
-	case "size":
-		out = "<span style='font-color:" + fnt.findValue("starting") + ";'>" + meat + "</span>"
-	case "smallcaps":
-		out = "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
-	case "url", "link":
-		if fnt.findValue("starting") == "" {
-			out = "<a href=\"" + meat + "\">" + meat + "</a>"
-		} else {
-			out = "<a href=\"" + fnt.findValue("starting") + "\">" + meat + "</a>"
+		return out
+	}
+	tagFuncs["color"] = func(fnt Tag, meat string) string {
+		return "<span style='color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
+	}
+	tagFuncs["size"] = func(fnt Tag, meat string) string {
+		return "<span style='font-color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
+	}
+	tagFuncs["smallcaps"] = func(_ Tag, meat string) string {
+		return "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
+	}
+	tmp = func(fnt Tag, meat string) string {
+		if fnt.FindValue("starting") == "" {
+			return "<a href=\"" + meat + "\">" + meat + "</a>"
 		}
-	case "img", "image":
+		return "<a href=\"" + fnt.FindValue("starting") + "\">" + meat + "</a>"
+	}
+	tagFuncs["url"] = tmp
+	tagFuncs["link"] = tmp
+	tmp = func(fnt Tag, meat string) string {
+		var out string
 		style := make(map[string]string)
 		style["float"] = "none"
-		if fnt.findValue("right") != "" {
-			style["float"] = fnt.findValue("right")
-		} else if fnt.findValue("left") != "" {
-			style["float"] = fnt.findValue("left")
+		if fnt.FindValue("right") != "" {
+			style["float"] = fnt.FindValue("right")
+		} else if fnt.FindValue("left") != "" {
+			style["float"] = fnt.FindValue("left")
 		}
-		alt := fnt.findValue("alt")
-		title := fnt.findValue("title")
-		style["width"] = fnt.findValue("width")
-		style["height"] = fnt.findValue("height")
-		srt := fnt.findValue("starting")
+		alt := fnt.FindValue("alt")
+		title := fnt.FindValue("title")
+		style["width"] = fnt.FindValue("width")
+		style["height"] = fnt.FindValue("height")
+		srt := fnt.FindValue("starting")
 		if srt != "" {
 			if ind := strings.Index(srt, "x"); ind != -1 {
 				style["width"] = srt[:ind]
@@ -97,13 +135,18 @@ func toHTML(fnt, end tag, meat string) (out string) {
 			out += "title='" + strings.Replace(title, "'", "\\'", -1) + "' "
 		}
 		out += "src='" + meat + "'/>"
-	case "youtube":
+		return out
+	}
+	tagFuncs["img"] = tmp
+	tagFuncs["image"] = tmp
+	tagFuncs["youtube"] = func(fnt Tag, meat string) string {
+		var out string
 		style := make(map[string]string)
 		style["float"] = "none"
-		if fnt.findValue("right") != "" {
-			style["float"] = fnt.findValue("right")
-		} else if fnt.findValue("left") != "" {
-			style["float"] = fnt.findValue("left")
+		if fnt.FindValue("right") != "" {
+			style["float"] = fnt.FindValue("right")
+		} else if fnt.FindValue("left") != "" {
+			style["float"] = fnt.FindValue("left")
 		}
 		lwrin := strings.ToLower(meat)
 		var parsed string
@@ -128,7 +171,10 @@ func toHTML(fnt, end tag, meat string) (out string) {
 			out += "' "
 		}
 		out += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
-	case "ul", "bullet":
+		return out
+	}
+	tmp = func(fnt Tag, meat string) string {
+		var out string
 		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ul>" + out + "</ul>"
@@ -136,7 +182,12 @@ func toHTML(fnt, end tag, meat string) (out string) {
 			out = strings.Replace(out, "\n", "", -1)
 			out = "</p>" + out + p
 		}
-	case "ol", "number":
+		return out
+	}
+	tagFuncs["ul"] = tmp
+	tagFuncs["bullet"] = tmp
+	tmp = func(fnt Tag, meat string) string {
+		var out string
 		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ol>" + out + "</ol>"
@@ -144,42 +195,47 @@ func toHTML(fnt, end tag, meat string) (out string) {
 			out = strings.Replace(out, "\n", "", -1)
 			out = "</p>" + out + p
 		}
-	case "title":
+		return out
+	}
+	tagFuncs["ol"] = tmp
+	tagFuncs["number"] = tmp
+	tagFuncs["title"] = func(fnt Tag, meat string) string {
+		var out string
 		meat = strings.Replace(meat, "\n", "", -1)
 		out = "<h1>" + meat + "</h1>"
 		if pWrap {
 			out = "</p>" + out + p
 		}
-	case "align":
-		out = "<div style=\"text-align:" + fnt.findValue("starting") + ";\">"
+		return out
+	}
+	tagFuncs["align"] = func(fnt Tag, meat string) string {
+		var out string
+		out = "<div style=\"text-align:" + fnt.FindValue("starting") + ";\">"
 		if pWrap {
 			out = "</p>" + out + p + meat + "</p></div>" + p
 		} else {
 			out = out + meat + "</div>"
 		}
-	default:
-		if strings.HasPrefix(fnt.bbType, "t") {
-			meat = strings.Replace(meat, "\n", "", -1)
-			par, err := strconv.Atoi(fnt.bbType[1:])
-			if err == strconv.ErrSyntax {
-				out = "<h4>" + meat + "</h4>"
-			} else {
-				if par >= 1 && par <= 6 {
-					out = "<h" + strconv.Itoa(par) + ">" + meat + "</h" + strconv.Itoa(par) + ">"
-				} else if par < 1 {
-					out = "<h1>" + meat + "</h1>"
-				} else if par > 6 {
-					out = "<h6>" + meat + "</h6>"
-				}
-			}
-			if pWrap {
-				out = "</p>" + out + p
-			}
-		} else {
-			out = fnt.fullBB + meat + end.fullBB
-		}
+		return out
 	}
-	return
+	tagFuncs["t1"] = func(fnt Tag, meat string) string {
+		return "<h1>" + meat + "</h1>"
+	}
+	tagFuncs["t2"] = func(fnt Tag, meat string) string {
+		return "<h2>" + meat + "</h2>"
+	}
+	tagFuncs["t3"] = func(fnt Tag, meat string) string {
+		return "<h3>" + meat + "</h3>"
+	}
+	tagFuncs["t4"] = func(fnt Tag, meat string) string {
+		return "<h4>" + meat + "</h4>"
+	}
+	tagFuncs["t5"] = func(fnt Tag, meat string) string {
+		return "<h5>" + meat + "</h5>"
+	}
+	tagFuncs["t6"] = func(fnt Tag, meat string) string {
+		return "<h6>" + meat + "</h6>"
+	}
 }
 
 func trimAccess(style map[string]string) (out map[string]string) {

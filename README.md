@@ -1,8 +1,8 @@
 #bbConvert
 A package to convert bbcode to HTML.
 
-#BBCode support
-bbConvert has support for the following bb tags:
+#Default support
+bbConvert has support for the following bb tags if ImplementDefaults() is used:
 
     [b]Some Text[/b] //bolded text
     [bold]Some Text[/bold] //bolded text
@@ -73,17 +73,12 @@ Both lists (ul, ol) trims spaces from the beginning and end of their items so sp
 
 Bullets/numbers for lists are determined by asterisks or newlines
 
-For the titles ([t1] - [t6]) then if you have a number less than 1 (such as zero) after the t then it will be the same as [t1] and if the number is greater than 6 it will be treated as [t6]
-
 Tag and parameters aren't case sensitive unless they need to be (such as title and alt)
 
 Multilevel lists are supported (just put a list inside a list)
 
-# Todo (Probably in order)
-
-    [font align=center]Center, right, left, and justified support[/font]
-
-I want to continue to add "simple" tags that should make it easier for people to remember.
+# Adding custom tag support  
+If you want to add support for a tag that isn't in the list above (or don't like the defaults) you can use AddCustomTag to overwrite a default or add tags.
 
 # Known Issues
-Can't currently find any
+Can't currently find any :O

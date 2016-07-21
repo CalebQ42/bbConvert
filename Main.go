@@ -1,4 +1,4 @@
-/*TODO*/
+/*Package bbConvert is used to convert bbCode to HTML. Has support for adding support for custom bbCode tags.*/
 package bbConvert
 
 import "strings"

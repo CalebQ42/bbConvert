@@ -16,6 +16,10 @@ func main() {
 			bbConvert.AddClass(*classes)
 		}
 		bbConvert.SetWrap(*wrap)
+		bbConvert.ImplementDefaults()
+		bbConvert.AddCustomTag("customtest", func(fnt bbConvert.Tag, meat string) string {
+			return "This is working"
+		})
 		var input string
 		for _, v := range flag.Args() {
 			input += v + "\n"

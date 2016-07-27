@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -126,6 +127,7 @@ func (c *Converter) ImplementDefaults() {
 	c.tagFuncs["img"] = tmp
 	c.tagFuncs["image"] = tmp
 	c.tagFuncs["youtube"] = func(fnt Tag, meat string) string {
+		fmt.Println(fnt)
 		var out string
 		style := make(map[string]string)
 		style["float"] = "none"
@@ -133,6 +135,21 @@ func (c *Converter) ImplementDefaults() {
 			style["float"] = fnt.FindValue("right")
 		} else if fnt.FindValue("left") != "" {
 			style["float"] = fnt.FindValue("left")
+		}
+		if fnt.FindValue("height") != "" {
+			style["height"] = fnt.FindValue("height")
+		}
+		if fnt.FindValue("width") != "" {
+			style["width"] = fnt.FindValue("width")
+		}
+		if fnt.FindValue("starting") != "" {
+			if strings.Contains(fnt.FindValue("starting"), "x") {
+				spl := strings.Split(fnt.FindValue("starting"), "x")
+				style["height"] = spl[1]
+				style["width"] = spl[0]
+			} else {
+				style["width"] = fnt.FindValue("starting")
+			}
 		}
 		lwrin := strings.ToLower(meat)
 		var parsed string
@@ -148,13 +165,13 @@ func (c *Converter) ImplementDefaults() {
 		} else {
 			parsed = meat
 		}
-		out = "<ifram"
+		out = "<iframe"
 		if len(style) != 0 {
-			out += "style='"
+			out += " style='"
 			for i, v := range style {
 				out += i + ":" + v + ";"
 			}
-			out += "' "
+			out += "'"
 		}
 		out += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 		return out

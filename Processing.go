@@ -34,24 +34,21 @@ func processTag(str string) (out Tag) {
 	str = str[1:]
 	if strings.HasPrefix(str, "/") {
 		out.isEnd = true
-		out.bbType = strings.ToLower(str[1 : len(str)-1])
+		out.bbType = str[1 : len(str)-1]
 		return
 	}
 	for i, v := range str {
 		if v == ']' || v == ' ' || v == '=' {
-			out.bbType = strings.ToLower(str[:i])
+			out.bbType = str[:i]
 			if v == ']' {
 				return
 			} else if v == '=' {
 				if str[i+1] == '\'' || str[i+1] == '"' {
 					qt := str[i+1]
 					for j := i + 2; j < len(str); j++ {
-						if str[j] == ']' || str[j] == qt {
+						if str[j] == qt || str[j] == ']' {
 							out.params = append(out.params, "starting")
 							out.values = append(out.values, str[i+2:j])
-							if str[j] == ']' {
-								return
-							}
 							str = str[j+1:]
 							break
 						}
@@ -59,12 +56,9 @@ func processTag(str string) (out Tag) {
 					break
 				} else {
 					for j := i + 1; j < len(str); j++ {
-						if str[j] == ']' || str[j] == ' ' {
+						if str[j] == ' ' || str[j] == ']' {
 							out.params = append(out.params, "starting")
 							out.values = append(out.values, str[i+1:j])
-							if str[j] == ']' {
-								return
-							}
 							str = str[j+1:]
 							break
 						}
@@ -72,6 +66,8 @@ func processTag(str string) (out Tag) {
 					break
 				}
 			}
+			str = str[i+1:]
+			break
 		}
 	}
 	str = strings.TrimSpace(str)

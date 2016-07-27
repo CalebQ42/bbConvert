@@ -1,4 +1,4 @@
-#bbConvert [![Build Status](https://travis-ci.org/CalebQ42/bbConvert.svg?branch=master)](https://travis-ci.org/CalebQ42/bbConvert) [![GoDoc](https://godoc.org/github.com/CalebQ42/bbConvert?status.svg)](https://godoc.org/github.com/CalebQ42/bbConvert) [![GoReportCard](https://goreportcard.com/badge/github.com/CalebQ42/bbConvert)](https://goreportcard.com/report/github.com/CalebQ42/bbConvert)[![Coveralls](https://coveralls.io/repos/github/CalebQ42/bbConvert/badge.svg?branch=master)](https://coveralls.io/github/CalebQ42/bbConvert)
+#bbConvert [![Build Status](https://travis-ci.org/CalebQ42/bbConvert.svg?branch=master)](https://travis-ci.org/CalebQ42/bbConvert) [![GoDoc](https://godoc.org/github.com/CalebQ42/bbConvert?status.svg)](https://godoc.org/github.com/CalebQ42/bbConvert) [![GoReportCard](https://goreportcard.com/badge/github.com/CalebQ42/bbConvert)](https://goreportcard.com/report/github.com/CalebQ42/bbConvert) [![Coverage Status](https://coveralls.io/repos/github/CalebQ42/bbConvert/badge.svg?branch=master)](https://coveralls.io/github/CalebQ42/bbConvert?branch=master)
 A package to convert bbcode to HTML.
 
 #Default support

@@ -4,7 +4,7 @@ package bbConvert
 import "strings"
 
 var (
-	pWrap = true
+	pWrap = false
 	style map[string]string
 	class string
 	p     string

@@ -32,7 +32,7 @@ func (c *Converter) AddCustomTag(tag string, f func(Tag, string) string) {
 	c.tagFuncs[tag] = f
 }
 
-//AddClass adds a class to the paragraph tags wrapped around the output if Wrap is set to true. Can be added singularly or with space seperation between multiple classes.
+//AddClass adds a class to the paragraph tags wrapped around the output if Wrap is set to true. Can be added singularly or with space separation between multiple classes.
 func (c *Converter) AddClass(cl string) {
 	cl = strings.TrimSpace(cl)
 	if c.pClass == "" {

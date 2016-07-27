@@ -63,10 +63,14 @@ func SetStyle(css, value string) {
 
 //AddClass allows you to add a particular class to the wraped paragraph tags
 func AddClass(cl string) {
-	if strings.HasSuffix(class, " ") {
+	if class == "" {
 		class += cl
 	} else {
-		class += " " + cl
+		if strings.HasSuffix(class, " ") {
+			class += cl
+		} else {
+			class += " " + cl
+		}
 	}
 	updatep()
 }

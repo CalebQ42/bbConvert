@@ -3,17 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/CalebQ42/bbConvert"
 )
 
 func main() {
 	wrap := flag.Bool("p", false, "Wrap each argument in <p> tags, if not present then will combine the arguments to form one large string before processing")
-	classes := flag.String("class", "", "A list of classes for the external paragraph tags of each argument")
+	classes := flag.String("class", "", "A list of classes for the external paragraph tags of each argument. If you want multiple, seperate with commas")
 	flag.Parse()
 	if len(flag.Args()) >= 1 {
 		if *classes != "" {
-			bbConvert.AddClass(*classes)
+			cls := strings.Split(*classes, ",")
+			for _, v := range cls {
+				bbConvert.AddClass(strings.TrimSpace(v))
+			}
 		}
 		bbConvert.SetWrap(*wrap)
 		bbConvert.ImplementDefaults()

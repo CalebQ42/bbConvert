@@ -6,7 +6,7 @@ var (
 	testString = "[b]This is bold[/b]\n Testing paragraph seperating :)\n [CustomTag]This is going to be ignored[/CustomTag]"
 )
 
-func TestConversion(t *testing.T) {
+func TestWraping(t *testing.T) {
 	AddClass("Classy")
 	ImplementDefaults()
 	AddCustomTag("customtag", func(fnt Tag, meat string) string {

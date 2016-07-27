@@ -78,7 +78,7 @@ Tag and parameters aren't case sensitive unless they need to be (such as title a
 Multilevel lists are supported (just put a list inside a list)
 
 # Adding custom tag support  
-If you want to add support for a tag that isn't in the list above (or don't like the defaults) you can use AddCustomTag to overwrite a default or add tags. If you don't ImplementDefaults() or SetWrap(true) you could theoretically use this to convert bbCode to some other language
+If you want to add support for a tag that isn't in the list above (or don't like the defaults) you can use AddCustomTag to overwrite a default or add tags. If you don't ImplementDefaults() or SetWrap(true) you could theoretically use this to convert bbCode to some other language.
 
 # Known Issues
 Can't currently find any :O

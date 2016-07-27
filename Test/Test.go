@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"bbConvert"
+	"github.com/CalebQ42/bbConvert"
 )
 
 func main() {

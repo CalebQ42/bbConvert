@@ -4,5 +4,3 @@ go:
   - tip
 
 sudo: false
-
-install:

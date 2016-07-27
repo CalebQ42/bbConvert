@@ -1,4 +1,4 @@
-#bbConvert
+#bbConvert [![Build Status](https://travis-ci.org/CalebQ42/bbConvert.svg?branch=master)](https://travis-ci.org/CalebQ42/bbConvert) [![GoDoc](https://godoc.org/github.com/CalebQ42/bbConvert?status.svg)](https://godoc.org/github.com/CalebQ42/bbConvert)
 A package to convert bbcode to HTML.
 
 #Default support

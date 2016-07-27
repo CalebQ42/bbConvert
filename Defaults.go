@@ -5,46 +5,32 @@ import (
 	"strings"
 )
 
-var (
-	tagFuncs map[string]func(Tag, string) string
-)
-
-func init() {
-	tagFuncs = make(map[string]func(Tag, string) string)
-}
-
-//AddCustomTag allows you to add support for a custom bbCode tag. If ImplementDefaults and SetWrap(true) isn't used
-//you could theoretically use this to convert to a different language besides HTML.
-//If you ImplementDefaults, do it before SetConvert because it'll overwrite any conflicting custom tags.
-//If you ImplementDefaults then AddCustomTag for a type already supported by the defaults, the AddCustomTag will overwrite
-//the default.
-func AddCustomTag(tag string, f func(Tag, string) string) {
-	tagFuncs[tag] = f
-}
-
-//ImplementDefaults adds support to convert the default bbCode tags. List can be found in the README.md
-func ImplementDefaults() {
+//ImplementDefaults add bbCode to HTML functions that are found in the bbConvert's README.
+func (c *Converter) ImplementDefaults() {
+	if c.tagFuncs == nil {
+		c.tagFuncs = make(map[string]func(Tag, string) string)
+	}
 	tmp := func(_ Tag, meat string) string {
 		return "<b>" + meat + "</b>"
 	}
-	tagFuncs["b"] = tmp
-	tagFuncs["bold"] = tmp
+	c.tagFuncs["b"] = tmp
+	c.tagFuncs["bold"] = tmp
 	tmp = func(_ Tag, meat string) string {
 		return "<i>" + meat + "<i>"
 	}
-	tagFuncs["i"] = tmp
-	tagFuncs["italics"] = tmp
+	c.tagFuncs["i"] = tmp
+	c.tagFuncs["italics"] = tmp
 	tmp = func(_ Tag, meat string) string {
 		return "<s>" + meat + "</s>"
 	}
-	tagFuncs["s"] = tmp
-	tagFuncs["strike"] = tmp
+	c.tagFuncs["s"] = tmp
+	c.tagFuncs["strike"] = tmp
 	tmp = func(_ Tag, meat string) string {
 		return "<u>" + meat + "</u>"
 	}
-	tagFuncs["u"] = tmp
-	tagFuncs["underline"] = tmp
-	tagFuncs["font"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["u"] = tmp
+	c.tagFuncs["underline"] = tmp
+	c.tagFuncs["font"] = func(fnt Tag, meat string) string {
 		var out string
 		style := make(map[string]string)
 		style["color"] = fnt.FindValue("color")
@@ -79,13 +65,13 @@ func ImplementDefaults() {
 		}
 		return out
 	}
-	tagFuncs["color"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["color"] = func(fnt Tag, meat string) string {
 		return "<span style='color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
 	}
-	tagFuncs["size"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["size"] = func(fnt Tag, meat string) string {
 		return "<span style='font-color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
 	}
-	tagFuncs["smallcaps"] = func(_ Tag, meat string) string {
+	c.tagFuncs["smallcaps"] = func(_ Tag, meat string) string {
 		return "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
 	}
 	tmp = func(fnt Tag, meat string) string {
@@ -94,8 +80,8 @@ func ImplementDefaults() {
 		}
 		return "<a href=\"" + fnt.FindValue("starting") + "\">" + meat + "</a>"
 	}
-	tagFuncs["url"] = tmp
-	tagFuncs["link"] = tmp
+	c.tagFuncs["url"] = tmp
+	c.tagFuncs["link"] = tmp
 	tmp = func(fnt Tag, meat string) string {
 		var out string
 		style := make(map[string]string)
@@ -137,9 +123,9 @@ func ImplementDefaults() {
 		out += "src='" + meat + "'/>"
 		return out
 	}
-	tagFuncs["img"] = tmp
-	tagFuncs["image"] = tmp
-	tagFuncs["youtube"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["img"] = tmp
+	c.tagFuncs["image"] = tmp
+	c.tagFuncs["youtube"] = func(fnt Tag, meat string) string {
 		var out string
 		style := make(map[string]string)
 		style["float"] = "none"
@@ -175,67 +161,79 @@ func ImplementDefaults() {
 	}
 	tmp = func(fnt Tag, meat string) string {
 		var out string
-		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
+		meat = strings.Replace(strings.Replace(meat, c.StartingParagraphTag(), "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ul>" + out + "</ul>"
-		if pWrap {
+		if c.Wrap {
 			out = strings.Replace(out, "\n", "", -1)
-			out = "</p>" + out + p
+			out = "</p>" + out + c.StartingParagraphTag()
 		}
 		return out
 	}
-	tagFuncs["ul"] = tmp
-	tagFuncs["bullet"] = tmp
+	c.tagFuncs["ul"] = tmp
+	c.tagFuncs["bullet"] = tmp
 	tmp = func(fnt Tag, meat string) string {
 		var out string
-		meat = strings.Replace(strings.Replace(meat, p, "", -1), "</p>", "", -1)
+		meat = strings.Replace(strings.Replace(meat, c.StartingParagraphTag(), "", -1), "</p>", "", -1)
 		out = bulletprocessing(meat)
 		out = "<ol>" + out + "</ol>"
-		if pWrap {
+		if c.Wrap {
 			out = strings.Replace(out, "\n", "", -1)
-			out = "</p>" + out + p
+			out = "</p>" + out + c.StartingParagraphTag()
 		}
 		return out
 	}
-	tagFuncs["ol"] = tmp
-	tagFuncs["number"] = tmp
-	tagFuncs["title"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["ol"] = tmp
+	c.tagFuncs["number"] = tmp
+	c.tagFuncs["title"] = func(fnt Tag, meat string) string {
 		var out string
 		meat = strings.Replace(meat, "\n", "", -1)
 		out = "<h1>" + meat + "</h1>"
-		if pWrap {
-			out = "</p>" + out + p
+		if c.Wrap {
+			out = "</p>" + out + c.StartingParagraphTag()
 		}
 		return out
 	}
-	tagFuncs["align"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["align"] = func(fnt Tag, meat string) string {
 		var out string
 		out = "<div style=\"text-align:" + fnt.FindValue("starting") + ";\">"
-		if pWrap {
-			out = "</p>" + out + p + meat + "</p></div>" + p
+		if c.Wrap {
+			out = "</p>" + out + c.StartingParagraphTag() + meat + "</p></div>" + c.StartingParagraphTag()
 		} else {
 			out = out + meat + "</div>"
 		}
 		return out
 	}
-	tagFuncs["t1"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t1"] = func(fnt Tag, meat string) string {
 		return "<h1>" + meat + "</h1>"
 	}
-	tagFuncs["t2"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t2"] = func(fnt Tag, meat string) string {
 		return "<h2>" + meat + "</h2>"
 	}
-	tagFuncs["t3"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t3"] = func(fnt Tag, meat string) string {
 		return "<h3>" + meat + "</h3>"
 	}
-	tagFuncs["t4"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t4"] = func(fnt Tag, meat string) string {
 		return "<h4>" + meat + "</h4>"
 	}
-	tagFuncs["t5"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t5"] = func(fnt Tag, meat string) string {
 		return "<h5>" + meat + "</h5>"
 	}
-	tagFuncs["t6"] = func(fnt Tag, meat string) string {
+	c.tagFuncs["t6"] = func(fnt Tag, meat string) string {
 		return "<h6>" + meat + "</h6>"
 	}
+}
+
+//ClearAll removes support for ALL bbCode conversion functions.
+func (c *Converter) ClearAll() {
+	for i := range c.tagFuncs {
+		delete(c.tagFuncs, i)
+	}
+}
+
+//ClearTag removes a specific bbCode converstion function.
+func (c *Converter) ClearTag(bbType string) {
+	delete(c.tagFuncs, bbType)
 }
 
 func trimAccess(style map[string]string) (out map[string]string) {

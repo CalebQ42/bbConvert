@@ -3,96 +3,149 @@ package bbConvert
 
 import "strings"
 
-var (
-	pWrap = false
-	style map[string]string
-	class string
-	p     string
-)
+//Converter processes and converts bbCode tags in a string
+type Converter struct {
+	Wrap     bool
+	pStyle   map[string]string
+	pClass   string
+	p        string
+	tagFuncs map[string]func(Tag, string) string
+}
 
-//BBtohtml simply takes in a string with BBCode and exports the string converted to html
-func BBtohtml(input string) string {
-	updatep()
+//CreateConverter creates a Convert. The first bool sets if the Converter's output should be wrapped in paragraph tags. The second bool sets if the bbCode to HTML defaults are used.
+func CreateConverter(wrap bool, defaults bool) (out Converter) {
+	out.Wrap = wrap
+	if defaults {
+		if out.tagFuncs == nil {
+			out.tagFuncs = make(map[string]func(Tag, string) string)
+		}
+		out.ImplementDefaults()
+	}
+	return
+}
+
+//AddCustomTag allows you to add support for a custom bbCode tag.
+func (c *Converter) AddCustomTag(tag string, f func(Tag, string) string) {
+	if c.tagFuncs == nil {
+		c.tagFuncs = make(map[string]func(Tag, string) string)
+	}
+	c.tagFuncs[tag] = f
+}
+
+//AddClass adds a class to the paragraph tags wrapped around the output if Wrap is set to true. Can be added singularly or with space seperation between multiple classes.
+func (c *Converter) AddClass(cl string) {
+	if c.pClass == "" {
+		c.pClass += cl
+	} else {
+		if strings.HasSuffix(c.pClass, " ") {
+			c.pClass += cl
+		} else {
+			c.pClass += " " + cl
+		}
+	}
+	c.updatep()
+}
+
+//StartingParagraphTag returns the properly processed with the set style and class. If Wrap = false then returns an empty string.
+func (c *Converter) StartingParagraphTag() string {
+	if c.p == "" && c.Wrap == true {
+		c.updatep()
+	}
+	return c.p
+}
+
+//SetStyle adds a style to the paragraph tags wrapped around the output if Wrap is set true. If the style value is set to an empty string then it removes the style.
+func (c *Converter) SetStyle(css, value string) {
+	if c.pStyle == nil {
+		c.pStyle = make(map[string]string)
+	}
+	if value != "" {
+		value = strings.TrimSpace(value)
+		value = strings.Trim(value, "'")
+		value = strings.Trim(value, "\"")
+		if c.pStyle == nil {
+			c.pStyle = make(map[string]string)
+		}
+		c.pStyle[css] = value
+	} else {
+		if c.pStyle != nil {
+			_, ok := c.pStyle[css]
+			if ok {
+				delete(c.pStyle, css)
+				if len(c.pStyle) == 0 {
+					c.pStyle = nil
+				}
+			}
+		}
+	}
+	c.updatep()
+}
+
+//Convert actually converts the input string and returns the converted string
+func (c Converter) Convert(input string) string {
+	c.updatep()
 	input = strings.Trim(input, "\n")
-	out := bbconv(input)
+	out := c.conv(input)
 	out = "\n" + out + "\n"
-	if pWrap {
-		out = strings.Replace(out, "\n", "</p>"+p, -1)
+	if c.Wrap {
+		out = strings.Replace(out, "\n", "</p>"+c.p, -1)
 		out = strings.TrimPrefix(out, "</p>")
-		out = strings.TrimSuffix(out, p)
-		out = strings.Replace(out, p+"</p>", "", -1)
+		out = strings.TrimSuffix(out, c.p)
+		out = strings.Replace(out, c.p+"</p>", "", -1)
 	} else {
 		out = strings.Replace(out, "\n", " ", -1)
 	}
 	return out
 }
 
-//SetWrap determines if the output should have pargraph tags at every newline
-//If it's set to false(default) then newlines will be converted to spaces
-func SetWrap(tf bool) {
-	pWrap = tf
-	updatep()
-}
-
-//SetStyle allows you to add a particular css style to the wraped paragraph tags
-//If you want to undo a style just set it's value to an empty string
-//Don't worry about the value having white spaces, it will automagically add
-//single quotes if there's whitespace
-func SetStyle(css, value string) {
-	if value != "" {
-		value = strings.TrimSpace(value)
-		value = strings.Trim(value, "'")
-		value = strings.Trim(value, "\"")
-		if style == nil {
-			style = make(map[string]string)
-		}
-		style[css] = value
-	} else {
-		if style != nil {
-			_, ok := style[css]
-			if ok {
-				delete(style, css)
-				if len(style) == 0 {
-					style = nil
+func (c Converter) conv(input string) string {
+	for i := 0; i < len(input); i++ {
+		if input[i] == '[' {
+			for j := i; j < len(input); j++ {
+				if input[j] == ']' {
+					tmpTag := processTag(input[i : j+1])
+					if !tmpTag.isEnd {
+						tmpTag.begIndex = i
+						tmpTag.endIndex = j
+						ndTag := findEndTag(tmpTag, input)
+						if ndTag.bbType != "" {
+							out := c.convTag(tmpTag, ndTag, c.conv(input[tmpTag.endIndex+1:ndTag.begIndex]))
+							input = input[:i] + out + input[ndTag.endIndex+1:]
+						}
+					}
+					break
 				}
 			}
 		}
 	}
-	updatep()
+	return input
 }
 
-//AddClass allows you to add a particular class to the wraped paragraph tags
-func AddClass(cl string) {
-	if class == "" {
-		class += cl
-	} else {
-		if strings.HasSuffix(class, " ") {
-			class += cl
-		} else {
-			class += " " + cl
-		}
-	}
-	updatep()
-}
-
-func updatep() {
-	if pWrap {
-		p = "<p"
-		if style != nil {
-			p += " style=\""
-			for i, v := range style {
+func (c *Converter) updatep() {
+	if c.Wrap {
+		c.p = "<p"
+		if c.pStyle != nil && len(c.pStyle) != 0 {
+			c.p += " style=\""
+			for i, v := range c.pStyle {
 				if strings.Contains(v, " ") {
 					v = "'" + v + "'"
 				}
-				p += i + ":" + v + ";"
+				c.p += i + ":" + v + ";"
 			}
-			p += "\""
+			c.p += "\""
 		}
-		if class != "" {
-			p += " class=\"" + class + "\""
+		if c.pClass != "" {
+			c.p += " class=\"" + c.pClass + "\""
 		}
-		p += ">"
+		c.p += ">"
 	} else {
-		p = ""
+		c.p = ""
 	}
+}
+
+func (c Converter) convTag(beg, end Tag, meat string) string {
+	if _, ok := c.tagFuncs[beg.bbType]; ok {
+		return c.tagFuncs[beg.bbType](beg, meat)
+	}
+	return beg.fullBB + meat + end.fullBB
 }

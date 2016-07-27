@@ -2,23 +2,26 @@ package bbConvert
 
 import "testing"
 
-func TestAlternate(t *testing.T) {
-	SetWrap(false)
-	AddCustomTag("b", func(fnt Tag, meat string) string {
-		return "**" + meat + "**"
-	})
-	AddCustomTag("i", func(fnt Tag, meat string) string {
-		return "*" + meat + "*"
-	})
-	t.Log(BBtohtml("[b]This should be in markdown style bold[/b] [i]And now markdown italics[/i][font='Times New Roman']hello[/font]"))
+func TestStandard(t *testing.T) {
+	testStr := "[ol][b]Item 1[/b]\n[i]Item 2[/i]\n[font='Times New Roman' size=20 color=red variant=smallcaps]Item 3[/font][/ol]\nNext Paragraph\nAnd the next\n[i]<Orphan tag :)"
+	conv := CreateConverter(true, true)
+	t.Log(conv.Convert(testStr))
 }
 
-func TestWraping(t *testing.T) {
-	AddClass("Classy")
-	ImplementDefaults()
-	SetWrap(true)
-	AddCustomTag("customtag", func(fnt Tag, meat string) string {
-		return "This is custom!"
+func TestNoWraping(t *testing.T) {
+	testStr := "[u][i]Hello[s]UnderItalStri[/s][/i][/u][b]<another orphan tag :)"
+	conv := CreateConverter(false, true)
+	t.Log(conv.Convert(testStr))
+}
+
+func TestMarkdown(t *testing.T) {
+	testStr := "[bold]Simple Bold[/bold] [italics]Simple Italics[/italics]"
+	conv := CreateConverter(false, false)
+	conv.AddCustomTag("bold", func(fnt Tag, meat string) string {
+		return "**" + meat + "**"
 	})
-	t.Log(BBtohtml("[b]This is bold[/b]\n Testing paragraph seperating :)\n [CustomTag]This is going to be ignored[/CustomTag] \n [font='Times New Roman' size=20]fonted[/font]"))
+	conv.AddCustomTag("italics", func(fnt Tag, meat string) string {
+		return "*" + meat + "*"
+	})
+	t.Log(conv.Convert(testStr))
 }

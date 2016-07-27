@@ -2,29 +2,6 @@ package bbConvert
 
 import "strings"
 
-func bbconv(input string) string {
-	for i := 0; i < len(input); i++ {
-		if input[i] == '[' {
-			for j := i; j < len(input); j++ {
-				if input[j] == ']' {
-					tmpTag := processTag(input[i : j+1])
-					if !tmpTag.isEnd {
-						tmpTag.begIndex = i
-						tmpTag.endIndex = j
-						ndTag := findEndTag(tmpTag, input)
-						if ndTag.bbType != "" {
-							out := toHTML(tmpTag, ndTag, bbconv(input[tmpTag.endIndex+1:ndTag.begIndex]))
-							input = input[:i] + out + input[ndTag.endIndex+1:]
-						}
-					}
-					break
-				}
-			}
-		}
-	}
-	return input
-}
-
 func findEndTag(fnt Tag, str string) Tag {
 	var count int
 	for i := fnt.endIndex + 1; i < len(str); i++ {
@@ -139,11 +116,4 @@ func processTag(str string) (out Tag) {
 		}
 	}
 	return
-}
-
-func toHTML(beg, end Tag, meat string) string {
-	if _, ok := tagFuncs[beg.bbType]; ok {
-		return tagFuncs[beg.bbType](beg, meat)
-	}
-	return beg.fullBB + meat + end.fullBB
 }

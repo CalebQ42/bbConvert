@@ -31,6 +31,16 @@ func TestMarkdown(t *testing.T) {
 	t.Log(conv.Convert(testStr))
 }
 
+func TestStyleClass(t *testing.T) {
+	testStr := "[bold]Simple Bold[/bold] [italics]Simple Italics[/italics]"
+	conv := CreateConverter(true, true)
+	conv.AddClass("classy")
+	conv.AddClass("advclass")
+	conv.SetStyle("height", "50")
+	conv.SetStyle("height", "")
+	t.Log(conv.Convert(testStr))
+}
+
 func TestMultilevelBullet(t *testing.T) {
 	testStr := "[ol]*Lvl1[ol]*lvl2[ol]*lvl3[/ol][/ol][/ol]"
 	conv := CreateConverter(false, true)

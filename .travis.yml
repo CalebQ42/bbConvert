@@ -9,4 +9,4 @@ install:
   - go get github.com/mattn/goveralls
 
 script:
-  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken 95VMUB5RHe9nYKgiMEtuwvIZJOPD20nmk
+  - $HOME/gopath/bin/goveralls -repotoken 95VMUB5RHe9nYKgiMEtuwvIZJOPD20nmk

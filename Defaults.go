@@ -1,7 +1,6 @@
 package bbConvert
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -127,7 +126,6 @@ func (c *Converter) ImplementDefaults() {
 	c.tagFuncs["img"] = tmp
 	c.tagFuncs["image"] = tmp
 	c.tagFuncs["youtube"] = func(fnt Tag, meat string) string {
-		fmt.Println(fnt)
 		var out string
 		style := make(map[string]string)
 		style["float"] = "none"

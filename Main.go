@@ -34,6 +34,7 @@ func (c *Converter) AddCustomTag(tag string, f func(Tag, string) string) {
 
 //AddClass adds a class to the paragraph tags wrapped around the output if Wrap is set to true. Can be added singularly or with space seperation between multiple classes.
 func (c *Converter) AddClass(cl string) {
+	cl = strings.TrimSpace(cl)
 	if c.pClass == "" {
 		c.pClass += cl
 	} else {
@@ -63,9 +64,6 @@ func (c *Converter) SetStyle(css, value string) {
 		value = strings.TrimSpace(value)
 		value = strings.Trim(value, "'")
 		value = strings.Trim(value, "\"")
-		if c.pStyle == nil {
-			c.pStyle = make(map[string]string)
-		}
 		c.pStyle[css] = value
 	} else {
 		if c.pStyle != nil {

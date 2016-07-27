@@ -7,9 +7,6 @@ import (
 
 //ImplementDefaults add bbCode to HTML functions that are found in the bbConvert's README.
 func (c *Converter) ImplementDefaults() {
-	if c.tagFuncs == nil {
-		c.tagFuncs = make(map[string]func(Tag, string) string)
-	}
 	tmp := func(_ Tag, meat string) string {
 		return "<b>" + meat + "</b>"
 	}

@@ -63,7 +63,17 @@ func (c *Converter) ImplementDefaults() {
 		return out
 	}
 	c.tagFuncs["color"] = func(fnt Tag, meat string) string {
-		return "<span style='color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
+		clr := fnt.FindValue("starting")
+		if clr != "" {
+			if !strings.HasPrefix(clr, "#") {
+				_, err := strconv.ParseInt(clr, 16, 0)
+				if err == nil {
+					clr = "#" + clr
+				}
+			}
+			return "<span style='color:" + clr + ";'>" + meat + "</span>"
+		}
+		return meat
 	}
 	c.tagFuncs["size"] = func(fnt Tag, meat string) string {
 		return "<span style='font-color:" + fnt.FindValue("starting") + ";'>" + meat + "</span>"
@@ -72,10 +82,16 @@ func (c *Converter) ImplementDefaults() {
 		return "<span style=\"font-variant:small-caps;\">" + meat + "</span>"
 	}
 	tmp = func(fnt Tag, meat string) string {
-		if fnt.FindValue("starting") == "" {
-			return "<a href=\"" + meat + "\">" + meat + "</a>"
+		out := "<a"
+		if fnt.FindValue("title") != "" {
+			out += " title='" + strings.Replace(fnt.FindValue("title"), "'", "\\'", -1) + "'"
 		}
-		return "<a href=\"" + fnt.FindValue("starting") + "\">" + meat + "</a>"
+		if fnt.FindValue("starting") == "" {
+			out += " href=\"" + meat + "\">" + meat + "</a>"
+		} else {
+			out += " href=\"" + fnt.FindValue("starting") + "\">" + meat + "</a>"
+		}
+		return out
 	}
 	c.tagFuncs["url"] = tmp
 	c.tagFuncs["link"] = tmp

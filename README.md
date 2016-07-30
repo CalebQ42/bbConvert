@@ -1,4 +1,4 @@
-# bbConvert
+# bbConvert [![GoDoc](https://godoc.org/github.com/CalebQ42/bbConvert?status.svg)](https://godoc.org/github.com/CalebQ42/bbConvert) [![Coverage Status](https://coveralls.io/repos/github/CalebQ42/bbConvert/badge.svg?branch=master)](https://coveralls.io/github/CalebQ42/bbConvert?branch=master) [![Build Status](https://travis-ci.org/CalebQ42/bbConvert.svg?branch=master)](https://travis-ci.org/CalebQ42/bbConvert) [![Go Report Card](https://goreportcard.com/badge/github.com/CalebQ42/bbConvert)](https://goreportcard.com/report/github.com/CalebQ42/bbConvert)
 
 bbConvert is an easy way to process and convert bbCode to whatever you'd like. HTMLConverter is a converter from bbCode to HTML with some defaults (probably more than you'll need) ready if you use ImplementDefaults().
 

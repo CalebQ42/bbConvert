@@ -45,7 +45,7 @@ func (h *HTMLConverter) StartingParagraphTag() string {
 }
 
 //AddClass adds a class to the paragraph tags used to wrap the output. Multiple
-//classes can be added at once if they are seperated by spaces.
+//classes can be added at once if they are separated by spaces.
 func (h *HTMLConverter) AddClass(class string) {
 	if strings.Contains(class, " ") {
 		spl := strings.Split(class, " ")

@@ -1,8 +1,18 @@
-#bbConvert [![Build Status](https://travis-ci.org/CalebQ42/bbConvert.svg?branch=master)](https://travis-ci.org/CalebQ42/bbConvert) [![GoDoc](https://godoc.org/github.com/CalebQ42/bbConvert?status.svg)](https://godoc.org/github.com/CalebQ42/bbConvert) [![GoReportCard](https://goreportcard.com/badge/github.com/CalebQ42/bbConvert)](https://goreportcard.com/report/github.com/CalebQ42/bbConvert) [![Coverage Status](https://coveralls.io/repos/github/CalebQ42/bbConvert/badge.svg?branch=master)](https://coveralls.io/github/CalebQ42/bbConvert?branch=master)
-A package to convert bbcode to HTML.
+# bbConvert
 
-#Default support
-bbConvert has support for the following bbCode tags if Converter.ImplementDefaults() is used:
+bbConvert is an easy way to process and convert bbCode to whatever you'd like. HTMLConverter is a converter from bbCode to HTML with some defaults (probably more than you'll need) ready if you use ImplementDefaults().
+
+# TODO
+
+* Add back in list support (previously it was buggy and often wrong :( ).  
+* Try my best to get 100% test coverage (if at all possible).  
+* Occasionally there may be some fmt.Println()'s that slip by that I'll inevitably have to fix.
+
+# Support
+
+If you have any questions, feel free to open an issue and ask it. I don't have a life, I'll probably answer quickly.
+
+# HTML Defaults
 
     [b]Some Text[/b] //bolded text
     [bold]Some Text[/bold] //bolded text
@@ -50,35 +60,4 @@ bbConvert has support for the following bbCode tags if Converter.ImplementDefaul
     [t5]Some Text[/t5] //Slightly smaller text than [t4]. Meant for use as a title of some sort
     [t6]Some Text[/t6] //Slightly smaller text than [t5]. Meant for use as a title of some sort
     [align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
-    [ul]
-    * Item 1
-    Item 2
-    [/ul] //an unordered (bulleted) list
-    [ol]
-    * Item 1
-    Item 2
-    [/ol] //an ordered (numbered) list
-    [bullet] * Item 1 * Item 2[/bullet] //same as [ul]
-    [number] * Item 1 * Item 2[/number] //same as [ol]
-    [ul]* Item 1 * Item 2[/ul] //an unordered (bulleted) list
-    [ol]* Item 1 * Item 2[/ol] //an ordered (numbered) list
-
-If both img=/youtube= and height=/width= are present, img=/youtube= takes precedence.
-
-If left unspecified then an img is set to width=20% and float=left (size is overridden when either height or width is set)
-
-If left unspecified then youtube sets height=315 height=560
-
-Both lists (ul, ol) trims spaces from the beginning and end of their items so spaces around * aren't necessary. If there is text before the first * it will be interpreted as it's own bullet/number
-
-Bullets/numbers for lists are determined by asterisks or newlines
-
-Tag and parameters aren't case sensitive unless they need to be (such as title and alt)
-
-Multilevel lists are supported (just put a list inside a list)
-
-# Adding custom tag support  
-If you want to add support for a tag that isn't in the list above (or don't like the defaults) you can use AddCustomTag to overwrite a default or add tags. If you don't ImplementDefaults() or SetWrap(true) you could use this to convert bbCode to some other language (such as markdown).
-
-# Known Issues
-Can't currently find any :O
+    //List will someday be on here (once I'm sure my converter can handle a nearly unlimited amount of levels).

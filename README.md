@@ -60,4 +60,10 @@ If you have any questions, feel free to open an issue and ask it. I don't have a
     [t5]Some Text[/t5] //Slightly smaller text than [t4]. Meant for use as a title of some sort
     [t6]Some Text[/t6] //Slightly smaller text than [t5]. Meant for use as a title of some sort
     [align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
-    //List will someday be on here (once I'm sure my converter can handle a nearly unlimited amount of levels).
+    [bullet]Bullet 1 * Bullet 2[/bullet] //bulleted list
+    [ul]Bullet 1 * Bullet 2[/ul] //bulleted list
+    [ol]Number 1 * Number 2[/ol] //numbered list
+    [number]Number 1 * Number 2[/number] //numbered list
+    [ol]Bullet1
+    Bullet 2
+    Bullet 3[/ol] //can use newlines instead of asterisks for lists

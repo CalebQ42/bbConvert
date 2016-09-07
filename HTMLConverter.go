@@ -291,7 +291,53 @@ func (h *HTMLConverter) ImplementDefaults() {
 	h.conv.funcs["t6"] = func(fnt Tag, meat string) string {
 		return "<h6>" + meat + "</h6>"
 	}
-	//re-do lists
+	tmp = func(_ Tag, meat string) string {
+		var out string
+		var prev int
+		for i, v := range meat {
+			if v == '*' || v == '\n' {
+				tmp := meat[prev:i]
+				tmp = strings.Replace(tmp, "*", "", -1)
+				tmp = strings.Replace(tmp, "\n", "", -1)
+				tmp = strings.TrimSpace(tmp)
+				if tmp != "" {
+					prev = i + 1
+					out += "<li>" + tmp + "</li>"
+				}
+			}
+		}
+		out = "<ol>" + out + "</ol>"
+		return out
+	}
+	h.conv.funcs["ol"] = tmp
+	h.conv.funcs["number"] = tmp
+	tmp = func(_ Tag, meat string) string {
+		var out string
+		var prev int
+		for i, v := range meat {
+			if v == '*' || v == '\n' {
+				tmp := meat[prev:i]
+				tmp = strings.Replace(tmp, "*", "", -1)
+				tmp = strings.Replace(tmp, "\n", "", -1)
+				tmp = strings.TrimSpace(tmp)
+				if tmp != "" {
+					prev = i + 1
+					out += "<li>" + tmp + "</li>"
+				}
+			}
+		}
+		tmp := meat[prev:]
+		tmp = strings.Replace(tmp, "*", "", -1)
+		tmp = strings.Replace(tmp, "\n", "", -1)
+		tmp = strings.TrimSpace(tmp)
+		if tmp != "" {
+			out += "<li>" + tmp + "</li>"
+		}
+		out = "<ul>" + out + "</ul>"
+		return out
+	}
+	h.conv.funcs["ul"] = tmp
+	h.conv.funcs["bullet"] = tmp
 }
 
 //Converter returns the Converter that's used in the HTMLConverter

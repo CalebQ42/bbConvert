@@ -61,9 +61,15 @@ If you have any questions, feel free to open an issue and ask it. I don't have a
     [t6]Some Text[/t6] //Slightly smaller text than [t5]. Meant for use as a title of some sort
     [align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
     [bullet]Bullet 1 * Bullet 2[/bullet] //bulleted list
-    [ul]Bullet 1 * Bullet 2[/ul] //bulleted list
-    [ol]Number 1 * Number 2[/ol] //numbered list
-    [number]Number 1 * Number 2[/number] //numbered list
-    [ol]Bullet1
-    Bullet 2
-    Bullet 3[/ol] //can use newlines instead of asterisks for lists
+    [[ul]
+    * Item 1
+    Item 2
+    [/ul] //an unordered (bulleted) list
+    [ol]
+    * Item 1
+    Item 2
+    [/ol] //an ordered (numbered) list
+    [bullet] * Item 1 * Item 2[/bullet] //same as [ul]
+    [number] * Item 1 * Item 2[/number] //same as [ol]
+    [ul]* Item 1 * Item 2[/ul] //an unordered (bulleted) list
+    [ol]* Item 1 * Item 2[/ol] //an ordered (numbered) list

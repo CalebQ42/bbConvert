@@ -2,12 +2,6 @@
 
 bbConvert is an easy way to process and convert bbCode to whatever you'd like. HTMLConverter is a converter from bbCode to HTML with some defaults (probably more than you'll need) ready if you use ImplementDefaults().
 
-# TODO
-
-* Add back in list support (previously it was buggy and often wrong :( ).  
-* Try my best to get 100% test coverage (if at all possible).  
-* Occasionally there may be some fmt.Println()'s that slip by that I'll inevitably have to fix.
-
 # Support
 
 If you have any questions, feel free to open an issue and ask it. I don't have a life, I'll probably answer quickly.

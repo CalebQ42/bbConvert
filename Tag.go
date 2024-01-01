@@ -2,16 +2,16 @@ package bbConvert
 
 import "strings"
 
-//Tag is a bbCode tag that is properly processed.
+// Tag is a bbCode tag that is properly processed.
 type Tag struct {
-	typ    string
-	end    bool
 	params map[string]string
+	typ    string
 	index  [2]int
+	end    bool
 }
 
-//Value returns the value of a parameter of the bbCode tag. Starting parameters
-//is under "starting". Parameter names are always in lowercase
+// Value returns the value of a parameter of the bbCode tag. Starting parameters
+// is under "starting". Parameter names are always in lowercase
 func (t *Tag) Value(param string) string {
 	return t.params[param]
 }

@@ -5,16 +5,16 @@ import (
 	"strings"
 )
 
-//HTMLConverter is an easy way to convert bbCode to HTML. It automatically wraps the output
-//in paragraph tags and properly converts newlines (\n) to paragraphs.
+// HTMLConverter is an easy way to convert bbCode to HTML. It automatically wraps the output
+// in paragraph tags and properly converts newlines (\n) to paragraphs.
 type HTMLConverter struct {
 	conv  Converter
-	p     string
-	class []string
 	style map[string]string
+	// p     string
+	class []string
 }
 
-//Convert converts the input with bbCode to output with HTML
+// Convert converts the input with bbCode to output with HTML
 func (h *HTMLConverter) Convert(in string) string {
 	out := h.conv.Convert(in)
 	out = strings.Replace(out, "\n", "</p>"+h.StartingParagraphTag(), -1)
@@ -22,8 +22,8 @@ func (h *HTMLConverter) Convert(in string) string {
 	return out
 }
 
-//StartingParagraphTag returns the starting paragraph tags used when wraping the output in paragraph
-//tags with the proper style and class(es)
+// StartingParagraphTag returns the starting paragraph tags used when wraping the output in paragraph
+// tags with the proper style and class(es)
 func (h *HTMLConverter) StartingParagraphTag() string {
 	p := "<p"
 	if h.style != nil && len(h.style) != 0 {
@@ -44,8 +44,8 @@ func (h *HTMLConverter) StartingParagraphTag() string {
 	return p
 }
 
-//AddClass adds a class to the paragraph tags used to wrap the output. Multiple
-//classes can be added at once if they are separated by spaces.
+// AddClass adds a class to the paragraph tags used to wrap the output. Multiple
+// classes can be added at once if they are separated by spaces.
 func (h *HTMLConverter) AddClass(class string) {
 	if strings.Contains(class, " ") {
 		spl := strings.Split(class, " ")
@@ -55,7 +55,7 @@ func (h *HTMLConverter) AddClass(class string) {
 	}
 }
 
-//SetStyle sets a give style to the paragraph tags used to wrap the output.
+// SetStyle sets a give style to the paragraph tags used to wrap the output.
 func (h *HTMLConverter) SetStyle(css, value string) {
 	if h.style == nil {
 		h.style = make(map[string]string)
@@ -67,7 +67,7 @@ func (h *HTMLConverter) SetStyle(css, value string) {
 	}
 }
 
-//ImplementDefaults adds the default supported bbCode to HTML conversions.
+// ImplementDefaults adds the default supported bbCode to HTML conversions.
 func (h *HTMLConverter) ImplementDefaults() {
 	if h.conv.funcs == nil {
 		h.conv.funcs = make(map[string]func(Tag, string) string)
@@ -260,7 +260,7 @@ func (h *HTMLConverter) ImplementDefaults() {
 		out += " src='https://www.youtube.com/embed/" + parsed + "' frameborder='0' allowfullscreen></iframe>"
 		return out
 	}
-	h.conv.funcs["title"] = func(fnt Tag, meat string) string {
+	h.conv.funcs["title"] = func(_ Tag, meat string) string {
 		var out string
 		meat = strings.Replace(meat, "\n", "", -1)
 		out = "<h1>" + meat + "</h1>"
@@ -340,8 +340,8 @@ func (h *HTMLConverter) ImplementDefaults() {
 	h.conv.funcs["bullet"] = tmp
 }
 
-//Converter returns the Converter that's used in the HTMLConverter
-//so you can add custom functions and other items that you can access with the Converter
+// Converter returns the Converter that's used in the HTMLConverter
+// so you can add custom functions and other items that you can access with the Converter
 func (h *HTMLConverter) Converter() *Converter {
 	return &h.conv
 }

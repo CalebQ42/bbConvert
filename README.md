@@ -2,11 +2,7 @@
 
 bbConvert is an easy way to process and convert bbCode to whatever you'd like. HTMLConverter is a converter from bbCode to HTML with some defaults (probably more than you'll need) ready if you use ImplementDefaults().
 
-# Support
-
-If you have any questions, feel free to open an issue and ask it. I don't have a life, I'll probably answer quickly.
-
-# HTML Defaults
+## HTML Defaults
 
     [b]Some Text[/b] //bolded text
     [bold]Some Text[/bold] //bolded text

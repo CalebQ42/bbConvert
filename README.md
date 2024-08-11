@@ -54,7 +54,10 @@ If you have any questions, feel free to open an issue and ask it. I don't have a
 [t4]Some Text[/t4] //Slightly smaller text than [t3]. Meant for use as a title of some sort
 [t5]Some Text[/t5] //Slightly smaller text than [t4]. Meant for use as a title of some sort
 [t6]Some Text[/t6] //Slightly smaller text than [t5]. Meant for use as a title of some sort
-[align=center]Some Text[/align] //Aligns the insides (encapsulates the insides in a div)
+[align=center]Some Text[/align] //Aligns the text. The text will be in a separate paragraph
+[align center]Some Text[/align] //Equal sign is optional
+[float=right]Floaty McFloat Face[/float] //Float the content content (for HTML, this will be a floated div)
+[float right]Floaty McFloat Face[/float] //Equal sign is optional
 [bullet]Bullet 1 * Bullet 2[/bullet] //bulleted list
 [ul]
 * Item 1

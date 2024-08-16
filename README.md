@@ -17,6 +17,7 @@ If you have any questions, feel free to open an issue and ask it. I don't have a
 [underline]Some Text[/underline] //underlined text
 [s]some Text[/s] //strikedthrough text
 [strike]Some Text[/strike] //strikethrough text
+[code]{Some Code}[/code] //code text
 [font=Verdana]Some Text[/font] //text in verdana font
 [font size=20pt]Some Text[/font] //20pt size text
 [font color=red]Some Text[/font] //red text

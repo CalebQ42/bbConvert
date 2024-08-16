@@ -59,7 +59,7 @@ func (b BBConverter) HTMLConvert(in string) string {
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + convertMatchedTag(match) + in[match.Index+match.Length:]
+		in = in[:match.Index] + matchToHTML(match) + in[match.Index+match.Length:]
 	}
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
@@ -71,58 +71,9 @@ func (b BBConverter) HTMLConvert(in string) string {
 	return in
 }
 
-// Parse and Convert BBCode. The BBCode is replaced with the return from the given conversion function.
-// The key in the map is the BBCode's tag
-func (b BBConverter) CustomConvert(in string, convert map[string]func(BBTag) string) string {
-	var match *regexp2.Match
-	var err error
-	for {
-		match, err = b.mainConv.FindStringMatch(in)
-		if err != nil || match == nil {
-			break
-		}
-		in = in[:match.Index] + convert[match.GroupByNumber(1).String()](matchToTag(match)) + in[match.Index+match.Length:]
-	}
-	return in
-}
-
-func matchToTag(match *regexp2.Match) BBTag {
-	out := BBTag{
-		Tag:    match.GroupByNumber(1).String(),
-		Middle: match.GroupByNumber(3).String(),
-		Values: make(map[string]string),
-	}
-	params := match.GroupByNumber(2).String()
-	if params == "" {
-		return out
-	}
-	if strings.HasPrefix(params, "=") {
-		if params[1] == '"' {
-			endInd := strings.Index(params[2:], `"`) + 2
-			if endInd != 1 {
-				out.Leading = params[2:endInd]
-				params = params[endInd+1:]
-			}
-		} else {
-			endInd := strings.Index(params, " ")
-			if endInd == -1 {
-				out.Leading = params[1:]
-				return out
-			}
-			out.Leading = params[1:endInd]
-			params = params[endInd+1:]
-		}
-	}
-	params = strings.TrimSpace(params)
-	for params != "" {
-		//TODO
-	}
-	return out
-}
-
-func convertMatchedTag(match *regexp2.Match) string {
+func matchToHTML(match *regexp2.Match) string {
 	tag := match.GroupByNumber(1).String()
-	params := match.GroupByNumber(2).String()
+	leading, params := processParams(match.GroupByNumber(2).String())
 	middle := match.GroupByNumber(3).String()
 	switch tag {
 	case "b":
@@ -171,10 +122,17 @@ func convertMatchedTag(match *regexp2.Match) string {
 	case "t6":
 		return "<h" + string(tag[1]) + ">" + middle + "</h" + string(tag[1]) + ">"
 	case "align":
-		if params == "" || !strings.HasPrefix(params, "=") {
+		if leading == "" && len(params) == 0 {
 			return middle
 		}
-		return "<div style='text-align:" + strings.TrimPrefix(params, "=") + "'>" + middle + "</div>"
+		align := leading
+		if leading == "" {
+			for k := range params {
+				align = k
+				break
+			}
+		}
+		return "<div style='text-align:" + align + "'>" + middle + "</div>"
 	case "bullet":
 		fallthrough
 	case "ul":
@@ -185,4 +143,99 @@ func convertMatchedTag(match *regexp2.Match) string {
 		return "TODO"
 	}
 	return middle
+}
+
+// Parse and Convert BBCode. The BBCode is replaced with the return from the given conversion function.
+// The key in the map is the BBCode's tag
+func (b BBConverter) CustomConvert(in string, convert map[string]func(BBTag) string) string {
+	var match *regexp2.Match
+	var err error
+	for {
+		match, err = b.mainConv.FindStringMatch(in)
+		if err != nil || match == nil {
+			break
+		}
+		in = in[:match.Index] + convert[match.GroupByNumber(1).String()](matchToTag(match)) + in[match.Index+match.Length:]
+	}
+	return in
+}
+
+func matchToTag(match *regexp2.Match) BBTag {
+	out := BBTag{
+		Tag:    match.GroupByNumber(1).String(),
+		Middle: match.GroupByNumber(3).String(),
+	}
+	out.Leading, out.Values = processParams(match.GroupByNumber(2).String())
+	return out
+}
+
+func processParams(params string) (leading string, out map[string]string) {
+	out = make(map[string]string)
+	params = strings.TrimSpace(params)
+	if params == "" {
+		return
+	}
+	if strings.HasPrefix(params, "=") {
+		if params[1] == '"' {
+			endInd := strings.Index(params[2:], "\"")
+			if endInd == -1 {
+				leading = params[2:]
+				return
+			} else {
+				leading = params[2 : endInd+2]
+				params = params[endInd+3:]
+			}
+		} else {
+			endInd := strings.Index(params[1:], " ")
+			if endInd == -1 {
+				leading = params[1:]
+				return
+			} else {
+				leading = params[1 : endInd+1]
+				params = params[endInd+2:]
+			}
+		}
+	}
+	var ind int
+	for {
+		params = strings.TrimSpace(params)
+		if params == "" {
+			break
+		}
+		ind = strings.IndexAny(params, " =")
+		if ind == -1 || ind == len(params)-1 {
+			out[params] = ""
+			break
+		}
+		if params[ind] == ' ' {
+			out[params[:ind]] = ""
+			params = params[ind+1:]
+			continue
+		}
+		key := params[:ind]
+		var endInd int
+		if params[ind+1] == '"' {
+			endInd = strings.IndexByte(params[ind+2:], '"')
+			if endInd == -1 {
+				endInd = len(params)
+			} else {
+				endInd += ind + 2
+			}
+			ind += 2
+		} else {
+			endInd = strings.IndexByte(params[ind+1:], ' ')
+			if endInd == -1 {
+				endInd = len(params)
+			} else {
+				endInd += ind + 1
+			}
+			ind += 1
+		}
+		out[key] = params[ind:endInd]
+		for endInd < len(params) && (params[endInd] == ' ' || params[endInd] == '"') {
+			endInd++
+		}
+		params = params[endInd:]
+	}
+	return
 }

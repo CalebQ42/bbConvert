@@ -7,17 +7,6 @@ import (
 	"github.com/dlclark/regexp2"
 )
 
-const (
-	MDLargeCodeblockRegEx = "```([\\s\\S])```"
-	MDInlineCodeRegEx     = "`(.*?)`"
-	MDSurroundRegEx       = "(**|*|__|_|~~)(.*?)(\\1)"
-	MDLinkAndImgRegEx     = `[!]?\[(.*?)\]\((.*?)\)`
-	MDBlockQuoteRegEx     = `(?<!.)>(.*)`
-	MDBulletsRegEx        = `(?<!.)([ \t]*)[\*-] (.*)\n`
-	MDNumListRegEx        = `(?<!.)([ \t]*)[0-9]+[.)] (.*)\n`
-	MDHeadingRegEx        = `(?<!.)(#+?) (.*)`
-)
-
 type MarkdownConverter struct {
 	largeCodeConv  *regexp2.Regexp
 	inlineCodeConv *regexp2.Regexp
@@ -30,15 +19,23 @@ type MarkdownConverter struct {
 }
 
 func NewMarkdownConverter() MarkdownConverter {
+	largeCodeConv := regexp2.MustCompile("```([\\s\\S])```", regexp2.Multiline)
+	inlineCodeConv := regexp2.MustCompile("`(.*?)`", regexp2.None)
+	surroundConv := regexp2.MustCompile(`(**|*|__|_|~~)(.*?)(\1)`, regexp2.None)
+	linkImgConv := regexp2.MustCompile(`[!]?\[(.*?)\]\((.*?)\)`, regexp2.None)
+	blockQuoteConv := regexp2.MustCompile(`(?<!.)>(.*)`, regexp2.None)
+	bulletConv := regexp2.MustCompile(`(?<!.)([ \t]*)[\*-] (.*)\n`, regexp2.None)
+	numListConv := regexp2.MustCompile(`(?<!.)([ \t]*)[0-9]+[.)] (.*)\n`, regexp2.None)
+	headingConv := regexp2.MustCompile(`(?<!.)(#+?) (.*)`, regexp2.None)
 	return MarkdownConverter{
-		largeCodeConv:  regexp2.MustCompile(MDLargeCodeblockRegEx, regexp2.Multiline),
-		inlineCodeConv: regexp2.MustCompile(MDInlineCodeRegEx, regexp2.None),
-		surroundConv:   regexp2.MustCompile(MDSurroundRegEx, regexp2.None),
-		linkImgConv:    regexp2.MustCompile(MDLinkAndImgRegEx, regexp2.None),
-		blockQuoteConv: regexp2.MustCompile(MDBlockQuoteRegEx, regexp2.None),
-		bulletConv:     regexp2.MustCompile(MDBulletsRegEx, regexp2.None),
-		numListConv:    regexp2.MustCompile(MDNumListRegEx, regexp2.None),
-		headingConv:    regexp2.MustCompile(MDHeadingRegEx, regexp2.None),
+		largeCodeConv:  largeCodeConv,
+		inlineCodeConv: inlineCodeConv,
+		surroundConv:   surroundConv,
+		linkImgConv:    linkImgConv,
+		blockQuoteConv: blockQuoteConv,
+		bulletConv:     bulletConv,
+		numListConv:    numListConv,
+		headingConv:    headingConv,
 	}
 }
 

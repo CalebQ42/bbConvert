@@ -8,9 +8,6 @@ import (
 
 // The Magic RegEx string that matches bbCode tags.
 const (
-	BBMatchRegEx    = `\[(b|bold|i|italics|u|underline|s|strike|font|size|color|smallcaps|url|link|youtube|img|image|title|t[1-6]|align|float|ul|bullet|ol|number)(.*?)\]([\s\S]*?)\[\/\1\]`
-	BBCustomRegEx   = `\[(\w+\b)(.*?)\]([\s\S]*?)\[\/\1\]`
-	BBCodeRegEx     = `\[code\]([\s\S]*?)\[\/code\]`
 	codePlaceholder = `%CODEBLOCK%`
 )
 
@@ -28,14 +25,19 @@ type BBTag struct {
 
 // A converter for BBCode
 type BBConverter struct {
-	mainConv *regexp2.Regexp
-	codeConv *regexp2.Regexp
+	codeConv   *regexp2.Regexp
+	mainConv   *regexp2.Regexp
+	customConv *regexp2.Regexp
 }
 
 func NewBBConverter() BBConverter {
+	code := regexp2.MustCompile(`\[code\]([\s\S]*?)\[\/code\]`, regexp2.Multiline)
+	main := regexp2.MustCompile(`\[(b|bold|i|italics|u|underline|s|strike|font|size|color|smallcaps|url|link|youtube|img|image|title|t[1-6]|align|float|ul|bullet|ol|number)(.*?)\]([\s\S]*?)\[\/\1\]`, regexp2.Multiline)
+	custom := regexp2.MustCompile(`\[(\w+\b)(.*?)\]([\s\S]*?)\[\/\1\]`, regexp2.Multiline)
 	return BBConverter{
-		mainConv: regexp2.MustCompile(BBMatchRegEx, regexp2.Multiline),
-		codeConv: regexp2.MustCompile(BBCodeRegEx, regexp2.Multiline),
+		codeConv:   code,
+		mainConv:   main,
+		customConv: custom,
 	}
 }
 
@@ -270,7 +272,7 @@ func (b BBConverter) CustomConvert(in string, convert map[string]BBConvert) stri
 	var match *regexp2.Match
 	var err error
 	for {
-		match, err = b.mainConv.FindStringMatch(in)
+		match, err = b.customConv.FindStringMatch(in)
 		if err != nil || match == nil {
 			break
 		}

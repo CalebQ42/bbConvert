@@ -86,7 +86,7 @@ Works a *little* bit differently
 
 func TestBBCode(t *testing.T) {
 	conv := NewComboConverter()
-	converted := conv.HTMLConvert(bbTestString)
+	converted := conv.BBHTMLConvert(bbTestString)
 	if converted != bbTestResult {
 		t.Log("BB Conversion is:")
 		t.Log(converted)
@@ -94,7 +94,7 @@ func TestBBCode(t *testing.T) {
 		t.Log(bbTestResult)
 		t.Fatal("BB Conversion failed")
 	}
-	converted = conv.HTMLConvert(mdTestString)
+	converted = conv.MarkdownHTMLConvert(mdTestString)
 	if converted != mdTestResult {
 		t.Log("BB Conversion is:")
 		t.Log(converted)

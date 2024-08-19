@@ -32,7 +32,6 @@ type BBConverter struct {
 	codeConv *regexp2.Regexp
 }
 
-// Create a new BBConverter
 func NewBBConverter() BBConverter {
 	return BBConverter{
 		mainConv: regexp2.MustCompile(BBMatchRegEx, regexp2.Multiline),
@@ -263,9 +262,11 @@ func processListItems(in string) string {
 	return "<li>" + strings.Join(out, "</li><li>") + "</li>"
 }
 
+type BBConvert func(BBTag) string
+
 // Parse and Convert BBCode. The BBCode is replaced with the return from the given conversion function.
 // The key in the map is the BBCode's tag
-func (b BBConverter) CustomConvert(in string, convert map[string]func(BBTag) string) string {
+func (b BBConverter) CustomConvert(in string, convert map[string]BBConvert) string {
 	var match *regexp2.Match
 	var err error
 	for {

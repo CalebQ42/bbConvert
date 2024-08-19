@@ -12,11 +12,11 @@ Capture-M(index = 0, unindex = -1)
  Concatenate-M
   Multi-M(String = "```")
   Capture-M(index = 1, unindex = -1)
-   Set-M(Set = [\x00-\u10ffff])
+   Setloop-M(Set = [\x00-\u10ffff])(Min = 0, Max = inf)
   Multi-M(String = "```")
 */
-// From markdown.go:22:39
-// Pattern: "```([\\s\\S])```"
+// From markdown.go:25:39
+// Pattern: "```([\\s\\S]*)```"
 // Options: regexp2.Multiline
 type largeCodeConv_Engine struct{}
 
@@ -27,8 +27,8 @@ func (largeCodeConv_Engine) CapSize() int             { return 2 }
 
 func (largeCodeConv_Engine) FindFirstChar(r *regexp2.Runner) bool {
 	pos := r.Runtextpos
-	// Any possible match is at least 7 characters
-	if pos <= len(r.Runtext)-7 {
+	// Any possible match is at least 6 characters
+	if pos <= len(r.Runtext)-6 {
 		// The pattern has the literal "```" at the beginning of the pattern. Find the next occurrence.
 		// If it can't be found, there's no match
 		if i := helpers.IndexOf(r.Runtext[pos:], []rune("```")); i >= 0 {
@@ -44,6 +44,9 @@ func (largeCodeConv_Engine) FindFirstChar(r *regexp2.Runner) bool {
 
 func (largeCodeConv_Engine) Execute(r *regexp2.Runner) error {
 	capture_starting_pos := 0
+	var charloop_starting_pos, charloop_ending_pos = 0, 0
+	iteration := 0
+	charloop_capture_pos := 0
 	pos := r.Runtextpos
 	matchStart := pos
 
@@ -63,22 +66,53 @@ func (largeCodeConv_Engine) Execute(r *regexp2.Runner) error {
 	slice = r.Runtext[pos:]
 	capture_starting_pos = pos
 
-	// Node: Set-M(Set = [\x00-\u10ffff])
-	// Match [\x00-\u10ffff].
-	if len(slice) == 0 || false {
+	// Node: Setloop-M(Set = [\x00-\u10ffff])(Min = 0, Max = inf)
+	// Match [\x00-\u10ffff] greedily any number of times.
+	charloop_starting_pos = pos
+
+	iteration = len(r.Runtext) - pos
+	slice = slice[iteration:]
+	pos += iteration
+
+	charloop_ending_pos = pos
+	goto CharLoopEnd
+
+CharLoopBacktrack:
+	r.UncaptureUntil(charloop_capture_pos)
+
+	if err := r.CheckTimeout(); err != nil {
+		return err
+	}
+	if charloop_starting_pos >= charloop_ending_pos {
 		r.UncaptureUntil(0)
 		return nil // The input didn't match.
 	}
-
-	pos++
+	charloop_ending_pos = helpers.LastIndexOf(r.Runtext[charloop_starting_pos:helpers.Min(len(r.Runtext), charloop_ending_pos+2)], []rune("```"))
+	if charloop_ending_pos < 0 { // miss
+		r.UncaptureUntil(0)
+		return nil // The input didn't match.
+	}
+	charloop_ending_pos += charloop_starting_pos
+	pos = charloop_ending_pos
 	slice = r.Runtext[pos:]
+
+CharLoopEnd:
+	charloop_capture_pos = r.Crawlpos()
+
 	r.Capture(1, capture_starting_pos, pos)
+
+	goto CaptureSkipBacktrack
+
+CaptureBacktrack:
+	goto CharLoopBacktrack
+
+CaptureSkipBacktrack:
+	;
 
 	// Node: Multi-M(String = "```")
 	// Match the string "```".
 	if !helpers.StartsWith(slice, []rune("```")) {
-		r.UncaptureUntil(0)
-		return nil // The input didn't match.
+		goto CaptureBacktrack
 	}
 
 	// The input matched.
@@ -1339,7 +1373,7 @@ CaptureSkipBacktrack2:
 }
 
 func init() {
-	regexp2.RegisterEngine("```([\\s\\S])```", regexp2.Multiline, &largeCodeConv_Engine{})
+	regexp2.RegisterEngine("```([\\s\\S]*)```", regexp2.Multiline, &largeCodeConv_Engine{})
 	regexp2.RegisterEngine("\\[code\\]([\\s\\S]*?)\\[\\/code\\]", regexp2.Multiline, &code_Engine{})
 	regexp2.RegisterEngine("\\[(b|bold|i|italics|u|underline|s|strike|font|size|color|smallcaps|url|link|youtube|img|image|title|t[1-6]|align|float|ul|bullet|ol|number)(.*?)\\]([\\s\\S]*?)\\[\\/\\1\\]", regexp2.Multiline, &main_Engine{})
 	regexp2.RegisterEngine("\\[(\\w+\\b)(.*?)\\]([\\s\\S]*?)\\[\\/\\1\\]", regexp2.Multiline, &custom_Engine{})

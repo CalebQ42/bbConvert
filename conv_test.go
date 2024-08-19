@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -75,32 +76,139 @@ Item 2
 [number] * Item 1 * Item 2[/number] //same as
 [ul]* Item 1 * Item 2[/ul] //an unordered (bulleted) list
 [ol]* Item 1 * Item 2[/ol] //an ordered (numbered) list`
-	bbTestResult = `<p><b>Some Text</b> //bolded text</p><p><b>Some Text</b> //bolded text</p><p><i>Some Text</i> //italicized text</p><p><i>Some Text</i> //italicized text</p><p>Some Text //underlined text</p><p>Some Text //underlined text</p><p><s>some Text</s> //strikedthrough text</p><p><s>Some Text</s> //strikethrough text</p><p><code>{Some Code}</code> //code text</p><p><pre><code>
+	bbTestResult = `<p><b>Some Text</b> //bolded text</p>
+<p><b>Some Text</b> //bolded text</p>
+<p><i>Some Text</i> //italicized text</p>
+<p><i>Some Text</i> //italicized text</p>
+<p>Some Text //underlined text</p>
+<p>Some Text //underlined text</p>
+<p><s>some Text</s> //strikedthrough text</p>
+<p><s>Some Text</s> //strikethrough text</p>
+<p><code>{Some Code}</code> //code text</p>
+<p><pre><code>
 Multiline code
 Works a *little* bit differently
 [i]And this should NEVER change[/i]
-</code></pre></p><p><span style='font-family:Verdana;'>Some Text</span> //text in verdana font</p><p><span style='font-size:20pt;'>Some Text</span> //20pt size text</p><p><span style='color:red;'>Some Text</span> //red text. Must be a CSS color.</p><p><span style='color:#000000;'>Some Text</span> //text with the color of #000000. The # is necessary</p><p><span style='text-transform:uppercase;'>Some Text</span> //uppercased text</p><p><span style='text-transform:lowercase;'>Some Text</span> //lowercase text</p><p><span style='font-variant:small-caps;'>Some Text</span> //smallcaps text</p><p><span style='font-size:20pt'>Some Text</span> //20pt size text</p><p><span style='color:red'>Some Text</span> //red text</p><p><span style='color:#000000'>Some Text</span> //text with the color of #000000. The # is necessary</p><p><span style='font-variant:small-caps'>Some Text</span> //smallcaps text</p><p><a href='https://darkstorm.techs'>https://darkstorm.techs</a> //linked text</p><p><a href='https://darkstorm.tech'>My website</a> //linked text</p><p><a href='https://darkstorm.tech'title="My Website">https://darkstorm.tech</a> //linked text with title</p><p><a href='https://darkstorm.tech'target='_blank'>https://darkstorm.tech</a> //link that opens into a new tab (target=_blank)</p><p><a href='https://darkstorm.tech'>https://darkstorm.tech</a> //linked text</p><p><a href='https://darkstorm.tech'>My Website</a> //linked text</p><p><a href='https://darkstorm.tech'title="Title">https://darkstorm.tech</a> //linked text with tooltip</p><p><a href='https://darkstorm.tech'target='_blank'>https://darkstorm.tech</a> //link that opens into a new tab (target=_blank)</p><p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' allowfullscreen></iframe> //youtube video</p><p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p><p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p><p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:left;' allowfullscreen></iframe> //youtube video floated left</p><p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:right;' allowfullscreen></iframe> //youtube video floated right</p><p><img src='test.png'/> //an image</p><p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p><p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p><p><img src='test.png' style='float:left;'/> //an image floated left</p><p><img src='test.png' style='float:right;'/> //an image floated right</p><p><img src='test.png' alt="A simple test"/> //an image with alternate text</p><p><img src='test.png' title="TEST TITLE"/> //an image with title</p><p><img src='test.png'/> //same as [img] tag</p><p><h1>Some Text</h1> //Large text made for use as a title</p><p><h1>Some Text</h1> //Large text made for use as a title. Same as [title]</p><p><h2>Some Text</h2> //Slightly smaller text than [t1]. Meant for use as a title of some sort</p><p><h3>Some Text</h3> //Slightly smaller text than [t2]. Meant for use as a title of some sort</p><p><h4>Some Text</h4> //Slightly smaller text than [t3]. Meant for use as a title of some sort</p><p><h5>Some Text</h5> //Slightly smaller text than [t4]. Meant for use as a title of some sort</p><p><h6>Some Text</h6> //Slightly smaller text than [t5]. Meant for use as a title of some sort</p><p><div style='text-align:center;'>Some Text</div> //Aligns the text. The text will be in a separate paragraph</p><p><div style='text-align:center;'>Some Text</div> //Equal sign is optional</p><p><div style='float:right;'>Floaty McFloat Face</div> //Float the content content (for HTML, this will be a floated div)</p><p><div style='float:right;'>Floaty McFloat Face</div> //Equal sign is optional</p><p><ol><li>Bullet 1</li><li>Bullet 2</li></ol> //bulleted list</p><p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p><p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p><p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p><p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p><p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p><p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>`
+</code></pre></p>
+<p><span style='font-family:Verdana;'>Some Text</span> //text in verdana font</p>
+<p><span style='font-size:20pt;'>Some Text</span> //20pt size text</p>
+<p><span style='color:red;'>Some Text</span> //red text. Must be a CSS color.</p>
+<p><span style='color:#000000;'>Some Text</span> //text with the color of #000000. The # is necessary</p>
+<p><span style='text-transform:uppercase;'>Some Text</span> //uppercased text</p>
+<p><span style='text-transform:lowercase;'>Some Text</span> //lowercase text</p>
+<p><span style='font-variant:small-caps;'>Some Text</span> //smallcaps text</p>
+<p><span style='font-size:20pt'>Some Text</span> //20pt size text</p>
+<p><span style='color:red'>Some Text</span> //red text</p>
+<p><span style='color:#000000'>Some Text</span> //text with the color of #000000. The # is necessary</p>
+<p><span style='font-variant:small-caps'>Some Text</span> //smallcaps text</p>
+<p><a href='https://darkstorm.techs'>https://darkstorm.techs</a> //linked text</p>
+<p><a href='https://darkstorm.tech'>My website</a> //linked text</p>
+<p><a href='https://darkstorm.tech'title="My Website">https://darkstorm.tech</a> //linked text with title</p>
+<p><a href='https://darkstorm.tech'target='_blank'>https://darkstorm.tech</a> //link that opens into a new tab</p>
+<p><a href='https://darkstorm.tech'>https://darkstorm.tech</a> //linked text</p>
+<p><a href='https://darkstorm.tech'>My Website</a> //linked text</p>
+<p><a href='https://darkstorm.tech'title="Title">https://darkstorm.tech</a> //linked text with tooltip</p>
+<p><a href='https://darkstorm.tech'target='_blank'>https://darkstorm.tech</a> //link that opens into a new tab</p>
+<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' allowfullscreen></iframe> //youtube video</p>
+<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p>
+<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p>
+<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:left;' allowfullscreen></iframe> //youtube video floated left</p>
+<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:right;' allowfullscreen></iframe> //youtube video floated right</p>
+<p><img src='test.png'/> //an image</p>
+<p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p>
+<p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p>
+<p><img src='test.png' style='float:left;'/> //an image floated left</p>
+<p><img src='test.png' style='float:right;'/> //an image floated right</p>
+<p><img src='test.png' alt="A simple test"/> //an image with alternate text</p>
+<p><img src='test.png' title="TEST TITLE"/> //an image with title</p>
+<p><img src='test.png'/> //same as [img] tag</p>
+<p><h1>Some Text</h1> //Large text made for use as a title</p>
+<p><h1>Some Text</h1> //Large text made for use as a title. Same as [title]</p>
+<p><h2>Some Text</h2> //Slightly smaller text than [t1]. Meant for use as a title of some sort</p>
+<p><h3>Some Text</h3> //Slightly smaller text than [t2]. Meant for use as a title of some sort</p>
+<p><h4>Some Text</h4> //Slightly smaller text than [t3]. Meant for use as a title of some sort</p>
+<p><h5>Some Text</h5> //Slightly smaller text than [t4]. Meant for use as a title of some sort</p>
+<p><h6>Some Text</h6> //Slightly smaller text than [t5]. Meant for use as a title of some sort</p>
+<p><div style='text-align:center;'>Some Text</div> //Aligns the text. The text will be in a separate paragraph</p>
+<p><div style='text-align:center;'>Some Text</div> //Equal sign is optional</p>
+<p><div style='float:right;'>Floaty McFloat Face</div> //Float the content content (for HTML, this will be a floated div)</p>
+<p><div style='float:right;'>Floaty McFloat Face</div> //Equal sign is optional</p>
+<p><ol><li>Bullet 1</li><li>Bullet 2</li></ol> //bulleted list</p>
+<p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p>
+<p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>
+<p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p>
+<p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p>
+<p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p>
+<p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>`
 	//TODO
-	mdTestString = ``
-	mdTestResult = ``
+	mdTestString = "```\nThis is some code that\n*should not*\nGet ***converted***\n```\n\nCode also comes in an `inline variation`\n" + `
+# Markdown test
+
+## Bullet test
+
+* This is a test of the bullet points
+* And if it can handle *formatting **within** the bullet*
+  * And of course multiple _levels_
+	* of bullets
+    1) ~~Can it handle mixed? I don't think so, not yet~~ DONE
+
+### Numbered list test
+
+1) Of course we can't forget __numbered lists__
+2) Where we can use ) or
+3. dots. And of course
+1000) ***We don't actually care what number it is***
+  1) And should have multi-level support
+  2) *just like bullets*
+
+#### And don't forget block quotes
+
+> This is a quote with multiple lines
+>
+> And junk
+>> And a nested quote
+
+##### Link test
+
+Let's not forget about [links](https://darkstorm.tech) and, of course, images:
+
+![test image](test.png)
+`
+	mdTestResult = `<p><pre><code>
+This is some code that
+*should not*
+Get ***converted***
+</code></pre></p>
+<p>Code also comes in an <code>inline variation</code></p>
+<p><h1>Markdown test</h1></p>
+<p><h2>Bullet test</h2></p>
+<p><ul><li>This is a test of the bullet points</li><li>And if it can handle <i>formatting <b>within</b> the bullet</i></li><ul><li>And of course multiple <i>levels</i></li><li>of bullets</li><ol><li><s>Can it handle mixed? I don't think so, not yet</s> DONE</li></ol></ul></ul>
+<h3>Numbered list test</h3></p>
+<p><ol><li>Of course we can't forget <b>numbered lists</b></li><li>Where we can use ) or</li><li>dots. And of course</li><li><b><i>We don't actually care what number it is</i></b></li><ol><li>And should have multi-level support</li><li><i>just like bullets</i></li></ol></ol>
+<h4>And don't forget block quotes</h4></p>
+<p><blockquote><p>This is a quote with multiple lines</p><p>And junk</p><blockquote><p>And a nested quote</p></blockquote></p></blockquote>
+<h5>Link test</h5></p>
+<p>Let's not forget about <a href='https://darkstorm.tech'>links</a> and, of course, images:</p>
+<p><img src='test.png' alt='test image'>
+</p>`
 )
 
 func TestBBCode(t *testing.T) {
 	conv := NewComboConverter()
 	converted := conv.BBHTMLConvert(bbTestString)
 	if converted != bbTestResult {
-		t.Log("BB Conversion is:")
-		t.Log(converted)
-		t.Log("But should be:")
-		t.Log(bbTestResult)
+		fmt.Print("BB Conversion should be:\n\n")
+		fmt.Println(bbTestResult)
+		fmt.Print("\nBut is:\n\n")
+		fmt.Println(converted)
 		t.Fatal("BB Conversion failed")
 	}
 	converted = conv.MarkdownHTMLConvert(mdTestString)
 	if converted != mdTestResult {
-		t.Log("BB Conversion is:")
-		t.Log(converted)
-		t.Log("But should be:")
-		t.Log(bbTestResult)
-		t.Fatal("BB Conversion failed")
+		fmt.Print("Markdown Conversion should be:\n\n")
+		fmt.Println(mdTestResult)
+		fmt.Print("\nBut is:\n\n")
+		fmt.Println(converted)
+		t.Fatal("Markdown Conversion failed")
 	}
 }

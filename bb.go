@@ -65,7 +65,7 @@ func (b BBConverter) HTMLConvert(in string) string {
 		}
 		in = in[:match.Index] + matchToHTML(match) + in[match.Index+match.Length:]
 	}
-	in = "<p>" + strings.ReplaceAll(in, "\n", "</p><p>") + "</p>"
+	in = "<p>" + strings.ReplaceAll(in, "\n", "</p>\n<p>") + "</p>"
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
 			in = strings.Replace(in, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)

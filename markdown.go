@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
@@ -10,31 +11,35 @@ import (
 type MarkdownConverter struct {
 	largeCodeConv  *regexp2.Regexp
 	inlineCodeConv *regexp2.Regexp
+	blockQuoteConv *regexp2.Regexp
+	bAndIConv      *regexp2.Regexp
+	bConv          *regexp2.Regexp
 	surroundConv   *regexp2.Regexp
 	linkImgConv    *regexp2.Regexp
-	blockQuoteConv *regexp2.Regexp
-	bulletConv     *regexp2.Regexp
-	numListConv    *regexp2.Regexp
+	listConv       *regexp2.Regexp
 	headingConv    *regexp2.Regexp
+	//TODO: Tables???
 }
 
 func NewMarkdownConverter() MarkdownConverter {
-	largeCodeConv := regexp2.MustCompile("```([\\s\\S])```", regexp2.Multiline)
-	inlineCodeConv := regexp2.MustCompile("`(.*?)`", regexp2.None)
-	bulletConv := regexp2.MustCompile(`(?<!.)([ \t]*)[\*-] (.*)\n`, regexp2.None)
-	numListConv := regexp2.MustCompile(`(?<!.)([ \t]*)[0-9]+[.)] (.*)\n`, regexp2.None)
-	surroundConv := regexp2.MustCompile(`(\*\*\*|\*\*|\*|___|__|_|~~)(.*?)(\1)`, regexp2.None)
+	largeCodeConv := regexp2.MustCompile("```([\\s\\S]*)```", regexp2.Multiline)
+	inlineCodeConv := regexp2.MustCompile("`(.*)`", regexp2.None)
+	listConv := regexp2.MustCompile(`(?<!.+)([ \t]*)([\*-]|(?:[0-9]+[.)])) (.*)\n`, regexp2.None)
+	blockQuoteConv := regexp2.MustCompile(`(?<!.+)(>+) ?(.*)\n`, regexp2.None)
+	bAndIConv := regexp2.MustCompile(`(\*\*\*|___)(.*?)(\1)`, regexp2.None)
+	bConv := regexp2.MustCompile(`(\*\*|__)(.*?)(\1)`, regexp2.None)
+	surroundConv := regexp2.MustCompile(`(\*|_|~~)(.*?)(\1)`, regexp2.None)
 	linkImgConv := regexp2.MustCompile(`[!]?\[(.*?)\]\((.*?)\)`, regexp2.None)
-	blockQuoteConv := regexp2.MustCompile(`(?<!.)>(.*)`, regexp2.None)
-	headingConv := regexp2.MustCompile(`(?<!.)(#+?) (.*)`, regexp2.None)
+	headingConv := regexp2.MustCompile(`(?<!.+)(#+) (.*)`, regexp2.None)
 	return MarkdownConverter{
 		largeCodeConv:  largeCodeConv,
 		inlineCodeConv: inlineCodeConv,
-		bulletConv:     bulletConv,
-		numListConv:    numListConv,
+		listConv:       listConv,
+		blockQuoteConv: blockQuoteConv,
+		bAndIConv:      bAndIConv,
+		bConv:          bConv,
 		surroundConv:   surroundConv,
 		linkImgConv:    linkImgConv,
-		blockQuoteConv: blockQuoteConv,
 		headingConv:    headingConv,
 	}
 }
@@ -61,21 +66,24 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
 		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
 	}
-	// Bullet points (unordered list)
+	// lists (ordered and unordered)
 	for {
 		var allMatches []*regexp2.Match
 		var prevMatch *regexp2.Match
+		prevMatch, err = m.listConv.FindStringMatch(in)
+		if err != nil || prevMatch == nil {
+			break
+		}
+		allMatches = append(allMatches, prevMatch)
 		// Find all lines that are in a single list
 		for {
 			var newMatch *regexp2.Match
-			newMatch, err = m.bulletConv.FindNextMatch(prevMatch)
+			newMatch, err = m.listConv.FindNextMatch(prevMatch)
 			if newMatch == nil || err != nil {
 				break
 			}
-			if prevMatch != nil {
-				if newMatch.Index != prevMatch.Index+prevMatch.Length {
-					break
-				}
+			if newMatch.Index != prevMatch.Index+prevMatch.Length {
+				break
 			}
 			allMatches = append(allMatches, newMatch)
 			prevMatch = newMatch
@@ -83,7 +91,15 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 		if len(allMatches) == 0 {
 			break
 		}
-		converted := "<ul>"
+		var isOrdered []bool
+		var converted string
+		if allMatches[0].GroupByNumber(2).String() == "*" || allMatches[0].GroupByNumber(2).String() == "-" {
+			converted = "<ul>"
+			isOrdered = append(isOrdered, false)
+		} else {
+			converted = "<ol>"
+			isOrdered = append(isOrdered, true)
+		}
 		curHeight := calculateListLevel(allMatches[0].GroupByNumber(1).String())
 		curLvl := 1
 		for _, m := range allMatches {
@@ -91,62 +107,114 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 			if itemHeight > curHeight {
 				curLvl++
 				curHeight = itemHeight
-				converted += "<ul>"
+				if m.GroupByNumber(2).String() == "*" || m.GroupByNumber(2).String() == "-" {
+					converted += "<ul>"
+					isOrdered = append(isOrdered, false)
+				} else {
+					converted += "<ol>"
+					isOrdered = append(isOrdered, true)
+				}
 			} else if itemHeight < curHeight {
 				if curLvl > 1 {
 					curLvl--
 					curHeight = itemHeight
-					converted += "</ul>"
+					if isOrdered[len(isOrdered)-1] {
+						converted += "</ol>"
+					} else {
+						converted += "</ul>"
+					}
+					isOrdered = isOrdered[:len(isOrdered)-1]
+					if m.GroupByNumber(2).String() == "*" || m.GroupByNumber(2).String() == "-" {
+						if isOrdered[len(isOrdered)-1] {
+							curLvl++
+							converted += "<ul>"
+							isOrdered = append(isOrdered, false)
+						}
+					} else {
+						if !isOrdered[len(isOrdered)-1] {
+							curLvl++
+							converted += "<ol>"
+							isOrdered = append(isOrdered, true)
+						}
+					}
 				}
 			}
-			converted += "<li>" + m.GroupByNumber(2).String() + "</li>"
+			converted += "<li>" + m.GroupByNumber(3).String() + "</li>"
 		}
-		converted += strings.Repeat("</ul>", curLvl)
-	}
-	// Numbered list
-	for {
-		var allMatches []*regexp2.Match
-		var prevMatch *regexp2.Match
-		// Find all lines that are in a single list
-		for {
-			var newMatch *regexp2.Match
-			newMatch, err = m.numListConv.FindNextMatch(prevMatch)
-			if newMatch == nil || err != nil {
-				break
+		for _, b := range slices.Backward(isOrdered) {
+			if b {
+				converted += "</ol>"
+			} else {
+				converted += "</ul>"
 			}
-			if prevMatch != nil {
-				if newMatch.Index != prevMatch.Index+prevMatch.Length {
-					break
-				}
-			}
-			allMatches = append(allMatches, newMatch)
-			prevMatch = newMatch
 		}
-		if len(allMatches) == 0 {
-			break
-		}
-		converted := "<ol>"
-		curHeight := calculateListLevel(allMatches[0].GroupByNumber(1).String())
-		curLvl := 1
-		for _, m := range allMatches {
-			itemHeight := calculateListLevel(m.GroupByNumber(1).String())
-			if itemHeight > curHeight {
-				curLvl++
-				curHeight = itemHeight
-				converted += "<ol>"
-			} else if itemHeight < curHeight {
-				if curLvl > 1 {
-					curLvl--
-					curHeight = itemHeight
-					converted += "</ol>"
-				}
-			}
-			converted += "<li>" + m.GroupByNumber(2).String() + "</li>"
-		}
-		converted += strings.Repeat("</ol>", curLvl)
 		in = in[:allMatches[0].Index] + converted + in[prevMatch.Index+prevMatch.Length:]
 	}
-	// Surround (eg. *hi*)
+	// Block Quotes
+	for {
+		var allMatches []*regexp2.Match
+		var prevMatch *regexp2.Match
+		prevMatch, err = m.blockQuoteConv.FindStringMatch(in)
+		if err != nil || prevMatch == nil {
+			break
+		}
+		allMatches = append(allMatches, prevMatch)
+		// Find all lines that are in a single blockquote
+		for {
+			var newMatch *regexp2.Match
+			newMatch, err = m.blockQuoteConv.FindNextMatch(prevMatch)
+			if newMatch == nil || err != nil {
+				break
+			}
+			if newMatch.Index != prevMatch.Index+prevMatch.Length {
+				break
+			}
+			allMatches = append(allMatches, newMatch)
+			prevMatch = newMatch
+		}
+		if len(allMatches) == 0 {
+			break
+		}
+		curHeight := len(allMatches[0].GroupByNumber(1).String())
+		curLvl := 1
+		converted := "<blockquote><p>"
+		for _, m := range allMatches {
+			if m.GroupByNumber(2).String() == "" {
+				converted += "</p><p>"
+				continue
+			}
+			itemHeight := len(m.GroupByNumber(1).String())
+			if itemHeight > curHeight {
+				curHeight = itemHeight
+				curLvl++
+				converted += "</p><blockquote><p>"
+			} else if itemHeight < curHeight && curLvl > 1 {
+				curHeight = itemHeight
+				curLvl--
+				converted += "</p></blockquote><p>"
+			}
+			converted += m.GroupByNumber(2).String()
+		}
+		converted += strings.Repeat("</p></blockquote>", curLvl)
+		in = in[:allMatches[0].Index] + converted + in[prevMatch.Index+prevMatch.Length:]
+	}
+	// Bold and Italics (*** and ___)
+	for {
+		match, err = m.bAndIConv.FindStringMatch(in)
+		if err != nil || match == nil {
+			break
+		}
+		in = in[:match.Index] + "<b><i>" + match.GroupByNumber(2).String() + "</i></b>" + in[match.Index+match.Length:]
+	}
+	// Bold (** and __)
+	for {
+		match, err = m.bConv.FindStringMatch(in)
+		if err != nil || match == nil {
+			break
+		}
+		in = in[:match.Index] + "<b>" + match.GroupByNumber(2).String() + "</b>" + in[match.Index+match.Length:]
+	}
+	// Italics and strikethough
 	for {
 		match, err = m.surroundConv.FindStringMatch(in)
 		if err != nil || match == nil {
@@ -158,16 +226,8 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 			fallthrough
 		case "_":
 			converted = "<i>" + match.GroupByNumber(2).String() + "</i>"
-		case "**":
-			fallthrough
-		case "__":
-			converted = "<b>" + match.GroupByNumber(2).String() + "</b>"
 		case "~~":
 			converted = "<s>" + match.GroupByNumber(2).String() + "</s>"
-		case "***":
-			fallthrough
-		case "___":
-			converted = "<b><i>" + match.GroupByNumber(2).String() + "</i></b>"
 		default:
 			converted = match.GroupByNumber(2).String()
 		}
@@ -183,21 +243,13 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 		if match.String()[0] == '!' {
 			converted = "<img src='" +
 				strings.ReplaceAll(match.GroupByNumber(2).String(), "'", "\\'") + "' alt='" +
-				strings.ReplaceAll(match.GroupByNumber(1).String(), "'", "\\'") + ">"
+				strings.ReplaceAll(match.GroupByNumber(1).String(), "'", "\\'") + "'>"
 		} else {
 			converted = "<a href='" +
-				strings.ReplaceAll(match.GroupByNumber(2).String(), "'", "\\'") + ">" +
+				strings.ReplaceAll(match.GroupByNumber(2).String(), "'", "\\'") + "'>" +
 				match.GroupByNumber(1).String() + "</a>"
 		}
 		in = in[:match.Index] + converted + in[match.Index+match.Length:]
-	}
-	// Block Quotes
-	for {
-		match, err = m.blockQuoteConv.FindStringMatch(in)
-		if err != nil || match == nil {
-			break
-		}
-		in = in[:match.Index] + "<blockquote>" + match.GroupByNumber(1).String() + "</blockquote>" + in[match.Index+match.Length:]
 	}
 	// Headings
 	for {
@@ -215,7 +267,7 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 			"</h" + strconv.Itoa(level) + ">" +
 			in[match.Index+match.Length:]
 	}
-	in = "<p>" + strings.ReplaceAll(in, "\n\n", "</p><p>") + "</p>"
+	in = "<p>" + strings.ReplaceAll(in, "\n\n", "</p>\n<p>") + "</p>"
 	// Replace the code placeholders
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
@@ -229,5 +281,5 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 
 func calculateListLevel(indent string) int {
 	indent = strings.ReplaceAll(indent, "\t", "  ")
-	return len(indent) % 2
+	return len(indent) / 2
 }

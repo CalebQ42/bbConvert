@@ -2,6 +2,7 @@ package bbConvert
 
 import (
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/dlclark/regexp2"
@@ -164,18 +165,32 @@ func matchToHTML(match *regexp2.Match) string {
 		}
 		middle = "https://youtube.com/embed/" + middle
 		var style string
+		var width, height string
 		if leading != "" {
 			xInd := strings.Index(leading, "x")
 			if xInd != -1 {
-				style += "width:" + leading[:xInd] + ";height:" + leading[xInd+1:] + ";"
+				width = leading[:xInd]
+				height = leading[xInd+1:]
 			}
 		} else {
-			if params["width"] != "" {
-				style += "width:" + params["width"] + ";"
+			width = params["width"]
+			height = params["height"]
+		}
+		if width != "" {
+			// Does it contain units? if not, we assume pixels (px)
+			_, err := strconv.Atoi(width)
+			if err == nil {
+				width += "px"
 			}
-			if params["height"] != "" {
-				style += "height:" + params["height"] + ";"
+			style += "width:" + width + ";"
+		}
+		if height != "" {
+			// Does it contain units? if not, we assume pixels (px)
+			_, err := strconv.Atoi(height)
+			if err == nil {
+				height += "px"
 			}
+			style += "height:" + height + ";"
 		}
 		if _, exist := params["left"]; exist {
 			style += "float:left;"
@@ -197,18 +212,32 @@ func matchToHTML(match *regexp2.Match) string {
 			out += " title=\"" + params["title"] + "\""
 		}
 		var style string
+		var width, height string
 		if leading != "" {
 			xInd := strings.Index(leading, "x")
 			if xInd != -1 {
-				style += "width:" + leading[:xInd] + ";height:" + leading[xInd+1:] + ";"
+				width = leading[:xInd]
+				height = leading[xInd+1:]
 			}
 		} else {
-			if params["width"] != "" {
-				style += "width:" + params["width"] + ";"
+			width = params["width"]
+			height = params["height"]
+		}
+		if width != "" {
+			// Does it contain units? if not, we assume pixels (px)
+			_, err := strconv.Atoi(width)
+			if err == nil {
+				width += "px"
 			}
-			if params["height"] != "" {
-				style += "height:" + params["height"] + ";"
+			style += "width:" + width + ";"
+		}
+		if height != "" {
+			// Does it contain units? if not, we assume pixels (px)
+			_, err := strconv.Atoi(height)
+			if err == nil {
+				height += "px"
 			}
+			style += "height:" + height + ";"
 		}
 		if _, exist := params["left"]; exist {
 			style += "float:left;"

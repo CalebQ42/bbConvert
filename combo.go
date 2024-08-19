@@ -1,4 +1,3 @@
-//go:generate regexp2cg -o regexp2_codegen.go
 package bbConvert
 
 import (

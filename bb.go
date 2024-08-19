@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/dlclark/regexp2"
@@ -94,9 +95,9 @@ func matchToHTML(match *regexp2.Match) string {
 		if leading == "" && len(params) == 0 {
 			return middle
 		}
-		style := "style=\""
+		style := "style='"
 		if leading != "" {
-			style += "font-family:" + leading + "';"
+			style += "font-family:" + leading + ";"
 		}
 		if params["color"] != "" {
 			style += "color:" + params["color"] + ";"
@@ -112,7 +113,7 @@ func matchToHTML(match *regexp2.Match) string {
 		case "smallcaps":
 			style += "font-variant:small-caps;"
 		}
-		return "<span " + style + "\">" + middle + "</span>"
+		return "<span " + style + "'>" + middle + "</span>"
 	case "size":
 		if leading == "" {
 			return middle
@@ -142,14 +143,26 @@ func matchToHTML(match *regexp2.Match) string {
 		}
 		return "<a href='" + addr + "'" + extras + ">" + middle + "</a>"
 	case "youtube":
-		if !strings.Contains(middle, "youtube.com") || !strings.Contains(middle, "youtu.be") {
-			middle = "https://youtube.com/embed/" + middle
-		} else if !strings.Contains(middle, "/embed/") {
-			sepInd := strings.LastIndex(middle, "/")
-			if sepInd != -1 {
-				middle = middle[:sepInd] + "/embed" + middle[sepInd:]
+		if strings.Contains(middle, "/") {
+			ytUrl, err := url.Parse(middle)
+			if err != nil {
+				return middle
+			}
+			if ytUrl.Path == "/watch" {
+				if ytUrl.Query().Get("v") != "" {
+					middle = ytUrl.Query().Get("v")
+				} else {
+					return middle
+				}
+			} else {
+				spl := strings.Split(ytUrl.Path, "/")
+				if len(spl) == 0 {
+					return middle
+				}
+				middle = spl[len(spl)-1]
 			}
 		}
+		middle = "https://youtube.com/embed/" + middle
 		var style string
 		if leading != "" {
 			xInd := strings.Index(leading, "x")
@@ -232,7 +245,19 @@ func matchToHTML(match *regexp2.Match) string {
 				break
 			}
 		}
-		return "<div style='text-align:" + align + "'>" + middle + "</div>"
+		return "<div style='text-align:" + align + ";'>" + middle + "</div>"
+	case "float":
+		if leading == "" && len(params) == 0 {
+			return middle
+		}
+		float := leading
+		if leading == "" {
+			for k := range params {
+				float = k
+				break
+			}
+		}
+		return "<div style='float:" + float + ";'>" + middle + "</div>"
 	case "bullet":
 		tag = "ul"
 		fallthrough
@@ -254,7 +279,10 @@ func processListItems(in string) string {
 	}
 	var out []string
 	for ind := strings.IndexAny(in, "\n*"); ind != -1; ind = strings.IndexAny(in, "\n*") {
-		out = append(out, strings.TrimSpace(in[:ind]))
+		line := strings.TrimSpace(in[:ind])
+		if line != "" {
+			out = append(out, strings.TrimSpace(in[:ind]))
+		}
 		in = in[ind+1:]
 	}
 	in = strings.TrimSpace(in)

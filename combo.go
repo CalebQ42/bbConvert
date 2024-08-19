@@ -26,8 +26,7 @@ func NewComboConverter() ComboConverter {
 
 // Convert BBCode and Markdown to HTML
 func (c ComboConverter) HTMLConvert(in string) string {
-	// Markdown has more potential collisions, so we do it first
-	in = c.md.HTMLConvert(in)
+	in = c.bb.HTMLConvert(in)
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
@@ -40,7 +39,7 @@ func (c ComboConverter) HTMLConvert(in string) string {
 		codeBlocks = append(codeBlocks, match.String())
 		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
 	}
-	in = c.bb.HTMLConvert(in)
+	in = c.md.HTMLConvert(in)
 	for i := range codeBlocks {
 		in = strings.Replace(in, codePlaceholder, codeBlocks[i], 1)
 	}

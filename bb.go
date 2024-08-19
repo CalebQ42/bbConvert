@@ -61,6 +61,7 @@ func (b BBConverter) HTMLConvert(in string) string {
 		}
 		in = in[:match.Index] + matchToHTML(match) + in[match.Index+match.Length:]
 	}
+	in = "<p>" + strings.ReplaceAll(in, "\n", "</p><p>") + "</p>"
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
 			in = strings.Replace(in, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
@@ -89,23 +90,121 @@ func matchToHTML(match *regexp2.Match) string {
 	case "strike":
 		return "<" + string(tag[0]) + ">" + middle + "</" + string(tag[0]) + ">"
 	case "font":
-		return "TODO"
+		if leading == "" && len(params) == 0 {
+			return middle
+		}
+		style := "style=\""
+		if leading != "" {
+			style += "font-family:" + leading + "';"
+		}
+		if params["color"] != "" {
+			style += "color:" + params["color"] + ";"
+		}
+		if params["size"] != "" {
+			style += "font-size:" + params["size"] + ";"
+		}
+		switch params["variant"] {
+		case "upper":
+			style += "text-transform:uppercase;"
+		case "lower":
+			style += "text-transform:lowercase;"
+		case "smallcaps":
+			style += "font-variant:small-caps;"
+		}
+		return "<span " + style + "\">" + middle + "</span>"
 	case "size":
-		return "TODO"
+		if leading == "" {
+			return middle
+		}
+		return "<span style='font-size:" + leading + "'>" + middle + "</span>"
 	case "color":
-		return "TODO"
+		if leading == "" {
+			return middle
+		}
+		return "<span style='color:" + leading + "'>" + middle + "</span>"
 	case "smallcaps":
 		return "<span style='font-variant:small-caps'>" + middle + "</span>"
 	case "url":
 		fallthrough
 	case "link":
-		return "TODO"
+		var addr, extras string
+		if params["title"] != "" {
+			extras = "title=\"" + params["title"] + "\""
+		}
+		if _, exist := params["tab"]; exist {
+			extras += "target='_blank'"
+		}
+		if leading == "" {
+			addr = middle
+		} else {
+			addr = leading
+		}
+		return "<a href='" + addr + "'" + extras + ">" + middle + "</a>"
 	case "youtube":
-		return "TODO"
+		if !strings.Contains(middle, "youtube.com") || !strings.Contains(middle, "youtu.be") {
+			middle = "https://youtube.com/embed/" + middle
+		} else if !strings.Contains(middle, "/embed/") {
+			sepInd := strings.LastIndex(middle, "/")
+			if sepInd != -1 {
+				middle = middle[:sepInd] + "/embed" + middle[sepInd:]
+			}
+		}
+		var style string
+		if leading != "" {
+			xInd := strings.Index(leading, "x")
+			if xInd != -1 {
+				style += "width:" + leading[:xInd] + ";height:" + leading[xInd+1:] + ";"
+			}
+		} else {
+			if params["width"] != "" {
+				style += "width:" + params["width"] + ";"
+			}
+			if params["height"] != "" {
+				style += "height:" + params["height"] + ";"
+			}
+		}
+		if _, exist := params["left"]; exist {
+			style += "float:left;"
+		} else if _, exist = params["right"]; exist {
+			style += "float:right;"
+		}
+		if style == "" {
+			return "<iframe src='" + middle + "' allowfullscreen></iframe>"
+		}
+		return "<iframe src='" + middle + "' style='" + style + "' allowfullscreen></iframe>"
 	case "img":
 		fallthrough
 	case "image":
-		return "TODO"
+		out := "<img src='" + middle + "'"
+		if params["alt"] != "" {
+			out += " alt=\"" + params["alt"] + "\""
+		}
+		if params["title"] != "" {
+			out += " title=\"" + params["title"] + "\""
+		}
+		var style string
+		if leading != "" {
+			xInd := strings.Index(leading, "x")
+			if xInd != -1 {
+				style += "width:" + leading[:xInd] + ";height:" + leading[xInd+1:] + ";"
+			}
+		} else {
+			if params["width"] != "" {
+				style += "width:" + params["width"] + ";"
+			}
+			if params["height"] != "" {
+				style += "height:" + params["height"] + ";"
+			}
+		}
+		if _, exist := params["left"]; exist {
+			style += "float:left;"
+		} else if _, exist = params["right"]; exist {
+			style += "float:right;"
+		}
+		if style != "" {
+			out += " style='" + style + "'"
+		}
+		return out + "/>"
 	case "title":
 		tag = "t1"
 		fallthrough
@@ -134,15 +233,34 @@ func matchToHTML(match *regexp2.Match) string {
 		}
 		return "<div style='text-align:" + align + "'>" + middle + "</div>"
 	case "bullet":
+		tag = "ul"
 		fallthrough
-	case "ul":
-		return "TODO"
 	case "number":
+		tag = "ol"
 		fallthrough
 	case "ol":
-		return "TODO"
+		fallthrough
+	case "ul":
+		return "<" + tag + ">" + processListItems(middle) + "</" + tag + ">"
 	}
 	return middle
+}
+
+func processListItems(in string) string {
+	in = strings.TrimSpace(in)
+	if in == "" {
+		return ""
+	}
+	var out []string
+	for ind := strings.IndexAny(in, "\n*"); ind != -1; ind = strings.IndexAny(in, "\n*") {
+		out = append(out, strings.TrimSpace(in[:ind]))
+		in = in[ind+1:]
+	}
+	in = strings.TrimSpace(in)
+	if in != "" {
+		out = append(out, in)
+	}
+	return "<li>" + strings.Join(out, "</li><li>") + "</li>"
 }
 
 // Parse and Convert BBCode. The BBCode is replaced with the return from the given conversion function.

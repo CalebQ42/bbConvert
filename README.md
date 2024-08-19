@@ -20,21 +20,23 @@ If you have any questions, feel free to open an issue and ask it. I don't have a
 [code]{Some Code}[/code] //code text
 [font=Verdana]Some Text[/font] //text in verdana font
 [font size=20pt]Some Text[/font] //20pt size text
-[font color=red]Some Text[/font] //red text
-[font color=#000000]Some Text[/font] //text with the color of #000000. The # is unnecessary
+[font color=red]Some Text[/font] //red text. Must be a CSS color.
+[font color=#000000]Some Text[/font] //text with the color of #000000. The # is necessary
 [font variant=upper]Some Text[/font] //uppercased text
 [font variant=lower]Some Text[/font] //lowercase text
 [font variant=smallcaps]Some Text[/font] //smallcaps text
 [size=20pt]Some Text[/size] //20pt size text
 [color=red]Some Text[/color] //red text
-[color=#000000]Some Text[/color] //text with the color of #000000. The # is unnecessary
+[color=#000000]Some Text[/color] //text with the color of #000000. The # is necessary
 [smallcaps]Some Text[/smallcaps] //smallcaps text
 [url]Link address[/url] //linked text
 [url=address]Some Text[/url] //linked text
 [url title="Title"]Link address[/url] //linked text with title
+[url tab]Link address[/url] //link that opens into a new tab (target=_blank)
 [link]Link address[/link] //linked text
 [link=address]Some Text[/link] //linked text
-[link title="Title"]Link address[/link] //linked text with title
+[link title="Title"]Link address[/link] //linked text with tooltip
+[link tab]Link address[/link] //link that opens into a new tab (target=_blank)
 [youtube]Youtube URL or video ID[/youtube] //youtube video
 [youtube height=200 width=500]Youtube URL or video ID[/youtube] //youtube video with set size
 [youtube=500x200]Youtube URL or video ID[/youtube] //youtube video with set size

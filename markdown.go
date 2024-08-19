@@ -215,6 +215,7 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 			"</h" + strconv.Itoa(level) + ">" +
 			in[match.Index+match.Length:]
 	}
+	in = "<p>" + strings.ReplaceAll(in, "\n\n", "</p><p>") + "</p>"
 	// Replace the code placeholders
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {

@@ -33,11 +33,11 @@ Works a *little* bit differently
 [url]https://darkstorm.techs[/url] //linked text
 [url=https://darkstorm.tech]My website[/url] //linked text
 [url title="My Website"]https://darkstorm.tech[/url] //linked text with title
-[url tab]https://darkstorm.tech[/url] //link that opens into a new tab (target=_blank)
+[url tab]https://darkstorm.tech[/url] //link that opens into a new tab
 [link]https://darkstorm.tech[/link] //linked text
 [link=https://darkstorm.tech]My Website[/link] //linked text
 [link title="Title"]https://darkstorm.tech[/link] //linked text with tooltip
-[link tab]https://darkstorm.tech[/link] //link that opens into a new tab (target=_blank)
+[link tab]https://darkstorm.tech[/link] //link that opens into a new tab
 [youtube]JsbdJFHRh6c[/youtube] //youtube video
 [youtube height=200 width=500]JsbdJFHRh6c[/youtube] //youtube video with set size
 [youtube=500x200]JsbdJFHRh6c[/youtube] //youtube video with set size

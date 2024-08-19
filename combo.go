@@ -26,6 +26,8 @@ func NewComboConverter() ComboConverter {
 
 // Convert BBCode and Markdown to HTML
 func (c ComboConverter) HTMLConvert(in string) string {
+	//TODO: make this a bit more custom to prevent a couple, rare, collisions
+	//_blank link target is the one I know of right now
 	in = c.bb.HTMLConvert(in)
 	var codeBlocks []string
 	var match *regexp2.Match

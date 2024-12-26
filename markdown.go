@@ -59,7 +59,7 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 			if err != nil || match == nil {
 				break
 			}
-			codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
+			codeBlocks = append(codeBlocks, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n"))
 			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 		}
 		// Inline code

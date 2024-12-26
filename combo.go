@@ -42,7 +42,7 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 			break
 		}
 		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		n := codeMatch{match.Index, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n")}
 		dif = len(n.code) - len(codePlaceholder)
 		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
 		for i := ind; i < len(codeBlocks); i++ {
@@ -56,7 +56,7 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 			break
 		}
 		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		n := codeMatch{match.Index, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n")}
 		dif = len(n.code) - len(codePlaceholder)
 		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
 		for i := ind; i < len(codeBlocks); i++ {
@@ -70,7 +70,7 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 			break
 		}
 		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		n := codeMatch{match.Index, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n")}
 		dif = len(n.code) - len(codePlaceholder)
 		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
 		for i := ind; i < len(codeBlocks); i++ {

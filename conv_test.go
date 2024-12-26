@@ -174,8 +174,7 @@ Let's not forget about [links](https://darkstorm.tech) and, of course, images:
 
 ![test image](test.png)
 `
-	mdTestResult = `<p>—<pre><code>
-This is some code that
+	mdTestResult = `<p>—<pre><code>This is some code that
 *should not*
 Get ***converted***
 </code></pre></p>
@@ -233,8 +232,7 @@ The real world is messy, and between DB calls, API requests, and IO, the actual 
 	testyResult = `<p>I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a <i>bad</i> "benchmark" that's basically just 1 BILLION iterations of a for loop.</p>
 <p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">More languages, more insights!<br><br>A few interesting takeaways:<br><br><i> Java and Kotlin are quick! Possible explanation: Google is heavily invested in performance here.<br></i> Js is really fast as far as interpreted / jit languages go.<br>* Python is quite slow without things like PyPy. <a href="https://t.co/GIshus2UXO">pic.twitter.com/GIshus2UXO</a></p>— Ben Dicken (@BenjDicken) <a href="https://twitter.com/BenjDicken/status/1861072804239847914?ref_src=twsrc%5Etfw">November 25, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
 <p>Now I cannot talk to most of the languages shown, but I have significant experience in Go and have spent a not insignificant time optimizing Go code (in particular my squashfs library). The second I opened up the code for this "benchmark" I knew that whoever had written this code has never tried to write optimized Go code. First let's start with the results without any changes. For simplicity I'll only show the results of C and Go.</p>
-<p><pre><code>
-C = 1.29s
+<p><pre><code>C = 1.29s
 C = 1.29s
 C = 1.29s
 
@@ -243,8 +241,7 @@ Go = 1.51s
 Go = 1.51s
 </code></pre></p>
 <p>This is fairly expected, as it's what's in line with the post and what is logical, Go's structure is fairly low level and similar to C, but it is garbage compiled meaning it <i>will</i> be slower in real world applications. Now let's look at the results of my optimized code:</p>
-<p><pre><code>
-C = 1.29s
+<p><pre><code>C = 1.29s
 C = 1.29s
 C = 1.29s
 

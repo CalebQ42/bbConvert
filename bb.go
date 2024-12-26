@@ -62,7 +62,7 @@ func (b BBConverter) bbActualConv(in []rune, comboConv bool) string {
 				break
 			}
 			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-			codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
+			codeBlocks = append(codeBlocks, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n"))
 		}
 	}
 	for {

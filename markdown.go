@@ -22,8 +22,8 @@ type MarkdownConverter struct {
 }
 
 func NewMarkdownConverter() MarkdownConverter {
-	largeCodeConv := regexp2.MustCompile("```([\\s\\S]*)```", regexp2.Multiline)
-	inlineCodeConv := regexp2.MustCompile("`(.*)`", regexp2.None)
+	largeCodeConv := regexp2.MustCompile("```([\\s\\S]*?)```", regexp2.Multiline)
+	inlineCodeConv := regexp2.MustCompile("`(.*?)`", regexp2.None)
 	listConv := regexp2.MustCompile(`(?<!.+)([ \t]*)([\*-]|(?:[0-9]+[.)])) (.*)\n`, regexp2.None)
 	blockQuoteConv := regexp2.MustCompile(`(?<!.+)(>+) ?(.*)\n`, regexp2.None)
 	bAndIConv := regexp2.MustCompile(`(\*\*\*|___)(.*?)(\1)`, regexp2.None)

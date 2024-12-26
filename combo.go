@@ -1,6 +1,7 @@
 package bbConvert
 
 import (
+	"cmp"
 	"slices"
 	"strings"
 
@@ -23,27 +24,67 @@ func NewComboConverter() ComboConverter {
 	}
 }
 
+type codeMatch struct {
+	index int
+	code  string
+}
+
 // Convert BBCode and Markdown to HTML
 func (c ComboConverter) HTMLConvert(combo string) string {
-	//TODO: make this a bit more custom to prevent a couple, rare, collisions
-	//_blank link target is the one I know of right now.
-	combo = c.bb.HTMLConvert(combo)
 	in := []rune(combo)
-	var codeBlocks []string
+	var codeBlocks []codeMatch
 	var match *regexp2.Match
 	var err error
-	// Pull back out any code blocks
+	var ind, dif int
 	for {
-		match, err = c.code.FindRunesMatch(in)
+		match, err = c.bb.codeConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		codeBlocks = append(codeBlocks, match.String())
 		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		dif = len(n.code) - len(codePlaceholder)
+		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
+		for i := ind; i < len(codeBlocks); i++ {
+			codeBlocks[i].index -= dif
+		}
+		codeBlocks = slices.Insert(codeBlocks, ind, n)
 	}
-	out := c.md.HTMLConvert(string(in))
+	for {
+		match, err = c.md.largeCodeConv.FindRunesMatch(in)
+		if err != nil || match == nil {
+			break
+		}
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		dif = len(n.code) - len(codePlaceholder)
+		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
+		for i := ind; i < len(codeBlocks); i++ {
+			codeBlocks[i].index -= dif
+		}
+		codeBlocks = slices.Insert(codeBlocks, ind, n)
+	}
+	for {
+		match, err = c.md.inlineCodeConv.FindRunesMatch(in)
+		if err != nil || match == nil {
+			break
+		}
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		n := codeMatch{match.Index, match.GroupByNumber(1).String()}
+		dif = len(n.code) - len(codePlaceholder)
+		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
+		for i := ind; i < len(codeBlocks); i++ {
+			codeBlocks[i].index -= dif
+		}
+		codeBlocks = slices.Insert(codeBlocks, ind, n)
+	}
+	out := c.bb.bbActualConv([]rune(c.md.mkActualConv(in, true)), true)
 	for i := range codeBlocks {
-		out = strings.Replace(out, codePlaceholder, codeBlocks[i], 1)
+		if strings.Contains(codeBlocks[i].code, "\n") {
+			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i].code+"</code></pre>", 1)
+		} else {
+			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i].code+"</code>", 1)
+		}
 	}
 	return out
 }

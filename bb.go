@@ -47,18 +47,23 @@ func NewBBConverter() BBConverter {
 
 // Converts BBCode into HTML.
 func (b BBConverter) HTMLConvert(bb string) string {
-	in := []rune(bb)
+	return b.bbActualConv([]rune(bb), false)
+}
+
+func (b BBConverter) bbActualConv(in []rune, comboConv bool) string {
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
-	// First find code blocks so we don't accidentally format it's contents
-	for {
-		match, err = b.codeConv.FindRunesMatch(in)
-		if err != nil || match == nil {
-			break
+	if !comboConv {
+		// First find code blocks so we don't accidentally format it's contents
+		for {
+			match, err = b.codeConv.FindRunesMatch(in)
+			if err != nil || match == nil {
+				break
+			}
+			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+			codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
 		}
-		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
 	}
 	for {
 		match, err = b.mainConv.FindRunesMatch(in)
@@ -67,15 +72,19 @@ func (b BBConverter) HTMLConvert(bb string) string {
 		}
 		in = slices.Concat(in[:match.Index], []rune(matchToHTML(match)), in[match.Index+match.Length:])
 	}
-	out := "<p>" + strings.ReplaceAll(string(in), "\n", "</p>\n<p>") + "</p>"
-	for i := range codeBlocks {
-		if strings.Contains(codeBlocks[i], "\n") {
-			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
-		} else {
-			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
+	out := string(in)
+	if !comboConv {
+		out = "<p>" + strings.ReplaceAll(out, "\n", "</p>\n<p>") + "</p>"
+		for i := range codeBlocks {
+			if strings.Contains(codeBlocks[i], "\n") {
+				out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
+			} else {
+				out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
+			}
 		}
 	}
 	return out
+
 }
 
 func matchToHTML(match *regexp2.Match) string {

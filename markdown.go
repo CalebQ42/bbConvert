@@ -45,27 +45,32 @@ func NewMarkdownConverter() MarkdownConverter {
 }
 
 func (m MarkdownConverter) HTMLConvert(mk string) string {
-	in := []rune(mk)
+	return m.mkActualConv([]rune(mk), false)
+}
+
+func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
-	// Code blocks
-	for {
-		match, err = m.largeCodeConv.FindRunesMatch(in)
-		if err != nil || match == nil {
-			break
+	if !comboConv {
+		// Code blocks
+		for {
+			match, err = m.largeCodeConv.FindRunesMatch(in)
+			if err != nil || match == nil {
+				break
+			}
+			codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
+			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 		}
-		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
-		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
-	}
-	// Inline code
-	for {
-		match, err = m.inlineCodeConv.FindRunesMatch(in)
-		if err != nil || match == nil {
-			break
+		// Inline code
+		for {
+			match, err = m.inlineCodeConv.FindRunesMatch(in)
+			if err != nil || match == nil {
+				break
+			}
+			codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
+			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 		}
-		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
-		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 	}
 	// lists (ordered and unordered)
 	for {

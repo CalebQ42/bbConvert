@@ -191,7 +191,45 @@ Get ***converted***
 <p>Let's not forget about <a href='https://darkstorm.tech'>links</a> and, of course, images:</p>
 <p><img src='test.png' alt='test image'>
 </p>`
-	testy = "—`yo`"
+	testy = `I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a _bad_ "benchmark" that's basically just 1 BILLION iterations of a for loop.
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">More languages, more insights!<br><br>A few interesting takeaways:<br><br>* Java and Kotlin are quick! Possible explanation: Google is heavily invested in performance here.<br>* Js is really fast as far as interpreted / jit languages go.<br>* Python is quite slow without things like PyPy. <a href="https://t.co/GIshus2UXO">pic.twitter.com/GIshus2UXO</a></p>— Ben Dicken (@BenjDicken) <a href="https://twitter.com/BenjDicken/status/1861072804239847914?ref_src=twsrc%5Etfw">November 25, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+Now I cannot talk to most of the languages shown, but I have significant experience in Go and have spent a not insignificant time optimizing Go code (in particular my squashfs library). The second I opened up the code for this "benchmark" I knew that whoever had written this code has never tried to write optimized Go code. First let's start with the results without any changes. For simplicity I'll only show the results of C and Go.
+
+` + "```" + `
+C = 1.29s
+C = 1.29s
+C = 1.29s
+
+Go = 1.51s
+Go = 1.51s
+Go = 1.51s
+` + "```" + `
+
+This is fairly expected, as it's what's in line with the post and what is logical, Go's structure is fairly low level and similar to C, but it is garbage compiled meaning it _will_ be slower in real world applications. Now let's look at the results of my optimized code:
+
+` + "```" + `
+C = 1.29s
+C = 1.29s
+C = 1.29s
+
+Go = 1.29s
+Go = 1.30s
+Go = 1.29s
+` + "```" + `
+
+Suddenly, C's lead is gone! _What black magic is this???_. Well, if you actually look at the original code and you know Go, you'll probably notice it immediately: the "benchmark" is using ` + "`" + `int` + "`" + `. That's right, my optimizations boiled down to making all ` + "`" + `int` + "`" + ` instances ` + "`" + `int32` + "`" + `s. I'm honestly a bit surprised it basically ties C, but I suspect that, _since this isn't a real world benchmark_, the garbage collector never actually has to do anything, meaning Go's primary disadvantage is non-existent.
+
+## My gaps in knowledge
+
+Let me be clear, I am no expert, I do not actually know _why_ ` + "`" + `int32` + "`" + ` is faster then ` + "`" + `int` + "`" + `, I just know it is (I have theories, but that's all they are). Though I know many of the other languages, I haven't ever done any research on how to optimize them. It's possible all the other languages are perfectly optimized, but the fact such a simple optimization was overlooked invalidates the entire test in my mind.
+
+## The Point
+
+Let me be clear, benchmarks are important and useful, but the most useful benchmarks I've seen are between code of the same language as it removes a lot of the compiler magic and skill issues. Funnily enough, my benchmark between the code using ` + "`" + `int` + "`" + ` and ` + "`" + `int32` + "`" + ` _is_ a useful benchmark. The problem arises when you try to benchmark between fundamentally different languages (or even frameworks), but do not give them _all_ the same amount of time and attention. As an example, if I were to write the C code for this test we'd probably see Go with a lead, not because Go is faster, but because I know how to write optimized Go.
+
+The real world is messy, and between DB calls, API requests, and IO, the actual performance gains/failure of any particular language becomes a lot more complex and their performance will largely depend on your needs. The vast majority of the time spending time optimizing code would be far better then re-writing in a different language. The only time I'd actually recommend switching languages is when you've already optimized and are still running into performance constraints __or__ if you want to learn. Let me be clear: [Ben Dicken](https://x.com/BenjDicken) _is_ a better engineer then me, but that doesn't mean he can't make mistakes.`
 )
 
 func TestBBCode(t *testing.T) {

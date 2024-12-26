@@ -3,6 +3,7 @@ package bbConvert
 
 import (
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -45,35 +46,36 @@ func NewBBConverter() BBConverter {
 }
 
 // Converts BBCode into HTML.
-func (b BBConverter) HTMLConvert(in string) string {
+func (b BBConverter) HTMLConvert(bb string) string {
+	in := []rune(bb)
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
 	// First find code blocks so we don't accidentally format it's contents
 	for {
-		match, err = b.codeConv.FindStringMatch(in)
+		match, err = b.codeConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
 	}
 	for {
-		match, err = b.mainConv.FindStringMatch(in)
+		match, err = b.mainConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + matchToHTML(match) + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(matchToHTML(match)), in[match.Index+match.Length:])
 	}
-	in = "<p>" + strings.ReplaceAll(in, "\n", "</p>\n<p>") + "</p>"
+	out := "<p>" + strings.ReplaceAll(string(in), "\n", "</p>\n<p>") + "</p>"
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
-			in = strings.Replace(in, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
+			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
 		} else {
-			in = strings.Replace(in, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
+			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
 		}
 	}
-	return in
+	return out
 }
 
 func matchToHTML(match *regexp2.Match) string {
@@ -326,17 +328,18 @@ type BBConvert func(BBTag) string
 
 // Parse and Convert BBCode. The BBCode is replaced with the return from the given conversion function.
 // The key in the map is the BBCode's tag
-func (b BBConverter) CustomConvert(in string, convert map[string]BBConvert) string {
+func (b BBConverter) CustomConvert(bb string, convert map[string]BBConvert) string {
+	in := []rune(bb)
 	var match *regexp2.Match
 	var err error
 	for {
-		match, err = b.customConv.FindStringMatch(in)
+		match, err = b.customConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + convert[match.GroupByNumber(1).String()](matchToTag(match)) + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(convert[match.GroupByNumber(1).String()](matchToTag(match))), in[match.Index+match.Length:])
 	}
-	return in
+	return string(in)
 }
 
 func matchToTag(match *regexp2.Match) BBTag {

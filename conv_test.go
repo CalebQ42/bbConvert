@@ -191,6 +191,7 @@ Get ***converted***
 <p>Let's not forget about <a href='https://darkstorm.tech'>links</a> and, of course, images:</p>
 <p><img src='test.png' alt='test image'>
 </p>`
+	testy = "—`yo`"
 )
 
 func TestBBCode(t *testing.T) {
@@ -211,4 +212,10 @@ func TestBBCode(t *testing.T) {
 		fmt.Println(converted)
 		t.Fatal("Markdown Conversion failed")
 	}
+}
+
+func TestTesty(t *testing.T) {
+	conv := NewComboConverter()
+	converted := conv.MarkdownHTMLConvert(testy)
+	t.Fatal(converted)
 }

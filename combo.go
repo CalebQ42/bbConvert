@@ -1,12 +1,11 @@
 package bbConvert
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/dlclark/regexp2"
 )
-
-const CodeBlockRegEx = `<code>[\s\S]*?<\/code>`
 
 // A BBCode and Markdown converter all in one.
 // Attemps to prevent some potential errors when doing them separately.
@@ -20,32 +19,33 @@ func NewComboConverter() ComboConverter {
 	return ComboConverter{
 		bb:   NewBBConverter(),
 		md:   NewMarkdownConverter(),
-		code: regexp2.MustCompile(CodeBlockRegEx, regexp2.Multiline),
+		code: regexp2.MustCompile(`<code>[\s\S]*?<\/code>`, regexp2.Multiline),
 	}
 }
 
 // Convert BBCode and Markdown to HTML
-func (c ComboConverter) HTMLConvert(in string) string {
+func (c ComboConverter) HTMLConvert(combo string) string {
 	//TODO: make this a bit more custom to prevent a couple, rare, collisions
 	//_blank link target is the one I know of right now.
-	in = c.bb.HTMLConvert(in)
+	combo = c.bb.HTMLConvert(combo)
+	in := []rune(combo)
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
 	// Pull back out any code blocks
 	for {
-		match, err = c.code.FindStringMatch(in)
+		match, err = c.code.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
 		codeBlocks = append(codeBlocks, match.String())
-		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 	}
-	in = c.md.HTMLConvert(in)
+	out := c.md.HTMLConvert(string(in))
 	for i := range codeBlocks {
-		in = strings.Replace(in, codePlaceholder, codeBlocks[i], 1)
+		out = strings.Replace(out, codePlaceholder, codeBlocks[i], 1)
 	}
-	return in
+	return out
 }
 
 // Converts just BBCode to HTML

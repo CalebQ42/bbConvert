@@ -44,33 +44,34 @@ func NewMarkdownConverter() MarkdownConverter {
 	}
 }
 
-func (m MarkdownConverter) HTMLConvert(in string) string {
+func (m MarkdownConverter) HTMLConvert(mk string) string {
+	in := []rune(mk)
 	var codeBlocks []string
 	var match *regexp2.Match
 	var err error
 	// Code blocks
 	for {
-		match, err = m.largeCodeConv.FindStringMatch(in)
+		match, err = m.largeCodeConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
 		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
-		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 	}
 	// Inline code
 	for {
-		match, err = m.inlineCodeConv.FindStringMatch(in)
+		match, err = m.inlineCodeConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
 		codeBlocks = append(codeBlocks, match.GroupByNumber(1).String())
-		in = in[:match.Index] + codePlaceholder + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
 	}
 	// lists (ordered and unordered)
 	for {
 		var allMatches []*regexp2.Match
 		var prevMatch *regexp2.Match
-		prevMatch, err = m.listConv.FindStringMatch(in)
+		prevMatch, err = m.listConv.FindRunesMatch(in)
 		if err != nil || prevMatch == nil {
 			break
 		}
@@ -148,13 +149,13 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 				converted += "</ul>"
 			}
 		}
-		in = in[:allMatches[0].Index] + converted + in[prevMatch.Index+prevMatch.Length:]
+		in = slices.Concat(in[:allMatches[0].Index], []rune(converted), in[prevMatch.Index+prevMatch.Length:])
 	}
 	// Block Quotes
 	for {
 		var allMatches []*regexp2.Match
 		var prevMatch *regexp2.Match
-		prevMatch, err = m.blockQuoteConv.FindStringMatch(in)
+		prevMatch, err = m.blockQuoteConv.FindRunesMatch(in)
 		if err != nil || prevMatch == nil {
 			break
 		}
@@ -196,27 +197,27 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 			converted += m.GroupByNumber(2).String()
 		}
 		converted += strings.Repeat("</p></blockquote>", curLvl)
-		in = in[:allMatches[0].Index] + converted + in[prevMatch.Index+prevMatch.Length:]
+		in = slices.Concat(in[:allMatches[0].Index], []rune(converted), in[prevMatch.Index+prevMatch.Length:])
 	}
 	// Bold and Italics (*** and ___)
 	for {
-		match, err = m.bAndIConv.FindStringMatch(in)
+		match, err = m.bAndIConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + "<b><i>" + match.GroupByNumber(2).String() + "</i></b>" + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune("<b><i>"), match.GroupByNumber(2).Runes(), []rune("</i></b>"), in[match.Index+match.Length:])
 	}
 	// Bold (** and __)
 	for {
-		match, err = m.bConv.FindStringMatch(in)
+		match, err = m.bConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
-		in = in[:match.Index] + "<b>" + match.GroupByNumber(2).String() + "</b>" + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune("<b>"), match.GroupByNumber(2).Runes(), []rune("</b>"), in[match.Index+match.Length:])
 	}
 	// Italics and strikethough
 	for {
-		match, err = m.surroundConv.FindStringMatch(in)
+		match, err = m.surroundConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
@@ -231,11 +232,11 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 		default:
 			converted = match.GroupByNumber(2).String()
 		}
-		in = in[:match.Index] + converted + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(converted), in[match.Index+match.Length:])
 	}
 	// Links and images
 	for {
-		match, err = m.linkImgConv.FindStringMatch(in)
+		match, err = m.linkImgConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
@@ -249,11 +250,11 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 				strings.ReplaceAll(match.GroupByNumber(2).String(), "'", "\\'") + "'>" +
 				match.GroupByNumber(1).String() + "</a>"
 		}
-		in = in[:match.Index] + converted + in[match.Index+match.Length:]
+		in = slices.Concat(in[:match.Index], []rune(converted), in[match.Index+match.Length:])
 	}
 	// Headings
 	for {
-		match, err = m.headingConv.FindStringMatch(in)
+		match, err = m.headingConv.FindRunesMatch(in)
 		if err != nil || match == nil {
 			break
 		}
@@ -261,22 +262,23 @@ func (m MarkdownConverter) HTMLConvert(in string) string {
 		if level > 6 {
 			level = 6
 		}
-		in = in[:match.Index] +
-			"<h" + strconv.Itoa(level) + ">" +
-			match.GroupByNumber(2).String() +
-			"</h" + strconv.Itoa(level) + ">" +
-			in[match.Index+match.Length:]
+		in = slices.Concat(
+			in[:match.Index],
+			[]rune("<h"+strconv.Itoa(level)+">"),
+			match.GroupByNumber(2).Runes(),
+			[]rune("</h"+strconv.Itoa(level)+">"),
+			in[match.Index+match.Length:])
 	}
-	in = "<p>" + strings.ReplaceAll(in, "\n\n", "</p>\n<p>") + "</p>"
+	out := "<p>" + strings.ReplaceAll(string(in), "\n\n", "</p>\n<p>") + "</p>"
 	// Replace the code placeholders
 	for i := range codeBlocks {
 		if strings.Contains(codeBlocks[i], "\n") {
-			in = strings.Replace(in, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
+			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
 		} else {
-			in = strings.Replace(in, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
+			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
 		}
 	}
-	return in
+	return out
 }
 
 func calculateListLevel(indent string) int {

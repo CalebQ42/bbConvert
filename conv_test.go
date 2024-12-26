@@ -85,8 +85,7 @@ Item 2
 <p><s>some Text</s> //strikedthrough text</p>
 <p><s>Some Text</s> //strikethrough text</p>
 <p><code>{Some Code}</code> //code text</p>
-<p><pre><code>
-Multiline code
+<p><pre><code>Multiline code
 Works a *little* bit differently
 [i]And this should NEVER change[/i]
 </code></pre></p>

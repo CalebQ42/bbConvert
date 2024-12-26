@@ -141,7 +141,7 @@ Works a *little* bit differently
 <p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p>
 <p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>`
 	//TODO
-	mdTestString = "```\nThis is some code that\n*should not*\nGet ***converted***\n```\n\nCode also comes in an `inline variation`\n" + `
+	mdTestString = "—```\nThis is some code that\n*should not*\nGet ***converted***\n```\n\nCode also comes in an `inline variation`\n" + `
 # Markdown test
 
 ## Bullet test
@@ -149,7 +149,7 @@ Works a *little* bit differently
 * This is a test of the bullet points
 * And if it can handle *formatting **within** the bullet*
   * And of course multiple _levels_
-	* of bullets
+	* of bullets—
     1) ~~Can it handle mixed? I don't think so, not yet~~ DONE
 
 ### Numbered list test
@@ -174,7 +174,7 @@ Let's not forget about [links](https://darkstorm.tech) and, of course, images:
 
 ![test image](test.png)
 `
-	mdTestResult = `<p><pre><code>
+	mdTestResult = `<p>—<pre><code>
 This is some code that
 *should not*
 Get ***converted***
@@ -182,7 +182,7 @@ Get ***converted***
 <p>Code also comes in an <code>inline variation</code></p>
 <p><h1>Markdown test</h1></p>
 <p><h2>Bullet test</h2></p>
-<p><ul><li>This is a test of the bullet points</li><li>And if it can handle <i>formatting <b>within</b> the bullet</i></li><ul><li>And of course multiple <i>levels</i></li><li>of bullets</li><ol><li><s>Can it handle mixed? I don't think so, not yet</s> DONE</li></ol></ul></ul>
+<p><ul><li>This is a test of the bullet points</li><li>And if it can handle <i>formatting <b>within</b> the bullet</i></li><ul><li>And of course multiple <i>levels</i></li><li>of bullets—</li><ol><li><s>Can it handle mixed? I don't think so, not yet</s> DONE</li></ol></ul></ul>
 <h3>Numbered list test</h3></p>
 <p><ol><li>Of course we can't forget <b>numbered lists</b></li><li>Where we can use ) or</li><li>dots. And of course</li><li><b><i>We don't actually care what number it is</i></b></li><ol><li>And should have multi-level support</li><li><i>just like bullets</i></li></ol></ol>
 <h4>And don't forget block quotes</h4></p>
@@ -191,45 +191,6 @@ Get ***converted***
 <p>Let's not forget about <a href='https://darkstorm.tech'>links</a> and, of course, images:</p>
 <p><img src='test.png' alt='test image'>
 </p>`
-	testy = `I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a _bad_ "benchmark" that's basically just 1 BILLION iterations of a for loop.
-
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">More languages, more insights!<br><br>A few interesting takeaways:<br><br>* Java and Kotlin are quick! Possible explanation: Google is heavily invested in performance here.<br>* Js is really fast as far as interpreted / jit languages go.<br>* Python is quite slow without things like PyPy. <a href="https://t.co/GIshus2UXO">pic.twitter.com/GIshus2UXO</a></p>— Ben Dicken (@BenjDicken) <a href="https://twitter.com/BenjDicken/status/1861072804239847914?ref_src=twsrc%5Etfw">November 25, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-Now I cannot talk to most of the languages shown, but I have significant experience in Go and have spent a not insignificant time optimizing Go code (in particular my squashfs library). The second I opened up the code for this "benchmark" I knew that whoever had written this code has never tried to write optimized Go code. First let's start with the results without any changes. For simplicity I'll only show the results of C and Go.
-
-` + "```" + `
-C = 1.29s
-C = 1.29s
-C = 1.29s
-
-Go = 1.51s
-Go = 1.51s
-Go = 1.51s
-` + "```" + `
-
-This is fairly expected, as it's what's in line with the post and what is logical, Go's structure is fairly low level and similar to C, but it is garbage compiled meaning it _will_ be slower in real world applications. Now let's look at the results of my optimized code:
-
-` + "```" + `
-C = 1.29s
-C = 1.29s
-C = 1.29s
-
-Go = 1.29s
-Go = 1.30s
-Go = 1.29s
-` + "```" + `
-
-Suddenly, C's lead is gone! _What black magic is this???_. Well, if you actually look at the original code and you know Go, you'll probably notice it immediately: the "benchmark" is using ` + "`" + `int` + "`" + `. That's right, my optimizations boiled down to making all ` + "`" + `int` + "`" + ` instances ` + "`" + `int32` + "`" + `s. I'm honestly a bit surprised it basically ties C, but I suspect that, _since this isn't a real world benchmark_, the garbage collector never actually has to do anything, meaning Go's primary disadvantage is non-existent.
-
-## My gaps in knowledge
-
-Let me be clear, I am no expert, I do not actually know _why_ ` + "`" + `int32` + "`" + ` is faster then ` + "`" + `int` + "`" + `, I just know it is (I have theories, but that's all they are). Though I know many of the other languages, I haven't ever done any research on how to optimize them. It's possible all the other languages are perfectly optimized, but the fact such a simple optimization was overlooked invalidates the entire test in my mind.
-
-## The Point
-
-Let me be clear, benchmarks are important and useful, but the most useful benchmarks I've seen are between code of the same language as it removes a lot of the compiler magic and skill issues. Funnily enough, my benchmark between the code using ` + "`" + `int` + "`" + ` and ` + "`" + `int32` + "`" + ` _is_ a useful benchmark. The problem arises when you try to benchmark between fundamentally different languages (or even frameworks), but do not give them _all_ the same amount of time and attention. As an example, if I were to write the C code for this test we'd probably see Go with a lead, not because Go is faster, but because I know how to write optimized Go.
-
-The real world is messy, and between DB calls, API requests, and IO, the actual performance gains/failure of any particular language becomes a lot more complex and their performance will largely depend on your needs. The vast majority of the time spending time optimizing code would be far better then re-writing in a different language. The only time I'd actually recommend switching languages is when you've already optimized and are still running into performance constraints __or__ if you want to learn. Let me be clear: [Ben Dicken](https://x.com/BenjDicken) _is_ a better engineer then me, but that doesn't mean he can't make mistakes.`
 )
 
 func TestBBCode(t *testing.T) {
@@ -250,10 +211,4 @@ func TestBBCode(t *testing.T) {
 		fmt.Println(converted)
 		t.Fatal("Markdown Conversion failed")
 	}
-}
-
-func TestTesty(t *testing.T) {
-	conv := NewComboConverter()
-	converted := conv.MarkdownHTMLConvert(testy)
-	t.Fatal(converted)
 }

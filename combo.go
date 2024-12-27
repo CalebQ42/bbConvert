@@ -41,7 +41,11 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 		if err != nil || match == nil {
 			break
 		}
-		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		if strings.Contains(match.GroupByNumber(1).String(), "\n") {
+			in = slices.Concat(in[:match.Index], []rune("</p><pre>"+codePlaceholder+"</pre><p>"), in[match.Index+match.Length:])
+		} else {
+			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		}
 		n := codeMatch{match.Index, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n")}
 		dif = len(n.code) - len(codePlaceholder)
 		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
@@ -55,7 +59,7 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 		if err != nil || match == nil {
 			break
 		}
-		in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+		in = slices.Concat(in[:match.Index], []rune("</p><pre>"+codePlaceholder+"</pre><p>"), in[match.Index+match.Length:])
 		n := codeMatch{match.Index, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n")}
 		dif = len(n.code) - len(codePlaceholder)
 		ind, _ = slices.BinarySearchFunc(codeBlocks, n, func(a, b codeMatch) int { return cmp.Compare(a.index, b.index) })
@@ -80,11 +84,7 @@ func (c ComboConverter) HTMLConvert(combo string) string {
 	}
 	out := c.bb.bbActualConv([]rune(c.md.mkActualConv(in, true)), true)
 	for i := range codeBlocks {
-		if strings.Contains(codeBlocks[i].code, "\n") {
-			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i].code+"</code></pre>", 1)
-		} else {
-			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i].code+"</code>", 1)
-		}
+		out = strings.Replace(out, codeInner, codeBlocks[i].code, 1)
 	}
 	return out
 }

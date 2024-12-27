@@ -85,10 +85,10 @@ Item 2
 <p><s>some Text</s> //strikedthrough text</p>
 <p><s>Some Text</s> //strikethrough text</p>
 <p><code>{Some Code}</code> //code text</p>
-<p><pre><code>Multiline code
+<pre><code>Multiline code
 Works a *little* bit differently
 [i]And this should NEVER change[/i]
-</code></pre></p>
+</code></pre>
 <p><span style='font-family:Verdana;'>Some Text</span> //text in verdana font</p>
 <p><span style='font-size:20pt;'>Some Text</span> //20pt size text</p>
 <p><span style='color:red;'>Some Text</span> //red text. Must be a CSS color.</p>
@@ -108,11 +108,11 @@ Works a *little* bit differently
 <p><a href='https://darkstorm.tech'>My Website</a> //linked text</p>
 <p><a href='https://darkstorm.tech'title="Title">https://darkstorm.tech</a> //linked text with tooltip</p>
 <p><a href='https://darkstorm.tech'target='_blank'>https://darkstorm.tech</a> //link that opens into a new tab</p>
-<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' allowfullscreen></iframe> //youtube video</p>
-<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p>
-<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe> //youtube video with set size</p>
-<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:left;' allowfullscreen></iframe> //youtube video floated left</p>
-<p><iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:right;' allowfullscreen></iframe> //youtube video floated right</p>
+<iframe src='https://youtube.com/embed/JsbdJFHRh6c' allowfullscreen></iframe><p> //youtube video</p>
+<iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe><p> //youtube video with set size</p>
+<iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='width:500px;height:200px;' allowfullscreen></iframe><p> //youtube video with set size</p>
+<iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:left;' allowfullscreen></iframe><p> //youtube video floated left</p>
+<iframe src='https://youtube.com/embed/JsbdJFHRh6c' style='float:right;' allowfullscreen></iframe><p> //youtube video floated right</p>
 <p><img src='test.png'/> //an image</p>
 <p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p>
 <p><img src='test.png' style='width:500px;height:200px;'/> //an image with set size</p>
@@ -121,26 +121,27 @@ Works a *little* bit differently
 <p><img src='test.png' alt="A simple test"/> //an image with alternate text</p>
 <p><img src='test.png' title="TEST TITLE"/> //an image with title</p>
 <p><img src='test.png'/> //same as [img] tag</p>
-<p><h1>Some Text</h1> //Large text made for use as a title</p>
-<p><h1>Some Text</h1> //Large text made for use as a title. Same as [title]</p>
-<p><h2>Some Text</h2> //Slightly smaller text than [t1]. Meant for use as a title of some sort</p>
-<p><h3>Some Text</h3> //Slightly smaller text than [t2]. Meant for use as a title of some sort</p>
-<p><h4>Some Text</h4> //Slightly smaller text than [t3]. Meant for use as a title of some sort</p>
-<p><h5>Some Text</h5> //Slightly smaller text than [t4]. Meant for use as a title of some sort</p>
-<p><h6>Some Text</h6> //Slightly smaller text than [t5]. Meant for use as a title of some sort</p>
-<p><div style='text-align:center;'>Some Text</div> //Aligns the text. The text will be in a separate paragraph</p>
-<p><div style='text-align:center;'>Some Text</div> //Equal sign is optional</p>
-<p><div style='float:right;'>Floaty McFloat Face</div> //Float the content content (for HTML, this will be a floated div)</p>
-<p><div style='float:right;'>Floaty McFloat Face</div> //Equal sign is optional</p>
-<p><ol><li>Bullet 1</li><li>Bullet 2</li></ol> //bulleted list</p>
-<p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p>
-<p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>
-<p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p>
-<p><ol><li>Item 1</li><li>Item 2</li></ol> //same as</p>
-<p><ul><li>Item 1</li><li>Item 2</li></ul> //an unordered (bulleted) list</p>
-<p><ol><li>Item 1</li><li>Item 2</li></ol> //an ordered (numbered) list</p>`
+<h1>Some Text</h1><p> //Large text made for use as a title</p>
+<h1>Some Text</h1><p> //Large text made for use as a title. Same as [title]</p>
+<h2>Some Text</h2><p> //Slightly smaller text than [t1]. Meant for use as a title of some sort</p>
+<h3>Some Text</h3><p> //Slightly smaller text than [t2]. Meant for use as a title of some sort</p>
+<h4>Some Text</h4><p> //Slightly smaller text than [t3]. Meant for use as a title of some sort</p>
+<h5>Some Text</h5><p> //Slightly smaller text than [t4]. Meant for use as a title of some sort</p>
+<h6>Some Text</h6><p> //Slightly smaller text than [t5]. Meant for use as a title of some sort</p>
+<div style='text-align:center;'><p>Some Text</p></div><p> //Aligns the text. The text will be in a separate paragraph</p>
+<div style='text-align:center;'><p>Some Text</p></div><p> //Equal sign is optional</p>
+<div style='float:right;'><p>Floaty McFloat Face</p></div><p> //Float the content content (for HTML, this will be a floated div)</p>
+<div style='float:right;'><p>Floaty McFloat Face</p></div><p> //Equal sign is optional</p>
+<ol><li>Bullet 1</li><li>Bullet 2</li></ol><p> //bulleted list</p>
+<ul><li>Item 1</li><li>Item 2</li></ul><p> //an unordered (bulleted) list</p>
+<ol><li>Item 1</li><li>Item 2</li></ol><p> //an ordered (numbered) list</p>
+<ol><li>Item 1</li><li>Item 2</li></ol><p> //same as</p>
+<ol><li>Item 1</li><li>Item 2</li></ol><p> //same as</p>
+<ul><li>Item 1</li><li>Item 2</li></ul><p> //an unordered (bulleted) list</p>
+<ol><li>Item 1</li><li>Item 2</li></ol><p> //an ordered (numbered) list</p>`
 	//TODO
-	mdTestString = "—```\nThis is some code that\n*should not*\nGet ***converted***\n```\n\nCode also comes in an `inline variation`\n" + `
+	mdTestString = "—```\nThis is some code that\n*should not*\nGet ***converted***\n```\n\nCode also comes in an `inline variation`" + `
+
 # Markdown test
 
 ## Bullet test
@@ -171,25 +172,25 @@ Works a *little* bit differently
 
 Let's not forget about [links](https://darkstorm.tech) and, of course, images:
 
-![test image](test.png)
-`
-	mdTestResult = `<p>—<pre><code>This is some code that
+![test image](test.png)`
+	mdTestResult = `<p>—</p><pre><code>This is some code that
 *should not*
 Get ***converted***
-</code></pre></p>
+</code></pre>
 <p>Code also comes in an <code>inline variation</code></p>
-<p><h1>Markdown test</h1></p>
-<p><h2>Bullet test</h2></p>
-<p><ul><li>This is a test of the bullet points</li><li>And if it can handle <i>formatting <b>within</b> the bullet</i></li><ul><li>And of course multiple <i>levels</i></li><li>of bullets—</li><ol><li><s>Can it handle mixed? I don't think so, not yet</s> DONE</li></ol></ul></ul>
-<h3>Numbered list test</h3></p>
-<p><ol><li>Of course we can't forget <b>numbered lists</b></li><li>Where we can use ) or</li><li>dots. And of course</li><li><b><i>We don't actually care what number it is</i></b></li><ol><li>And should have multi-level support</li><li><i>just like bullets</i></li></ol></ol>
-<h4>And don't forget block quotes</h4></p>
-<p><blockquote><p>This is a quote with multiple lines</p><p>And junk</p><blockquote><p>And a nested quote</p></blockquote></p></blockquote>
-<h5>Link test</h5></p>
+<h1>Markdown test</h1>
+<h2>Bullet test</h2>
+<ul><li>This is a test of the bullet points</li><li>And if it can handle <i>formatting <b>within</b> the bullet</i></li><ul><li>And of course multiple <i>levels</i></li><li>of bullets—</li><ol><li><s>Can it handle mixed? I don't think so, not yet</s> DONE</li></ol></ul></ul>
+<h3>Numbered list test</h3>
+<ol><li>Of course we can't forget <b>numbered lists</b></li><li>Where we can use ) or</li><li>dots. And of course</li><li><b><i>We don't actually care what number it is</i></b></li><ol><li>And should have multi-level support</li><li><i>just like bullets</i></li></ol></ol>
+<h4>And don't forget block quotes</h4>
+<blockquote><p>This is a quote with multiple lines</p><p>And junk</p><blockquote><p>And a nested quote</p></blockquote></blockquote>
+<h5>Link test</h5>
 <p>Let's not forget about <a href='https://darkstorm.tech'>links</a> and, of course, images:</p>
-<p><img src='test.png' alt='test image'>
-</p>`
-	testy = `I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a _bad_ "benchmark" that's basically just 1 BILLION iterations of a for loop.
+<p><img src='test.png' alt='test image'></p>`
+	testy = `> Edit: Between writing this and fixing my markdown converter, ThePrimeagen and Casey Muratori did a _fantastic_ breakdown on this particular benchmark and how it's not actually benchmarking for loops, but in fact it's benchmarking the modulo function. You can find the video [here](https://youtu.be/RrHGX1wwSYM?si=D12J1vRyZWnb6Upc). If you don't want to watch the nearly hour and a half video, just know that Casey Muratori was able to improve the performance of the C code by 3.5x fairly easily.
+
+I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a _bad_ "benchmark" that's basically just 1 BILLION iterations of a for loop.
 
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">More languages, more insights!<br><br>A few interesting takeaways:<br><br>* Java and Kotlin are quick! Possible explanation: Google is heavily invested in performance here.<br>* Js is really fast as far as interpreted / jit languages go.<br>* Python is quite slow without things like PyPy. <a href="https://t.co/GIshus2UXO">pic.twitter.com/GIshus2UXO</a></p>— Ben Dicken (@BenjDicken) <a href="https://twitter.com/BenjDicken/status/1861072804239847914?ref_src=twsrc%5Etfw">November 25, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
@@ -228,30 +229,31 @@ Let me be clear, I am no expert, I do not actually know _why_ ` + "`" + `int32` 
 Let me be clear, benchmarks are important and useful, but the most useful benchmarks I've seen are between code of the same language as it removes a lot of the compiler magic and skill issues. Funnily enough, my benchmark between the code using ` + "`" + `int` + "`" + ` and ` + "`" + `int32` + "`" + ` _is_ a useful benchmark. The problem arises when you try to benchmark between fundamentally different languages (or even frameworks), but do not give them _all_ the same amount of time and attention. As an example, if I were to write the C code for this test we'd probably see Go with a lead, not because Go is faster, but because I know how to write optimized Go.
 
 The real world is messy, and between DB calls, API requests, and IO, the actual performance gains/failure of any particular language becomes a lot more complex and their performance will largely depend on your needs. The vast majority of the time spending time optimizing code would be far better then re-writing in a different language. The only time I'd actually recommend switching languages is when you've already optimized and are still running into performance constraints __or__ if you want to learn. Let me be clear: [Ben Dicken](https://x.com/BenjDicken) _is_ a better engineer then me, but that doesn't mean he can't make mistakes.`
-	testyResult = `<p>I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a <i>bad</i> "benchmark" that's basically just 1 BILLION iterations of a for loop.</p>
+	testyResult = `<blockquote><p>Edit: Between writing this and fixing my markdown converter, ThePrimeagen and Casey Muratori did a <i>fantastic</i> breakdown on this particular benchmark and how it's not actually benchmarking for loops, but in fact it's benchmarking the modulo function. You can find the video <a href='https://youtu.be/RrHGX1wwSYM?si=D12J1vRyZWnb6Upc'>here</a>. If you don't want to watch the nearly hour and a half video, just know that Casey Muratori was able to improve the performance of the C code by 3.5x fairly easily.</p></blockquote><p>
+I've recently gotten into the bad habit of looking at software dev twitter (no I'm never calling it X) and have been constantly annoyed at the amount of artificial benchmarks people share. The latest one to draw my ire (and spawn this post) is a <i>bad</i> "benchmark" that's basically just 1 BILLION iterations of a for loop.</p>
 <p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">More languages, more insights!<br><br>A few interesting takeaways:<br><br><i> Java and Kotlin are quick! Possible explanation: Google is heavily invested in performance here.<br></i> Js is really fast as far as interpreted / jit languages go.<br>* Python is quite slow without things like PyPy. <a href="https://t.co/GIshus2UXO">pic.twitter.com/GIshus2UXO</a></p>— Ben Dicken (@BenjDicken) <a href="https://twitter.com/BenjDicken/status/1861072804239847914?ref_src=twsrc%5Etfw">November 25, 2024</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
 <p>Now I cannot talk to most of the languages shown, but I have significant experience in Go and have spent a not insignificant time optimizing Go code (in particular my squashfs library). The second I opened up the code for this "benchmark" I knew that whoever had written this code has never tried to write optimized Go code. First let's start with the results without any changes. For simplicity I'll only show the results of C and Go.</p>
-<p><pre><code>C = 1.29s
+<pre><code>C = 1.29s
 C = 1.29s
 C = 1.29s
 
 Go = 1.51s
 Go = 1.51s
 Go = 1.51s
-</code></pre></p>
+</code></pre>
 <p>This is fairly expected, as it's what's in line with the post and what is logical, Go's structure is fairly low level and similar to C, but it is garbage compiled meaning it <i>will</i> be slower in real world applications. Now let's look at the results of my optimized code:</p>
-<p><pre><code>C = 1.29s
+<pre><code>C = 1.29s
 C = 1.29s
 C = 1.29s
 
 Go = 1.29s
 Go = 1.30s
 Go = 1.29s
-</code></pre></p>
+</code></pre>
 <p>Suddenly, C's lead is gone! <i>What black magic is this???</i>. Well, if you actually look at the original code and you know Go, you'll probably notice it immediately: the "benchmark" is using <code>int</code>. That's right, my optimizations boiled down to making all <code>int</code> instances <code>int32</code>s. I'm honestly a bit surprised it basically ties C, but I suspect that, <i>since this isn't a real world benchmark</i>, the garbage collector never actually has to do anything, meaning Go's primary disadvantage is non-existent.</p>
-<p><h2>My gaps in knowledge</h2></p>
+<h2>My gaps in knowledge</h2>
 <p>Let me be clear, I am no expert, I do not actually know <i>why</i> <code>int32</code> is faster then <code>int</code>, I just know it is (I have theories, but that's all they are). Though I know many of the other languages, I haven't ever done any research on how to optimize them. It's possible all the other languages are perfectly optimized, but the fact such a simple optimization was overlooked invalidates the entire test in my mind.</p>
-<p><h2>The Point</h2></p>
+<h2>The Point</h2>
 <p>Let me be clear, benchmarks are important and useful, but the most useful benchmarks I've seen are between code of the same language as it removes a lot of the compiler magic and skill issues. Funnily enough, my benchmark between the code using <code>int</code> and <code>int32</code> <i>is</i> a useful benchmark. The problem arises when you try to benchmark between fundamentally different languages (or even frameworks), but do not give them <i>all</i> the same amount of time and attention. As an example, if I were to write the C code for this test we'd probably see Go with a lead, not because Go is faster, but because I know how to write optimized Go.</p>
 <p>The real world is messy, and between DB calls, API requests, and IO, the actual performance gains/failure of any particular language becomes a lot more complex and their performance will largely depend on your needs. The vast majority of the time spending time optimizing code would be far better then re-writing in a different language. The only time I'd actually recommend switching languages is when you've already optimized and are still running into performance constraints <b>or</b> if you want to learn. Let me be clear: <a href='https://x.com/BenjDicken'>Ben Dicken</a> <i>is</i> a better engineer then me, but that doesn't mean he can't make mistakes.</p>`
 )
@@ -261,25 +263,25 @@ func TestBBCode(t *testing.T) {
 	converted := conv.BBHTMLConvert(bbTestString)
 	if converted != bbTestResult {
 		fmt.Print("BB Conversion should be:\n\n")
-		fmt.Println(bbTestResult)
+		fmt.Printf("`%v`\n", bbTestResult)
 		fmt.Print("\nBut is:\n\n")
-		fmt.Println(converted)
+		fmt.Printf("`%v`\n", converted)
 		t.Fatal("BB Conversion failed")
 	}
 	converted = conv.MarkdownHTMLConvert(mdTestString)
 	if converted != mdTestResult {
 		fmt.Print("Markdown Conversion should be:\n\n")
-		fmt.Println(mdTestResult)
+		fmt.Printf("`%v`\n", mdTestResult)
 		fmt.Print("\nBut is:\n\n")
-		fmt.Println(converted)
+		fmt.Printf("`%v`\n", converted)
 		t.Fatal("Markdown Conversion failed")
 	}
 	converted = conv.HTMLConvert(testy)
 	if converted != testyResult {
 		fmt.Print("Markdown Conversion should be:\n\n")
-		fmt.Printf("%v\n", testyResult)
+		fmt.Printf("`%v`\n", testyResult)
 		fmt.Print("\nBut is:\n\n")
-		fmt.Println(converted)
+		fmt.Printf("`%v`\n", converted)
 		t.Fatal("Markdown Conversion failed")
 	}
 }

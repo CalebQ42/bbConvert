@@ -12,7 +12,8 @@ import (
 
 // The Magic RegEx string that matches bbCode tags.
 const (
-	codePlaceholder = `%CODEBLOCK%`
+	codeInner       = `%CODEBLOCK%`
+	codePlaceholder = `<code>%CODEBLOCK%</code>`
 )
 
 type BBTag struct {
@@ -61,7 +62,11 @@ func (b BBConverter) bbActualConv(in []rune, comboConv bool) string {
 			if err != nil || match == nil {
 				break
 			}
-			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+			if strings.Contains(match.GroupByNumber(1).String(), "\n") {
+				in = slices.Concat(in[:match.Index], []rune("</p><pre>"+codePlaceholder+"</pre><p>"), in[match.Index+match.Length:])
+			} else {
+				in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+			}
 			codeBlocks = append(codeBlocks, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n"))
 		}
 	}
@@ -75,16 +80,13 @@ func (b BBConverter) bbActualConv(in []rune, comboConv bool) string {
 	out := string(in)
 	if !comboConv {
 		out = "<p>" + strings.ReplaceAll(out, "\n", "</p>\n<p>") + "</p>"
+		out = strings.ReplaceAll(out, "<p></p>", "")
+		out = strings.ReplaceAll(out, "<p>\n</p>", "\n")
 		for i := range codeBlocks {
-			if strings.Contains(codeBlocks[i], "\n") {
-				out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
-			} else {
-				out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
-			}
+			out = strings.Replace(out, codeInner, codeBlocks[i], 1)
 		}
 	}
 	return out
-
 }
 
 func matchToHTML(match *regexp2.Match) string {
@@ -210,9 +212,9 @@ func matchToHTML(match *regexp2.Match) string {
 			style += "float:right;"
 		}
 		if style == "" {
-			return "<iframe src='" + middle + "' allowfullscreen></iframe>"
+			return "</p><iframe src='" + middle + "' allowfullscreen></iframe><p>"
 		}
-		return "<iframe src='" + middle + "' style='" + style + "' allowfullscreen></iframe>"
+		return "</p><iframe src='" + middle + "' style='" + style + "' allowfullscreen></iframe><p>"
 	case "img":
 		fallthrough
 	case "image":
@@ -274,7 +276,7 @@ func matchToHTML(match *regexp2.Match) string {
 	case "t5":
 		fallthrough
 	case "t6":
-		return "<h" + string(tag[1]) + ">" + middle + "</h" + string(tag[1]) + ">"
+		return "</p><h" + string(tag[1]) + ">" + middle + "</h" + string(tag[1]) + "><p>"
 	case "align":
 		if leading == "" && len(params) == 0 {
 			return middle
@@ -286,7 +288,7 @@ func matchToHTML(match *regexp2.Match) string {
 				break
 			}
 		}
-		return "<div style='text-align:" + align + ";'>" + middle + "</div>"
+		return "</p><div style='text-align:" + align + ";'><p>" + middle + "</p></div><p>"
 	case "float":
 		if leading == "" && len(params) == 0 {
 			return middle
@@ -298,7 +300,7 @@ func matchToHTML(match *regexp2.Match) string {
 				break
 			}
 		}
-		return "<div style='float:" + float + ";'>" + middle + "</div>"
+		return "</p><div style='float:" + float + ";'><p>" + middle + "</p></div><p>"
 	case "bullet":
 		tag = "ul"
 		fallthrough
@@ -308,7 +310,7 @@ func matchToHTML(match *regexp2.Match) string {
 	case "ol":
 		fallthrough
 	case "ul":
-		return "<" + tag + ">" + processListItems(middle) + "</" + tag + ">"
+		return "</p><" + tag + ">" + processListItems(middle) + "</" + tag + "><p>"
 	}
 	return middle
 }

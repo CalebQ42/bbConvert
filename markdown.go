@@ -60,7 +60,7 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 				break
 			}
 			codeBlocks = append(codeBlocks, strings.TrimPrefix(match.GroupByNumber(1).String(), "\n"))
-			in = slices.Concat(in[:match.Index], []rune(codePlaceholder), in[match.Index+match.Length:])
+			in = slices.Concat(in[:match.Index], []rune("</p><pre>"+codePlaceholder+"</pre><p>"), in[match.Index+match.Length:])
 		}
 		// Inline code
 		for {
@@ -100,10 +100,10 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 		var isOrdered []bool
 		var converted string
 		if allMatches[0].GroupByNumber(2).String() == "*" || allMatches[0].GroupByNumber(2).String() == "-" {
-			converted = "<ul>"
+			converted = "</p><ul>"
 			isOrdered = append(isOrdered, false)
 		} else {
-			converted = "<ol>"
+			converted = "</p><ol>"
 			isOrdered = append(isOrdered, true)
 		}
 		curHeight := calculateListLevel(allMatches[0].GroupByNumber(1).String())
@@ -154,7 +154,7 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 				converted += "</ul>"
 			}
 		}
-		in = slices.Concat(in[:allMatches[0].Index], []rune(converted), in[prevMatch.Index+prevMatch.Length:])
+		in = slices.Concat(in[:allMatches[0].Index], []rune(converted+"<p>"), in[prevMatch.Index+prevMatch.Length:])
 	}
 	// Block Quotes
 	for {
@@ -183,7 +183,7 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 		}
 		curHeight := len(allMatches[0].GroupByNumber(1).String())
 		curLvl := 1
-		converted := "<blockquote><p>"
+		converted := "</p><blockquote><p>"
 		for _, m := range allMatches {
 			if m.GroupByNumber(2).String() == "" {
 				converted += "</p><p>"
@@ -201,7 +201,7 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 			}
 			converted += m.GroupByNumber(2).String()
 		}
-		converted += strings.Repeat("</p></blockquote>", curLvl)
+		converted += strings.Repeat("</p></blockquote><p>", curLvl)
 		in = slices.Concat(in[:allMatches[0].Index], []rune(converted), in[prevMatch.Index+prevMatch.Length:])
 	}
 	// Bold and Italics (*** and ___)
@@ -269,19 +269,17 @@ func (m MarkdownConverter) mkActualConv(in []rune, comboConv bool) string {
 		}
 		in = slices.Concat(
 			in[:match.Index],
-			[]rune("<h"+strconv.Itoa(level)+">"),
+			[]rune("</p><h"+strconv.Itoa(level)+">"),
 			match.GroupByNumber(2).Runes(),
-			[]rune("</h"+strconv.Itoa(level)+">"),
+			[]rune("</h"+strconv.Itoa(level)+"><p>"),
 			in[match.Index+match.Length:])
 	}
 	out := "<p>" + strings.ReplaceAll(string(in), "\n\n", "</p>\n<p>") + "</p>"
+	out = strings.ReplaceAll(out, "<p></p>", "")
+	out = strings.ReplaceAll(out, "<p>\n</p>", "\n")
 	// Replace the code placeholders
 	for i := range codeBlocks {
-		if strings.Contains(codeBlocks[i], "\n") {
-			out = strings.Replace(out, codePlaceholder, "<pre><code>"+codeBlocks[i]+"</code></pre>", 1)
-		} else {
-			out = strings.Replace(out, codePlaceholder, "<code>"+codeBlocks[i]+"</code>", 1)
-		}
+		out = strings.Replace(out, codeInner, codeBlocks[i], 1)
 	}
 	return out
 }
